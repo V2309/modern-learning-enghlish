@@ -1,0 +1,124 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum PartOfSpeech {
+  Noun
+  Verb
+  Adjective
+  Adverb
+  Phrase
+  Other
+}
+
+enum CourseLevel {
+  Beginner
+  Intermediate
+  Advanced
+}
+
+model User {
+  uid       String   @id @db.VarChar(255)
+  name      String   @db.VarChar(255)
+  email     String   @unique @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp()
+
+  topics             Topic[]
+  vocabularies       Vocabulary[]
+  lessonProgresses   LessonProgress[]
+  vocabProgresses    VocabularyProgress[]
+
+  @@map("users")
+}
+
+model Topic {
+  id              String   @id @db.VarChar(255)
+  name            String   @db.VarChar(255)
+  description     String?  @db.Text
+  createdByUserId String?  @map("created_by_user") @db.VarChar(255)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  createdByUser    User?    @relation(fields: [createdByUserId], references: [uid], onDelete: SetNull)
+  vocabularies     Vocabulary[]
+
+  @@map("topics")
+}
+
+model Vocabulary {
+  id              String       @id @db.VarChar(255)
+  topicId         String       @map("topic_id") @db.VarChar(255)
+  word            String       @db.VarChar(255)
+  meaning         String       @db.Text
+  example         String?      @db.Text
+  category        String       @db.VarChar(255)
+  partOfSpeech    PartOfSpeech @map("part_of_speech")
+  pronunciation   String?      @db.VarChar(255)
+  imageUrl        String?      @map("image_url") @db.Text
+  createdByUserId String?      @map("created_by_user") @db.VarChar(255)
+  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamp()
+
+  topic            Topic        @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  createdByUser    User?        @relation(fields: [createdByUserId], references: [uid], onDelete: SetNull)
+  vocabProgresses  VocabularyProgress[]
+
+  @@map("vocabulary")
+}
+
+model Course {
+  id          String      @id @db.VarChar(255)
+  title       String      @db.VarChar(255)
+  description String      @db.Text
+  thumbnail   String      @db.Text
+  level       CourseLevel
+  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamp()
+
+  lessons     Lesson[]
+
+  @@map("courses")
+}
+
+model Lesson {
+  id          String   @id @db.VarChar(255)
+  courseId    String   @map("course_id") @db.VarChar(255)
+  title       String   @db.VarChar(255)
+  duration    String   @db.VarChar(20)
+  videoUrl    String   @map("video_url") @db.Text
+  description String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progresses  LessonProgress[]
+
+  @@map("lessons")
+}
+
+model LessonProgress {
+  id          String   @id @db.VarChar(255)
+  userId      String   @map("user_id") @db.VarChar(255)
+  lessonId    String   @map("lesson_id") @db.VarChar(255)
+  completedAt DateTime @default(now()) @map("completed_at") @db.Timestamp()
+
+  user        User     @relation(fields: [userId], references: [uid], onDelete: Cascade)
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId], name: "uniqueUserLessonProgress")
+  @@map("lesson_progress")
+}
+
+model VocabularyProgress {
+  id           String   @id @db.VarChar(255)
+  userId       String   @map("user_id") @db.VarChar(255)
+  vocabularyId String   @map("vocabulary_id") @db.VarChar(255)
+  masteredAt   DateTime @default(now()) @map("mastered_at") @db.Timestamp()
+
+  user         User       @relation(fields: [userId], references: [uid], onDelete: Cascade)
+  vocabulary   Vocabulary @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, vocabularyId], name: "uniqueUserVocabularyProgress")
+  @@map("vocabulary_progress")
+}
