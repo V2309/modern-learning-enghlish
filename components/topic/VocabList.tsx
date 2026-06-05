@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Volume2, Sparkles, HelpCircle, CheckCircle2 } from 'lucide-react';
+import { Volume2, Sparkles, HelpCircle, CheckCircle2, Pencil, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Vocabulary } from '@/data/mockData';
 
@@ -11,9 +11,11 @@ interface VocabListProps {
   speak: (text: string) => void;
   onOpenAddModal: () => void;
   onToggleMaster?: (wordId: string) => void;
+  onEdit?: (word: any) => void;
+  onDelete?: (word: any) => void;
 }
 
-export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster }: VocabListProps) => {
+export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit, onDelete }: VocabListProps) => {
   return (
     <motion.div
       key="list-mode"
@@ -77,7 +79,7 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster }: Voca
                       <Volume2 className="h-4 w-4" />
                     </button>
                     <span className="text-[10px] font-bold text-muted-foreground uppercase mr-2">UK</span>
-                     <button
+                    <button
                       onClick={() => speak(word.word)}
                       title="Giọng US"
                       className="p-2 rounded-xl bg-muted border border-border/40 hover:bg-primary hover:text-white transition-all text-muted-foreground"
@@ -89,16 +91,16 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster }: Voca
                     {onToggleMaster && (
                       <button
                         onClick={() => onToggleMaster(word.id)}
-                        title={word.mastered ? "Đã thuộc từ này" : "Đánh dấu đã thuộc"}
+                        title={word.mastered ? 'Đã thuộc từ này' : 'Đánh dấu đã thuộc'}
                         className={cn(
-                          "p-2 rounded-xl border transition-all flex items-center gap-1.5 cursor-pointer text-xs font-bold",
+                          'p-2 rounded-xl border transition-all flex items-center gap-1.5 cursor-pointer text-xs font-bold',
                           word.mastered
-                            ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/20"
-                            : "bg-muted border-border/40 hover:bg-muted-foreground/10 text-muted-foreground"
+                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/20'
+                            : 'bg-muted border-border/40 hover:bg-muted-foreground/10 text-muted-foreground'
                         )}
                       >
                         <CheckCircle2 className="h-4 w-4" />
-                        <span>{word.mastered ? "Đã thuộc" : "Chưa thuộc"}</span>
+                        <span>{word.mastered ? 'Đã thuộc' : 'Chưa thuộc'}</span>
                       </button>
                     )}
                   </div>
@@ -143,22 +145,49 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster }: Voca
                 </div>
               </div>
 
-              {/* Image asset */}
-              {word.imageUrl ? (
-                <div className="w-full md:w-48 aspect-[4/3] md:aspect-square rounded-2xl overflow-hidden border border-border shadow-sm flex-shrink-0 self-center md:self-start">
-                  <img
-                    src={word.imageUrl}
-                    alt={word.word}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    referrerPolicy="no-referrer"
-                  />
+              {/* Right side: Image + Actions */}
+              <div className="flex flex-col items-end gap-3 shrink-0 self-start md:self-start">
+                {/* Edit / Delete buttons */}
+                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {onEdit && (
+                    <button
+                      onClick={() => onEdit(word)}
+                      title="Sửa từ"
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-muted border border-border hover:bg-primary/10 hover:border-primary/30 text-muted-foreground hover:text-primary transition-all text-xs font-bold"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                      Sửa
+                    </button>
+                  )}
+                  {onDelete && (
+                    <button
+                      onClick={() => onDelete(word)}
+                      title="Xoá từ"
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-muted border border-border hover:bg-red-500/10 hover:border-red-500/30 text-muted-foreground hover:text-red-500 transition-all text-xs font-bold"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Xoá
+                    </button>
+                  )}
                 </div>
-              ) : (
-                <div className="w-full md:w-48 aspect-[4/3] md:aspect-square rounded-2xl bg-muted/25 border border-dashed border-border flex flex-col items-center justify-center text-muted-foreground p-4 flex-shrink-0 self-center md:self-start">
-                  <Sparkles className="h-8 w-8 text-primary mb-2 opacity-50" />
-                  <span className="italic text-xs text-center font-medium">Bản minh hoạ sẵn sàng</span>
-                </div>
-              )}
+
+                {/* Image asset */}
+                {word.imageUrl ? (
+                  <div className="w-full md:w-48 aspect-[4/3] md:aspect-square rounded-2xl overflow-hidden border border-border shadow-sm">
+                    <img
+                      src={word.imageUrl}
+                      alt={word.word}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-full md:w-48 aspect-[4/3] md:aspect-square rounded-2xl bg-muted/25 border border-dashed border-border flex flex-col items-center justify-center text-muted-foreground p-4">
+                    <Sparkles className="h-8 w-8 text-primary mb-2 opacity-50" />
+                    <span className="italic text-xs text-center font-medium">Bản minh hoạ sẵn sàng</span>
+                  </div>
+                )}
+              </div>
             </motion.div>
           ))
         )}

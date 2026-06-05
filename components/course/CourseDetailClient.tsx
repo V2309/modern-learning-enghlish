@@ -5,9 +5,14 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, PlayCircle, BookOpen, Menu, X } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { cn } from '@/lib/utils';
 import { CurriculumPanel } from '@/components/course/CurriculumPanel';
+import { EditLessonModal } from '@/components/course/EditLessonModal';
+import { AddLessonModal, parseYouTubeUrl } from '@/components/course/AddLessonModal';
 import { completeLessonAction } from '@/actions/progress.action';
+import { createLessonAction, updateLessonAction, deleteLessonAction } from '@/actions/lesson.action';
+import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 
 interface CourseDetailClientProps {
   course: any;
@@ -20,6 +25,24 @@ export default function CourseDetailClient({ course, userId, initialCompletedLes
   const [activeLesson, setActiveLesson] = useState<any | null>(course?.lessons?.[0] || null);
   const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+
+  // ── Local lesson list (for optimistic updates) ──
+  const [lessons, setLessons] = useState<any[]>(course?.lessons || []);
+
+  // ── Edit Lesson ──
+  const [showEditLessonModal, setShowEditLessonModal] = useState(false);
+  const [editingLesson, setEditingLesson] = useState<any | null>(null);
+  const [editLessonForm, setEditLessonForm] = useState({ title: '', duration: '', videoUrl: '', description: '' });
+  const [isSavingLesson, setIsSavingLesson] = useState(false);
+
+  // ── Delete Lesson ──
+  const [showDeleteLessonModal, setShowDeleteLessonModal] = useState(false);
+  const [deletingLesson, setDeletingLesson] = useState<any | null>(null);
+  const [isDeletingLesson, setIsDeletingLesson] = useState(false);
+
+  // ── Add Lesson ──
+  const [showAddLessonModal, setShowAddLessonModal] = useState(false);
+  const [isAddingLesson, setIsAddingLesson] = useState(false);
 
   const handleToggleComplete = async (lessonId: string, event: React.MouseEvent) => {
     event.stopPropagation();
@@ -44,10 +67,90 @@ export default function CourseDetailClient({ course, userId, initialCompletedLes
     }
   };
 
-  const formattedLessons = course.lessons?.map((l: any) => ({
+  // ── Edit lesson handlers ──
+  const openEditLesson = (lesson: any) => {
+    setEditingLesson(lesson);
+    setEditLessonForm({
+      title: lesson.title,
+      duration: lesson.duration,
+      videoUrl: lesson.videoUrl,
+      description: lesson.description || '',
+    });
+    setShowEditLessonModal(true);
+  };
+
+  const handleEditLesson = async () => {
+    if (!editingLesson) return;
+    setIsSavingLesson(true);
+    const res = await updateLessonAction(editingLesson.id, course.id, {
+      title: editLessonForm.title,
+      duration: editLessonForm.duration,
+      videoUrl: editLessonForm.videoUrl,
+      description: editLessonForm.description,
+    });
+    setIsSavingLesson(false);
+
+    if (res.success && res.lesson) {
+      setLessons((prev) =>
+        prev.map((l) => (l.id === editingLesson.id ? { ...l, ...res.lesson } : l))
+      );
+      if (activeLesson?.id === editingLesson.id) {
+        setActiveLesson((prev: any) => ({ ...prev, ...res.lesson }));
+      }
+      setShowEditLessonModal(false);
+      setEditingLesson(null);
+    } else {
+      alert('Không thể cập nhật bài học: ' + (res.error || 'Có lỗi xảy ra'));
+    }
+  };
+
+  const openDeleteLesson = (lesson: any) => {
+    setDeletingLesson(lesson);
+    setShowDeleteLessonModal(true);
+  };
+
+  const handleDeleteLesson = async () => {
+    if (!deletingLesson) return;
+    setIsDeletingLesson(true);
+    const res = await deleteLessonAction(deletingLesson.id, course.id);
+    setIsDeletingLesson(false);
+
+    if (res.success) {
+      const updated = lessons.filter((l) => l.id !== deletingLesson.id);
+      setLessons(updated);
+      if (activeLesson?.id === deletingLesson.id) {
+        setActiveLesson(updated[0] || null);
+      }
+      setShowDeleteLessonModal(false);
+      setDeletingLesson(null);
+    } else {
+      alert('Không thể xoá bài học: ' + (res.error || 'Có lỗi xảy ra'));
+    }
+  };
+
+  const handleAddLesson = async (form: { title: string; duration: string; videoUrl: string; description: string }) => {
+    setIsAddingLesson(true);
+    const res = await createLessonAction({
+      courseId: course.id,
+      title: form.title,
+      duration: form.duration || '00:00',
+      videoUrl: form.videoUrl,
+      description: form.description,
+    });
+    setIsAddingLesson(false);
+
+    if (res.success && res.lesson) {
+      setLessons((prev) => [...prev, res.lesson]);
+      setShowAddLessonModal(false);
+    } else {
+      alert('Không thể thêm bài học: ' + (res.error || 'Có lỗi xảy ra'));
+    }
+  };
+
+  const formattedLessons = lessons.map((l: any) => ({
     ...l,
     completed: completedIds.includes(l.id)
-  })) || [];
+  }));
 
   const formattedCourse = {
     ...course,
@@ -90,7 +193,27 @@ export default function CourseDetailClient({ course, userId, initialCompletedLes
         <div className={cn('transition-all duration-300 space-y-8', isDesktopSidebarOpen ? 'lg:col-span-8' : 'lg:col-span-12')}>
           <div className="aspect-video rounded-[2.5rem] bg-card border border-border overflow-hidden shadow-2xl">
             {activeLesson ? (
-              <video src={activeLesson.videoUrl} controls className="w-full h-full object-cover" poster={course.thumbnail} />
+              (() => {
+                const yt = parseYouTubeUrl(activeLesson.videoUrl);
+                return yt ? (
+                  <iframe
+                    key={yt.embedUrl}
+                    src={yt.embedUrl}
+                    title={activeLesson.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                  />
+                ) : (
+                  <video
+                    key={activeLesson.videoUrl}
+                    src={activeLesson.videoUrl}
+                    controls
+                    className="w-full h-full object-cover"
+                    poster={course.thumbnail}
+                  />
+                );
+              })()
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
                 <PlayCircle className="h-20 w-20 text-muted" />
@@ -106,8 +229,36 @@ export default function CourseDetailClient({ course, userId, initialCompletedLes
               </h1>
               {activeLesson?.description && (
                 <div className="mt-6 p-6 rounded-2xl bg-muted/40 border border-border/50">
-                  <h4 className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Lesson Description</h4>
-                  <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line">{activeLesson.description}</p>
+                  <h4 className="text-xs font-bold text-primary uppercase tracking-widest mb-3">Lesson Description</h4>
+                  <div className="prose-sm text-muted-foreground leading-relaxed">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        h1: ({ children }) => <h1 className="text-lg font-extrabold text-foreground mt-3 mb-1.5 pb-1 border-b border-border">{children}</h1>,
+                        h2: ({ children }) => <h2 className="text-base font-bold text-foreground mt-2 mb-1">{children}</h2>,
+                        h3: ({ children }) => <h3 className="text-sm font-bold text-primary mt-1.5 mb-1">{children}</h3>,
+                        p: ({ children }) => <p className="text-sm text-foreground/80 leading-relaxed mb-2">{children}</p>,
+                        ul: ({ children }) => <ul className="list-disc pl-5 text-sm text-foreground/80 space-y-1 mb-2">{children}</ul>,
+                        ol: ({ children }) => <ol className="list-decimal pl-5 text-sm text-foreground/80 space-y-1 mb-2">{children}</ol>,
+                        li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+                        blockquote: ({ children }) => <blockquote className="border-l-4 border-primary/50 pl-3 py-1 bg-primary/5 rounded-r-lg text-sm italic text-muted-foreground mb-2">{children}</blockquote>,
+                        code: ({ children, className: cls }) => {
+                          const isBlock = cls?.includes('language-');
+                          return isBlock
+                            ? <code className="block bg-muted border border-border rounded-xl px-4 py-3 text-xs font-mono text-foreground mb-2 overflow-x-auto">{children}</code>
+                            : <code className="bg-muted border border-border/50 px-1.5 py-0.5 rounded-md text-xs font-mono text-primary">{children}</code>;
+                        },
+                        table: ({ children }) => <div className="overflow-x-auto mb-3 rounded-xl border border-border"><table className="min-w-full text-sm">{children}</table></div>,
+                        thead: ({ children }) => <thead className="bg-muted/60">{children}</thead>,
+                        th: ({ children }) => <th className="px-3 py-2 text-left font-bold text-foreground text-xs uppercase tracking-widest border-b border-border">{children}</th>,
+                        td: ({ children }) => <td className="px-3 py-2 text-foreground/80 border-b border-border/40 text-sm">{children}</td>,
+                        strong: ({ children }) => <strong className="font-bold text-foreground">{children}</strong>,
+                        hr: () => <hr className="border-border my-3" />,
+                      }}
+                    >
+                      {activeLesson.description}
+                    </ReactMarkdown>
+                  </div>
                 </div>
               )}
             </div>
@@ -129,6 +280,9 @@ export default function CourseDetailClient({ course, userId, initialCompletedLes
               progressPercent={progressPercent}
               onSelectLesson={(lesson) => { setActiveLesson(lesson); setIsMobileDrawerOpen(false); }}
               onToggleComplete={handleToggleComplete}
+              onEditLesson={openEditLesson}
+              onDeleteLesson={openDeleteLesson}
+              onAddLesson={() => setShowAddLessonModal(true)}
             />
           </div>
         )}
@@ -172,12 +326,42 @@ export default function CourseDetailClient({ course, userId, initialCompletedLes
                   progressPercent={progressPercent}
                   onSelectLesson={(lesson) => { setActiveLesson(lesson); setIsMobileDrawerOpen(false); }}
                   onToggleComplete={handleToggleComplete}
+                  onEditLesson={openEditLesson}
+                  onDeleteLesson={openDeleteLesson}
+                  onAddLesson={() => { setIsMobileDrawerOpen(false); setShowAddLessonModal(true); }}
                 />
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
+      {/* Add Lesson Modal */}
+      <AddLessonModal
+        show={showAddLessonModal}
+        isSaving={isAddingLesson}
+        onClose={() => setShowAddLessonModal(false)}
+        onSave={handleAddLesson}
+      />
+
+      {/* Edit Lesson Modal */}
+      <EditLessonModal
+        show={showEditLessonModal}
+        form={editLessonForm}
+        isSaving={isSavingLesson}
+        onClose={() => { setShowEditLessonModal(false); setEditingLesson(null); }}
+        onSave={handleEditLesson}
+        onChange={(field, value) => setEditLessonForm((prev) => ({ ...prev, [field]: value }))}
+      />
+
+      {/* Delete Lesson Confirm Modal */}
+      <ConfirmDeleteModal
+        show={showDeleteLessonModal}
+        title={`Xoá bài học "${deletingLesson?.title}"?`}
+        description="Bài học này sẽ bị xoá vĩnh viễn. Hành động này không thể hoàn tác."
+        isLoading={isDeletingLesson}
+        onConfirm={handleDeleteLesson}
+        onCancel={() => { setShowDeleteLessonModal(false); setDeletingLesson(null); }}
+      />
     </div>
   );
 }
