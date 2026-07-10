@@ -8,16 +8,18 @@ import { Vocabulary } from '@/data/mockData';
 export const Flashcard = ({
   word,
   speak,
+  isFlipped,
+  onFlip,
 }: {
   word: Vocabulary;
   speak: (t: string) => void;
+  isFlipped: boolean;
+  onFlip: () => void;
 }) => {
-  const [isFlipped, setIsFlipped] = React.useState(false);
-
   return (
     <div
       className="relative w-full h-[380px] cursor-pointer group"
-      onClick={() => setIsFlipped(!isFlipped)}
+      onClick={onFlip}
     >
       <AnimatePresence mode="wait">
         {!isFlipped ? (
