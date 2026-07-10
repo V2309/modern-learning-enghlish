@@ -111,8 +111,13 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
                   <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
                     Định nghĩa:
                   </div>
-                  <div className="text-base font-semibold text-foreground bg-muted/20 border border-border/30 rounded-2xl p-4">
+                  <div className="text-base font-semibold text-foreground bg-muted/20 border border-border/30 rounded-2xl p-4 space-y-1">
                     <p>{word.meaning}</p>
+                    {(word as any).definition && (
+                      <p className="text-sm text-muted-foreground font-normal italic">
+                        = {(word as any).definition}
+                      </p>
+                    )}
                   </div>
                 </div>
 

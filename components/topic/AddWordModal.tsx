@@ -8,6 +8,7 @@ import { Vocabulary } from '@/data/mockData';
 interface NewWordState {
   word: string;
   meaning: string;
+  definition: string;
   example: string;
   partOfSpeech: Vocabulary['partOfSpeech'];
 }
@@ -111,6 +112,19 @@ export const AddWordModal = ({
                     <option value="Phrase">Phrase</option>
                   </select>
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-muted-foreground uppercase tracking-widest pl-1">
+                  Definition (EN)
+                </label>
+                <input
+                  type="text"
+                  value={newWord.definition}
+                  onChange={(e) => onWordChange('definition', e.target.value)}
+                  className="w-full bg-muted border border-border rounded-2xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all"
+                  placeholder="e.g. the ability to recover quickly from difficulties"
+                />
               </div>
 
               {/* Examples */}

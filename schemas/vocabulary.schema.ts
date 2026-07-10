@@ -13,6 +13,7 @@ export const vocabularySchema = z.object({
   topicId: z.string().min(1, "Topic is required"),
   word: z.string().min(1, "Word is required").max(255),
   meaning: z.string().min(1, "Meaning is required"),
+  definition: z.string().optional(),
   example: z.string().optional(),
   category: z.string().min(1, "Category is required").max(255),
   partOfSpeech: partOfSpeechEnum,

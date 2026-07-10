@@ -54,6 +54,7 @@ model Vocabulary {
   topicId         String       @map("topic_id") @db.VarChar(255)
   word            String       @db.VarChar(255)
   meaning         String       @db.Text
+  definition      String?      @db.Text
   example         String?      @db.Text
   category        String       @db.VarChar(255)
   partOfSpeech    PartOfSpeech @map("part_of_speech")

@@ -9,6 +9,7 @@ export async function createVocabularyAction(data: {
   topicId: string;
   word: string;
   meaning: string;
+  definition?: string;
   example?: string;
   examples?: string[];
   category: string;
@@ -41,6 +42,7 @@ export async function updateVocabularyAction(vocabularyId: string, topicId: stri
   topicId?: string;
   word?: string;
   meaning?: string;
+  definition?: string;
   example?: string;
   examples?: string[];
   category?: string;

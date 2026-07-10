@@ -58,6 +58,9 @@ export const Flashcard = ({
             <div className="text-center space-y-2">
               <h2 className="text-2xl font-bold text-primary mb-1">Meaning</h2>
               <p className="text-3xl font-medium text-slate-900">{word.meaning}</p>
+              {(word as any).definition && (
+                <p className="text-base italic text-slate-500">= {(word as any).definition}</p>
+              )}
             </div>
             <div className="flex flex-col items-center gap-3">
               <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700">

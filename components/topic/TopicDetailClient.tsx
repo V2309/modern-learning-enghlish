@@ -40,7 +40,7 @@ export default function TopicDetailClient({ topic, userId, initialWords, initial
 
   // ── Add Word ──
   const [showAddWordModal, setShowAddWordModal] = useState(false);
-  const [newWord, setNewWord] = useState({ word: '', meaning: '', example: '', partOfSpeech: 'Noun' as PartOfSpeech });
+  const [newWord, setNewWord] = useState({ word: '', meaning: '', definition: '', example: '', partOfSpeech: 'Noun' as PartOfSpeech });
   const [newWordExamples, setNewWordExamples] = useState<string[]>(['']);
 
   // ── Edit Word ──
@@ -176,6 +176,7 @@ export default function TopicDetailClient({ topic, userId, initialWords, initial
       topicId: topic.id,
       word: newWord.word,
       meaning: newWord.meaning,
+      definition: newWord.definition || undefined,
       example: filteredExamples[0] || '',
       examples: filteredExamples,
       category: topic.name,
@@ -186,7 +187,7 @@ export default function TopicDetailClient({ topic, userId, initialWords, initial
     if (res.success && res.vocabulary) {
       setWords((prev) => [...prev, res.vocabulary]);
       setShowAddWordModal(false);
-      setNewWord({ word: '', meaning: '', example: '', partOfSpeech: 'Noun' });
+      setNewWord({ word: '', meaning: '', definition: '', example: '', partOfSpeech: 'Noun' });
       setNewWordExamples(['']);
     } else {
       alert('Không thể lưu từ vựng: ' + (res.error || 'Có lỗi xảy ra'));

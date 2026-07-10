@@ -51,6 +51,7 @@ export async function createVocabulary(data: {
   topicId: string;
   word: string;
   meaning: string;
+  definition?: string;
   example?: string;
   examples?: string[];
   category: string;
@@ -70,6 +71,7 @@ export async function createVocabulary(data: {
       topicId: data.topicId,
       word: data.word,
       meaning: data.meaning,
+      definition: data.definition,
       example: exampleString,
       category: data.category,
       partOfSpeech: data.partOfSpeech,
@@ -85,6 +87,7 @@ export async function updateVocabulary(vocabularyId: string, data: {
   topicId?: string;
   word?: string;
   meaning?: string;
+  definition?: string;
   example?: string;
   examples?: string[];
   category?: string;
