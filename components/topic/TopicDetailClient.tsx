@@ -97,6 +97,12 @@ export default function TopicDetailClient({ topic, userId, initialWords, initial
     window.speechSynthesis.speak(u);
   };
 
+  const playCorrectSound = () => {
+    const audio = new Audio('/Correct_Sound_Effect.mp3');
+    audio.volume = 0.8;
+    void audio.play().catch(() => {});
+  };
+
   const initQuizGame = () => {
     if (words.length === 0) return;
     const questions = words.map((w) => {
@@ -359,7 +365,10 @@ export default function TopicDetailClient({ topic, userId, initialWords, initial
                 onCheckAnswer={() => {
                   if (!selectedQuizAnswer) return;
                   setIsQuizAnswered(true);
-                  if (selectedQuizAnswer === quizQuestions[currentQuizIndex].correct) setQuizScore((p) => p + 1);
+                  if (selectedQuizAnswer === quizQuestions[currentQuizIndex].correct) {
+                    setQuizScore((p) => p + 1);
+                    playCorrectSound();
+                  }
                 }}
                 onNext={() => {
                   if (currentQuizIndex + 1 < quizQuestions.length) {
