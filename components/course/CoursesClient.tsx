@@ -11,10 +11,10 @@ import { createCourseAction, updateCourseAction, deleteCourseAction } from '@/ac
 import { CourseLevel } from '@prisma/client';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import Pagination from '@/components/Pagination';
+import { useCoursesUiStore, type CourseSortKey } from '@/stores/useCoursesUiStore';
+import { defaultCourseDraft, defaultLessonDraft, useCoursesPageStore } from '@/stores/useCoursesPageStore';
 
 const PAGE_SIZE = 6;
-
-const DEFAULT_LESSON = { title: '', duration: '10:00', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', description: '' };
 
 interface CoursesClientProps {
   initialCourses: any[];
@@ -22,31 +22,42 @@ interface CoursesClientProps {
 
 export default function CoursesClient({ initialCourses }: CoursesClientProps) {
   const [courses, setCourses] = useState<any[]>(initialCourses);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-
-  // Add
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [newCourse, setNewCourse] = useState({ title: '', description: '', thumbnail: 'https://picsum.photos/seed/new/800/450', level: 'Beginner' as 'Beginner' | 'Intermediate' | 'Advanced' });
-  const [newLessons, setNewLessons] = useState([{ ...DEFAULT_LESSON }]);
-
-  // Edit
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editingCourse, setEditingCourse] = useState<any | null>(null);
-  const [editForm, setEditForm] = useState({ title: '', description: '', thumbnail: '', level: 'Beginner' as 'Beginner' | 'Intermediate' | 'Advanced' });
-  const [isSaving, setIsSaving] = useState(false);
-
-  // Delete
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deletingCourse, setDeletingCourse] = useState<any | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  // Dropdown (card menus)
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const searchQuery = useCoursesUiStore((state) => state.searchQuery);
+  const currentPage = useCoursesUiStore((state) => state.currentPage);
+  const sortKey = useCoursesUiStore((state) => state.sortKey);
+  const setSearchQuery = useCoursesUiStore((state) => state.setSearchQuery);
+  const setCurrentPage = useCoursesUiStore((state) => state.setCurrentPage);
+  const setSortKey = useCoursesUiStore((state) => state.setSortKey);
+  const {
+    showAddModal,
+    newCourse,
+    newLessons,
+    showEditModal,
+    editingCourse,
+    editForm,
+    isSaving,
+    showDeleteModal,
+    deletingCourse,
+    isDeleting,
+    openMenuId,
+    showSortMenu,
+    setShowAddModal,
+    setNewCourse,
+    setNewLessons,
+    setShowEditModal,
+    setEditingCourse,
+    setEditForm,
+    setIsSaving,
+    setShowDeleteModal,
+    setDeletingCourse,
+    setIsDeleting,
+    setOpenMenuId,
+    setShowSortMenu,
+    reset: resetCoursePageState,
+  } = useCoursesPageStore();
 
   // Sort
-  type SortKey = 'newest' | 'oldest' | 'az' | 'za' | 'level' | 'lessons';
-  const SORT_OPTIONS: { key: SortKey; label: string }[] = [
+  const SORT_OPTIONS: { key: CourseSortKey; label: string }[] = [
     { key: 'newest', label: 'Mới nhất' },
     { key: 'oldest', label: 'Cũ nhất' },
     { key: 'az', label: 'Tên A → Z' },
@@ -54,8 +65,6 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
     { key: 'level', label: 'Cấp độ (Beginner → Advanced)' },
     { key: 'lessons', label: 'Nhiều bài học nhất' },
   ];
-  const [sortKey, setSortKey] = useState<SortKey>('newest');
-  const [showSortMenu, setShowSortMenu] = useState(false);
   const sortMenuRef = useRef<HTMLDivElement>(null);
 
   const menuRef = useRef<HTMLDivElement>(null);
@@ -73,6 +82,10 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
+  useEffect(() => () => {
+    resetCoursePageState();
+  }, [resetCoursePageState]);
+
   // ── Handlers ──────────────────────────────────
   const handleSaveCourse = async () => {
     if (!newCourse.title.trim()) return;
@@ -81,7 +94,7 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
       .map((l) => ({
         title: l.title,
         duration: l.duration || '10:00',
-        videoUrl: l.videoUrl || DEFAULT_LESSON.videoUrl,
+        videoUrl: l.videoUrl || defaultLessonDraft.videoUrl,
         description: l.description || '',
       }));
 
@@ -96,8 +109,8 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
     if (res.success && res.course) {
       setCourses((prev) => [res.course, ...prev]);
       setShowAddModal(false);
-      setNewCourse({ title: '', description: '', thumbnail: 'https://picsum.photos/seed/new/800/450', level: 'Beginner' });
-      setNewLessons([{ ...DEFAULT_LESSON }]);
+      setNewCourse(defaultCourseDraft);
+      setNewLessons([{ ...defaultLessonDraft }]);
     } else {
       alert('Không thể lưu khoá học: ' + (res.error || 'Có lỗi xảy ra'));
     }
@@ -179,6 +192,12 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
     });
 
   const totalPages = Math.ceil(filteredCourses.length / PAGE_SIZE);
+  useEffect(() => {
+    if (totalPages > 0 && currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, setCurrentPage, totalPages]);
+
   const paginatedCourses = filteredCourses.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE
@@ -263,7 +282,7 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
 
       {/* Grid */}
       {filteredCourses.length === 0 ? (
-        <div className="text-center py-20 bg-card border border-border rounded-[2rem] text-muted-foreground">
+        <div className="text-center py-20 bg-card border border-border rounded-4xl text-muted-foreground">
           Chưa có khoá học nào được tìm thấy.
         </div>
       ) : (
@@ -278,7 +297,7 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
             >
               <Link
                 href={`/courses/${course.id}`}
-                className="flex flex-col sm:flex-row bg-card border border-border rounded-[2rem] overflow-hidden hover:border-primary/50 transition-all hover:bg-muted/50 shadow-sm"
+                className="flex flex-col sm:flex-row bg-card border border-border rounded-4xl overflow-hidden hover:border-primary/50 transition-all hover:bg-muted/50 shadow-sm"
               >
                 {/* Thumbnail Section */}
                 <div className="relative w-full sm:w-72 md:w-80 aspect-video sm:aspect-auto shrink-0 overflow-hidden">
@@ -287,7 +306,7 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
                     alt={course.title}
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-slate-950/40 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-linear-to-t sm:bg-linear-to-r from-slate-950/40 via-transparent to-transparent" />
                   
                   {/* Play icon overlay on hover */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
@@ -298,7 +317,7 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
                 </div>
 
                 {/* Content Section */}
-                <div className="p-6 md:p-8 flex flex-col justify-between flex-grow">
+                <div className="p-6 md:p-8 flex flex-col justify-between grow">
                   <div>
                     {/* Level Badge */}
                     <div className="mb-3">
@@ -387,10 +406,14 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
         newLessons={newLessons}
         onClose={() => setShowAddModal(false)}
         onSave={handleSaveCourse}
-        onCourseChange={(field, value) => setNewCourse((prev) => ({ ...prev, [field]: value }))}
-        onAddLesson={() => setNewLessons((prev) => [...prev, { ...DEFAULT_LESSON }])}
-        onRemoveLesson={(idx) => setNewLessons((prev) => prev.length > 1 ? prev.filter((_, i) => i !== idx) : [{ ...DEFAULT_LESSON }])}
-        onUpdateLesson={(idx, field, value) => setNewLessons((prev) => { const u = [...prev]; u[idx] = { ...u[idx], [field]: value }; return u; })}
+        onCourseChange={(field, value) => setNewCourse({ ...newCourse, [field]: value })}
+        onAddLesson={() => setNewLessons([...newLessons, { ...defaultLessonDraft }])}
+        onRemoveLesson={(idx) => setNewLessons(newLessons.length > 1 ? newLessons.filter((_, i) => i !== idx) : [{ ...defaultLessonDraft }])}
+        onUpdateLesson={(idx, field, value) => {
+          const updated = [...newLessons];
+          updated[idx] = { ...updated[idx], [field]: value };
+          setNewLessons(updated);
+        }}
       />
 
       {/* Edit Course Modal */}
@@ -400,7 +423,7 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
         isSaving={isSaving}
         onClose={() => { setShowEditModal(false); setEditingCourse(null); }}
         onSave={handleEditCourse}
-        onChange={(field, value) => setEditForm((prev) => ({ ...prev, [field]: value }))}
+        onChange={(field, value) => setEditForm({ ...editForm, [field]: value })}
       />
 
       {/* Delete Confirm Modal */}

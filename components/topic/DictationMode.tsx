@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Volume2, ChevronRight, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -37,6 +37,12 @@ export const DictationMode = ({
   onBackToList,
   speak,
 }: DictationModeProps) => {
+  const [showMeaning, setShowMeaning] = useState(false);
+
+  useEffect(() => {
+    setShowMeaning(false);
+  }, [dictationIndex, dictationQuestions]);
+
   return (
     <motion.div
       key="dictation-mode"
@@ -68,6 +74,18 @@ export const DictationMode = ({
               >
                 <Volume2 className="h-10 w-10" />
               </button>
+              <button
+                type="button"
+                onClick={() => setShowMeaning((prev) => !prev)}
+                className="text-xs font-bold text-primary hover:underline"
+              >
+                {showMeaning ? 'Ẩn nghĩa' : 'Hiện nghĩa'}
+              </button>
+              {showMeaning && (
+                <div className="text-center text-sm font-semibold text-foreground bg-background/80 border border-border rounded-xl px-4 py-3">
+                  {dictationQuestions[dictationIndex].meaning}
+                </div>
+              )}
               <span className="text-xs text-muted-foreground font-bold uppercase tracking-wider">
                 Đang nghe phát âm (Bản xứ)
               </span>

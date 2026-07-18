@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Plus } from 'lucide-react';
 
@@ -19,6 +19,8 @@ import { createVocabularyAction, updateVocabularyAction, deleteVocabularyAction 
 import { masterVocabularyAction } from '@/actions/progress.action';
 import { PartOfSpeech } from '@prisma/client';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
+import { useTopicDetailStore } from '@/stores/useTopicDetailStore';
+import { trim } from 'zod';
 
 interface TopicDetailClientProps {
   topic: any;
@@ -29,66 +31,109 @@ interface TopicDetailClientProps {
 
 export default function TopicDetailClient({ topic, userId, initialWords, initialMasteredWordIds }: TopicDetailClientProps) {
   // ── Data ──
-  const [words, setWords] = useState<any[]>(initialWords);
-  const [masteredIds, setMasteredIds] = useState<string[]>(initialMasteredWordIds);
+  const {
+    words,
+    masteredIds,
+    activeMode,
+    flashcardIndex,
+    isDesktopSidebarOpen,
+    isMobileSidebarOpen,
+    showAddWordModal,
+    newWord,
+    newWordExamples,
+    showEditWordModal,
+    editingWord,
+    editWordForm,
+    editWordExamples,
+    isSavingWord,
+    showDeleteWordModal,
+    deletingWord,
+    isDeletingWord,
+    quizQuestions,
+    currentQuizIndex,
+    selectedQuizAnswer,
+    isQuizAnswered,
+    quizScore,
+    isQuizFinished,
+    matchingCards,
+    selectedMatch,
+    matchSeconds,
+    isMatchFinished,
+    dictationQuestions,
+    dictationIndex,
+    typedWord,
+    isDictationChecked,
+    isDictationCorrect,
+    dictationScore,
+    isDictationFinished,
+    translateQuestions,
+    translateIndex,
+    translateInput,
+    isTranslateChecked,
+    isTranslateCorrect,
+    translateScore,
+    isTranslateFinished,
+    setActiveMode,
+    setFlashcardIndex,
+    setIsDesktopSidebarOpen,
+    setIsMobileSidebarOpen,
+    setShowAddWordModal,
+    setNewWord,
+    setNewWordExamples,
+    setShowEditWordModal,
+    setEditingWord,
+    setEditWordForm,
+    setEditWordExamples,
+    setIsSavingWord,
+    setShowDeleteWordModal,
+    setDeletingWord,
+    setIsDeletingWord,
+    setWords,
+    setMasteredIds,
+    setQuizQuestions,
+    setCurrentQuizIndex,
+    setSelectedQuizAnswer,
+    setIsQuizAnswered,
+    setQuizScore,
+    setIsQuizFinished,
+    setMatchingCards,
+    setSelectedMatch,
+    setMatchSeconds,
+    setIsMatchFinished,
+    setDictationQuestions,
+    setDictationIndex,
+    setTypedWord,
+    setIsDictationChecked,
+    setIsDictationCorrect,
+    setDictationScore,
+    setIsDictationFinished,
+    setTranslateQuestions,
+    setTranslateIndex,
+    setTranslateInput,
+    setIsTranslateChecked,
+    setIsTranslateCorrect,
+    setTranslateScore,
+    setIsTranslateFinished,
+    resetTopicUiState,
+  } = useTopicDetailStore();
 
-  // ── UI ──
-  const [activeMode, setActiveMode] = useState<StudyMode>('list');
-  const [flashcardIndex, setFlashcardIndex] = useState(0);
-  const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  // Ref để track interval ID — dùng ref thay vì state để tránh trigger cleanup effect
+  const matchIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // ── Add Word ──
-  const [showAddWordModal, setShowAddWordModal] = useState(false);
-  const [newWord, setNewWord] = useState({ word: '', meaning: '', definition: '', example: '', partOfSpeech: 'Noun' as PartOfSpeech });
-  const [newWordExamples, setNewWordExamples] = useState<string[]>(['']);
+  useEffect(() => {
+    resetTopicUiState();
+    useTopicDetailStore.getState().setWords(initialWords);
+    useTopicDetailStore.getState().setMasteredIds(initialMasteredWordIds);
+  }, [initialMasteredWordIds, initialWords, resetTopicUiState]);
 
-  // ── Edit Word ──
-  const [showEditWordModal, setShowEditWordModal] = useState(false);
-  const [editingWord, setEditingWord] = useState<any | null>(null);
-  const [editWordForm, setEditWordForm] = useState({ word: '', meaning: '', example: '', partOfSpeech: 'Noun' as PartOfSpeech });
-  const [editWordExamples, setEditWordExamples] = useState<string[]>(['']);
-  const [isSavingWord, setIsSavingWord] = useState(false);
-
-  // ── Delete Word ──
-  const [showDeleteWordModal, setShowDeleteWordModal] = useState(false);
-  const [deletingWord, setDeletingWord] = useState<any | null>(null);
-  const [isDeletingWord, setIsDeletingWord] = useState(false);
-
-  // ── Quiz ──
-  const [quizQuestions, setQuizQuestions] = useState<any[]>([]);
-  const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
-  const [selectedQuizAnswer, setSelectedQuizAnswer] = useState<string | null>(null);
-  const [isQuizAnswered, setIsQuizAnswered] = useState(false);
-  const [quizScore, setQuizScore] = useState(0);
-  const [isQuizFinished, setIsQuizFinished] = useState(false);
-
-  // ── Match ──
-  const [matchingCards, setMatchingCards] = useState<MatchingCard[]>([]);
-  const [selectedMatch, setSelectedMatch] = useState<MatchingCard | null>(null);
-  const [matchSeconds, setMatchSeconds] = useState(0);
-  const [isMatchFinished, setIsMatchFinished] = useState(false);
-  const [matchIntervalId, setMatchIntervalId] = useState<any>(null);
-
-  // ── Dictation ──
-  const [dictationQuestions, setDictationQuestions] = useState<any[]>([]);
-  const [dictationIndex, setDictationIndex] = useState(0);
-  const [typedWord, setTypedWord] = useState('');
-  const [isDictationChecked, setIsDictationChecked] = useState(false);
-  const [isDictationCorrect, setIsDictationCorrect] = useState(false);
-  const [dictationScore, setDictationScore] = useState(0);
-  const [isDictationFinished, setIsDictationFinished] = useState(false);
-
-  // ── Translate ──
-  const [translateQuestions, setTranslateQuestions] = useState<any[]>([]);
-  const [translateIndex, setTranslateIndex] = useState(0);
-  const [translateInput, setTranslateInput] = useState('');
-  const [isTranslateChecked, setIsTranslateChecked] = useState(false);
-  const [isTranslateCorrect, setIsTranslateCorrect] = useState(false);
-  const [translateScore, setTranslateScore] = useState(0);
-  const [isTranslateFinished, setIsTranslateFinished] = useState(false);
-
-  useEffect(() => () => { if (matchIntervalId) clearInterval(matchIntervalId); }, [matchIntervalId]);
+  // Chỉ clear interval + reset khi component unmount
+  useEffect(() => {
+    return () => {
+      if (matchIntervalRef.current) window.clearInterval(matchIntervalRef.current);
+      resetTopicUiState();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ─── Helpers ───────────────────────────────
   const speak = (text: string) => {
@@ -120,14 +165,13 @@ export default function TopicDetailClient({ topic, userId, initialWords, initial
     const meaningCards: MatchingCard[] = subset.map((w) => ({ id: `${w.id}_meaning`, wordId: w.id, type: 'meaning', content: w.meaning, isMatched: false, isSelected: false, isFailed: false }));
     setMatchingCards([...wordCards, ...meaningCards].sort(() => 0.5 - Math.random()));
     setSelectedMatch(null); setMatchSeconds(0); setIsMatchFinished(false);
-    if (matchIntervalId) clearInterval(matchIntervalId);
-    const id = setInterval(() => setMatchSeconds((p) => p + 1), 1000);
-    setMatchIntervalId(id);
+    if (matchIntervalRef.current) clearInterval(matchIntervalRef.current);
+    matchIntervalRef.current = setInterval(() => setMatchSeconds((p) => p + 1), 1000);
   };
 
   const initDictationGame = () => {
     if (words.length === 0) return;
-    const subset = [...words].sort(() => 0.5 - Math.random()).slice(0, 5);
+    const subset = [...words].sort(() => 0.5 - Math.random());
     setDictationQuestions(subset); setDictationIndex(0); setTypedWord('');
     setIsDictationChecked(false); setIsDictationCorrect(false); setDictationScore(0); setIsDictationFinished(false);
     setTimeout(() => speak(subset[0].word), 400);
@@ -163,8 +207,15 @@ export default function TopicDetailClient({ topic, userId, initialWords, initial
       setMatchingCards((prev) => prev.map((c) => c.wordId === clickedCard.wordId ? { ...c, isMatched: true, isSelected: false } : c));
       setSelectedMatch(null);
       setTimeout(() => {
-        setMatchingCards((cur) => { const done = cur.every((c) => c.isMatched); if (done) { setIsMatchFinished(true); clearInterval(matchIntervalId); } return cur; });
-      }, 100);
+        setMatchingCards((prev) => {
+          const nextCards = prev.filter((c) => c.wordId !== clickedCard.wordId);
+            if (nextCards.length === 0) {
+            setIsMatchFinished(true);
+            if (matchIntervalRef.current) window.clearInterval(matchIntervalRef.current);
+          }
+          return nextCards;
+        });
+      }, 1000);
     } else {
       const fId = selectedMatch.id; const sId = clickedCard.id;
       setMatchingCards((prev) => prev.map((c) => (c.id === fId || c.id === sId) ? { ...c, isFailed: true, isSelected: false } : c));
@@ -191,7 +242,7 @@ export default function TopicDetailClient({ topic, userId, initialWords, initial
     });
 
     if (res.success && res.vocabulary) {
-      setWords((prev) => [...prev, res.vocabulary]);
+      setWords([...words, res.vocabulary]);
       setShowAddWordModal(false);
       setNewWord({ word: '', meaning: '', definition: '', example: '', partOfSpeech: 'Noun' });
       setNewWordExamples(['']);
@@ -228,8 +279,8 @@ export default function TopicDetailClient({ topic, userId, initialWords, initial
     setIsSavingWord(false);
 
     if (res.success && res.vocabulary) {
-      setWords((prev) =>
-        prev.map((w) => (w.id === editingWord.id ? { ...w, ...res.vocabulary } : w))
+      setWords(
+        words.map((w: any) => (w.id === editingWord.id ? { ...w, ...res.vocabulary } : w))
       );
       setShowEditWordModal(false);
       setEditingWord(null);
@@ -250,7 +301,7 @@ export default function TopicDetailClient({ topic, userId, initialWords, initial
     setIsDeletingWord(false);
 
     if (res.success) {
-      setWords((prev) => prev.filter((w) => w.id !== deletingWord.id));
+      setWords(words.filter((w: any) => w.id !== deletingWord.id));
       setShowDeleteWordModal(false);
       setDeletingWord(null);
     } else {
@@ -260,19 +311,19 @@ export default function TopicDetailClient({ topic, userId, initialWords, initial
 
   const handleToggleMaster = async (wordId: string) => {
     const isCurrentlyMastered = masteredIds.includes(wordId);
-    setMasteredIds((prev) => 
-      isCurrentlyMastered 
-        ? prev.filter((id) => id !== wordId) 
-        : [...prev, wordId]
+    setMasteredIds(
+      isCurrentlyMastered
+        ? masteredIds.filter((id) => id !== wordId)
+        : [...masteredIds, wordId]
     );
 
     const res = await masterVocabularyAction(userId, wordId, topic.id);
     if (!res.success) {
       // Revert if failed
-      setMasteredIds((prev) => 
+      setMasteredIds(
         isCurrentlyMastered 
-          ? [...prev, wordId] 
-          : prev.filter((id) => id !== wordId)
+          ? [...masteredIds, wordId] 
+          : masteredIds.filter((id) => id !== wordId)
       );
       alert('Không thể cập nhật tiến trình từ vựng: ' + (res.error || 'Có lỗi xảy ra'));
     }
@@ -350,7 +401,15 @@ export default function TopicDetailClient({ topic, userId, initialWords, initial
               />
             )}
             {activeMode === 'flashcards' && (
-              <FlashcardMode key="flashcards" words={formattedWords} flashcardIndex={flashcardIndex} setFlashcardIndex={setFlashcardIndex} speak={speak} />
+              <FlashcardMode
+                key="flashcards"
+                words={formattedWords}
+                flashcardIndex={flashcardIndex}
+                setFlashcardIndex={(idx) => {
+                  setFlashcardIndex(typeof idx === 'function' ? idx(flashcardIndex) : idx);
+                }}
+                speak={speak}
+              />
             )}
             {activeMode === 'quiz' && (
               <QuizMode
@@ -465,7 +524,7 @@ export default function TopicDetailClient({ topic, userId, initialWords, initial
       {/* Edit Word Modal */}
       <AnimatePresence>
         {showEditWordModal && editingWord && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+          <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6">
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setShowEditWordModal(false)}
@@ -512,7 +571,7 @@ export default function TopicDetailClient({ topic, userId, initialWords, initial
                     <select
                       value={editWordForm.partOfSpeech}
                       onChange={(e) => setEditWordForm((p) => ({ ...p, partOfSpeech: e.target.value as PartOfSpeech }))}
-                      className="w-full bg-muted border border-border rounded-2xl px-5 py-[11px] text-foreground focus:outline-none focus:border-primary transition-all appearance-none"
+                      className="w-full bg-muted border border-border rounded-2xl px-5 py-2.75 text-foreground focus:outline-none focus:border-primary transition-all appearance-none"
                     >
                       <option value="Noun">Noun</option>
                       <option value="Verb">Verb</option>

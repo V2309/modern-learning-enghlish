@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, PlayCircle, BookOpen, Menu, X } from 'lucide-react';
@@ -13,6 +13,7 @@ import { AddLessonModal, parseYouTubeUrl } from '@/components/course/AddLessonMo
 import { completeLessonAction } from '@/actions/progress.action';
 import { createLessonAction, updateLessonAction, deleteLessonAction } from '@/actions/lesson.action';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
+import { useCourseDetailStore } from '@/stores/useCourseDetailStore';
 
 interface CourseDetailClientProps {
   course: any;
@@ -21,47 +22,64 @@ interface CourseDetailClientProps {
 }
 
 export default function CourseDetailClient({ course, userId, initialCompletedLessonIds }: CourseDetailClientProps) {
-  const [completedIds, setCompletedIds] = useState<string[]>(initialCompletedLessonIds);
-  const [activeLesson, setActiveLesson] = useState<any | null>(course?.lessons?.[0] || null);
-  const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
-  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+  const {
+    completedIds,
+    activeLesson,
+    lessons,
+    isDesktopSidebarOpen,
+    isMobileDrawerOpen,
+    showEditLessonModal,
+    editingLesson,
+    editLessonForm,
+    isSavingLesson,
+    showDeleteLessonModal,
+    deletingLesson,
+    isDeletingLesson,
+    showAddLessonModal,
+    isAddingLesson,
+    setCompletedIds,
+    setActiveLesson,
+    setLessons,
+    setIsDesktopSidebarOpen,
+    setIsMobileDrawerOpen,
+    setShowEditLessonModal,
+    setEditingLesson,
+    setEditLessonForm,
+    setIsSavingLesson,
+    setShowDeleteLessonModal,
+    setDeletingLesson,
+    setIsDeletingLesson,
+    setShowAddLessonModal,
+    setIsAddingLesson,
+    reset: resetCourseDetailState,
+  } = useCourseDetailStore();
 
-  // ── Local lesson list (for optimistic updates) ──
-  const [lessons, setLessons] = useState<any[]>(course?.lessons || []);
-
-  // ── Edit Lesson ──
-  const [showEditLessonModal, setShowEditLessonModal] = useState(false);
-  const [editingLesson, setEditingLesson] = useState<any | null>(null);
-  const [editLessonForm, setEditLessonForm] = useState({ title: '', duration: '', videoUrl: '', description: '' });
-  const [isSavingLesson, setIsSavingLesson] = useState(false);
-
-  // ── Delete Lesson ──
-  const [showDeleteLessonModal, setShowDeleteLessonModal] = useState(false);
-  const [deletingLesson, setDeletingLesson] = useState<any | null>(null);
-  const [isDeletingLesson, setIsDeletingLesson] = useState(false);
-
-  // ── Add Lesson ──
-  const [showAddLessonModal, setShowAddLessonModal] = useState(false);
-  const [isAddingLesson, setIsAddingLesson] = useState(false);
+  useEffect(() => {
+    resetCourseDetailState();
+    useCourseDetailStore.getState().setCompletedIds(initialCompletedLessonIds);
+    useCourseDetailStore.getState().setLessons(course?.lessons || []);
+    useCourseDetailStore.getState().setActiveLesson(course?.lessons?.[0] || null);
+    return () => resetCourseDetailState();
+  }, [course, initialCompletedLessonIds, resetCourseDetailState]);
 
   const handleToggleComplete = async (lessonId: string, event: React.MouseEvent) => {
     event.stopPropagation();
     
     // Optimistic UI update
     const alreadyCompleted = completedIds.includes(lessonId);
-    setCompletedIds((prev) => 
-      alreadyCompleted 
-        ? prev.filter((id) => id !== lessonId) 
-        : [...prev, lessonId]
+    setCompletedIds(
+      alreadyCompleted
+        ? completedIds.filter((id) => id !== lessonId)
+        : [...completedIds, lessonId]
     );
 
     const res = await completeLessonAction(userId, lessonId, course.id);
     if (!res.success) {
       // Revert if failed
-      setCompletedIds((prev) => 
-        alreadyCompleted 
-          ? [...prev, lessonId] 
-          : prev.filter((id) => id !== lessonId)
+      setCompletedIds(
+        alreadyCompleted
+          ? [...completedIds, lessonId]
+          : completedIds.filter((id) => id !== lessonId)
       );
       alert('Không thể lưu tiến độ: ' + (res.error || 'Có lỗi xảy ra'));
     }
@@ -91,11 +109,9 @@ export default function CourseDetailClient({ course, userId, initialCompletedLes
     setIsSavingLesson(false);
 
     if (res.success && res.lesson) {
-      setLessons((prev) =>
-        prev.map((l) => (l.id === editingLesson.id ? { ...l, ...res.lesson } : l))
-      );
+      setLessons(lessons.map((l) => (l.id === editingLesson.id ? { ...l, ...res.lesson } : l)));
       if (activeLesson?.id === editingLesson.id) {
-        setActiveLesson((prev: any) => ({ ...prev, ...res.lesson }));
+        setActiveLesson({ ...activeLesson, ...res.lesson });
       }
       setShowEditLessonModal(false);
       setEditingLesson(null);
@@ -140,7 +156,7 @@ export default function CourseDetailClient({ course, userId, initialCompletedLes
     setIsAddingLesson(false);
 
     if (res.success && res.lesson) {
-      setLessons((prev) => [...prev, res.lesson]);
+      setLessons([...lessons, res.lesson]);
       setShowAddLessonModal(false);
     } else {
       alert('Không thể thêm bài học: ' + (res.error || 'Có lỗi xảy ra'));
@@ -350,7 +366,7 @@ export default function CourseDetailClient({ course, userId, initialCompletedLes
         isSaving={isSavingLesson}
         onClose={() => { setShowEditLessonModal(false); setEditingLesson(null); }}
         onSave={handleEditLesson}
-        onChange={(field, value) => setEditLessonForm((prev) => ({ ...prev, [field]: value }))}
+        onChange={(field, value) => setEditLessonForm({ ...editLessonForm, [field]: value })}
       />
 
       {/* Delete Lesson Confirm Modal */}

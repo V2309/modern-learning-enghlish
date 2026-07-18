@@ -24,7 +24,7 @@ export default function ConfirmDeleteModal({
   return (
     <AnimatePresence>
       {show && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-200 flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -36,7 +36,7 @@ export default function ConfirmDeleteModal({
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative w-full max-w-md bg-card border border-border rounded-[2rem] shadow-2xl overflow-hidden"
+            className="relative w-full max-w-md bg-card border border-border rounded-4xl shadow-2xl overflow-hidden"
           >
             <div className="p-8 flex items-start gap-5">
               <div className="h-12 w-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">

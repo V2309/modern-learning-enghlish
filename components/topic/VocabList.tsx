@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Volume2, Sparkles, HelpCircle, CheckCircle2, Pencil, Trash2 } from 'lucide-react';
+import { Volume2, Sparkles, HelpCircle, CheckCircle2, Pencil, Trash2, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Vocabulary } from '@/data/mockData';
 
@@ -15,7 +15,42 @@ interface VocabListProps {
   onDelete?: (word: any) => void;
 }
 
+const PAGE_SIZE = 10;
+
 export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit, onDelete }: VocabListProps) => {
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const loaderRef = useRef<HTMLDivElement>(null);
+
+  // Reset về trang đầu khi danh sách từ thay đổi (thêm/xoá)
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [words.length]);
+
+  const loadMore = useCallback(() => {
+    setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, words.length));
+  }, [words.length]);
+
+  // Gắn IntersectionObserver vào sentinel div ở cuối danh sách
+  useEffect(() => {
+    const el = loaderRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMore();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [loadMore]);
+
+  const visibleWords = words.slice(0, visibleCount);
+  const hasMore = visibleCount < words.length;
+
   return (
     <motion.div
       key="list-mode"
@@ -31,6 +66,11 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
             Nhấp vào biểu tượng Loa để nghe phát âm giọng bản xứ rõ ràng.
           </p>
         </div>
+        {words.length > 0 && (
+          <span className="text-xs font-semibold text-muted-foreground bg-muted px-3 py-1.5 rounded-full border border-border/40 shrink-0">
+            {Math.min(visibleCount, words.length)}/{words.length} từ
+          </span>
+        )}
       </div>
 
       <div className="space-y-6">
@@ -48,153 +88,173 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
             </button>
           </div>
         ) : (
-          words.map((word) => (
-            <motion.div
-              key={word.id}
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="bg-card border border-border rounded-[2rem] p-6 sm:p-8 hover:shadow-md transition-all duration-300 relative group flex flex-col md:flex-row gap-6 items-start justify-between"
-            >
-              <div className="space-y-4 flex-1 w-full">
-                {/* Title word header */}
-                <div className="flex flex-wrap items-center gap-3">
-                  <h3 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-                    {word.word}
-                  </h3>
-                  <span className="text-xs font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-full uppercase border border-primary/20">
-                    {word.partOfSpeech}
-                  </span>
-                  <div className="flex items-center gap-2 text-muted-foreground bg-muted/65 px-3 py-1 rounded-xl text-sm font-medium border border-border/40">
-                    <span className="font-mono text-primary font-semibold">
-                      {word.pronunciation || '/.../ '}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5 ml-2">
-                    <button
-                      onClick={() => speak(word.word)}
-                      title="Giọng UK"
-                      className="p-2 rounded-xl bg-muted border border-border/40 hover:bg-primary hover:text-white transition-all text-muted-foreground"
-                    >
-                      <Volume2 className="h-4 w-4" />
-                    </button>
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase mr-2">UK</span>
-                    <button
-                      onClick={() => speak(word.word)}
-                      title="Giọng US"
-                      className="p-2 rounded-xl bg-muted border border-border/40 hover:bg-primary hover:text-white transition-all text-muted-foreground"
-                    >
-                      <Volume2 className="h-4 w-4" />
-                    </button>
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase mr-4">US</span>
-
-                    {onToggleMaster && (
-                      <button
-                        onClick={() => onToggleMaster(word.id)}
-                        title={word.mastered ? 'Đã thuộc từ này' : 'Đánh dấu đã thuộc'}
-                        className={cn(
-                          'p-2 rounded-xl border transition-all flex items-center gap-1.5 cursor-pointer text-xs font-bold',
-                          word.mastered
-                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/20'
-                            : 'bg-muted border-border/40 hover:bg-muted-foreground/10 text-muted-foreground'
-                        )}
-                      >
-                        <CheckCircle2 className="h-4 w-4" />
-                        <span>{word.mastered ? 'Đã thuộc' : 'Chưa thuộc'}</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Definitions block */}
-                <div className="space-y-2">
-                  <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                    Định nghĩa:
-                  </div>
-                  <div className="text-base font-semibold text-foreground bg-muted/20 border border-border/30 rounded-2xl p-4 space-y-1">
-                    <p>{word.meaning}</p>
-                    {(word as any).definition && (
-                      <p className="text-sm text-muted-foreground font-normal italic">
-                        = {(word as any).definition}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Examples block */}
-                <div className="space-y-2">
-                  <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                    Ví dụ:
-                  </div>
-                  <div className="space-y-2">
-                    {(word.examples && word.examples.length > 0
-                      ? word.examples
-                      : [word.example]
-                    ).map((ex, exIdx) => (
-                      <div
-                        key={exIdx}
-                        className="bg-muted/10 border border-border/20 rounded-2xl p-4 flex gap-4 items-start"
-                      >
+          <>
+            <div className="space-y-6">
+              {visibleWords.map((word) => (
+                <motion.div
+                  key={word.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.22, ease: 'easeOut' }}
+                  className="bg-card border border-border rounded-[2rem] p-6 sm:p-8 hover:shadow-md transition-all duration-300 relative group flex flex-col md:flex-row gap-6 items-start justify-between"
+                >
+                  <div className="space-y-4 flex-1 w-full">
+                    {/* Title word header */}
+                    <div className="flex flex-wrap items-center gap-3">
+                      <h3 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
+                        {word.word}
+                      </h3>
+                      <span className="text-xs font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-full uppercase border border-primary/20">
+                        {word.partOfSpeech}
+                      </span>
+                      <div className="flex items-center gap-2 text-muted-foreground bg-muted/65 px-3 py-1 rounded-xl text-sm font-medium border border-border/40">
+                        <span className="font-mono text-primary font-semibold">
+                          {word.pronunciation || '/.../ '}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5 ml-2">
                         <button
-                          onClick={() => speak(ex)}
-                          className="p-2 rounded-xl bg-primary/10 hover:bg-primary text-primary hover:text-white transition-all mt-0.5 shrink-0"
+                          onClick={() => speak(word.word)}
+                          title="Giọng UK"
+                          className="p-2 rounded-xl bg-muted border border-border/40 hover:bg-primary hover:text-white transition-all text-muted-foreground"
                         >
                           <Volume2 className="h-4 w-4" />
                         </button>
-                        <div className="flex-1">
-                          <p className="text-foreground font-semibold italic text-base">{ex}</p>
-                        </div>
+                        <span className="text-[10px] font-bold text-muted-foreground uppercase mr-2">UK</span>
+                        <button
+                          onClick={() => speak(word.word)}
+                          title="Giọng US"
+                          className="p-2 rounded-xl bg-muted border border-border/40 hover:bg-primary hover:text-white transition-all text-muted-foreground"
+                        >
+                          <Volume2 className="h-4 w-4" />
+                        </button>
+                        <span className="text-[10px] font-bold text-muted-foreground uppercase mr-4">US</span>
+
+                        {onToggleMaster && (
+                          <button
+                            onClick={() => onToggleMaster(word.id)}
+                            title={word.mastered ? 'Đã thuộc từ này' : 'Đánh dấu đã thuộc'}
+                            className={cn(
+                              'p-2 rounded-xl border transition-all flex items-center gap-1.5 cursor-pointer text-xs font-bold',
+                              word.mastered
+                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/20'
+                                : 'bg-muted border-border/40 hover:bg-muted-foreground/10 text-muted-foreground'
+                            )}
+                          >
+                            <CheckCircle2 className="h-4 w-4" />
+                            <span>{word.mastered ? 'Đã thuộc' : 'Chưa thuộc'}</span>
+                          </button>
+                        )}
                       </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+                    </div>
 
-              {/* Right side: Image + Actions */}
-              <div className="flex flex-col items-end gap-3 shrink-0 self-start md:self-start">
-                {/* Edit / Delete buttons */}
-                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  {onEdit && (
-                    <button
-                      onClick={() => onEdit(word)}
-                      title="Sửa từ"
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-muted border border-border hover:bg-primary/10 hover:border-primary/30 text-muted-foreground hover:text-primary transition-all text-xs font-bold"
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                      Sửa
-                    </button>
-                  )}
-                  {onDelete && (
-                    <button
-                      onClick={() => onDelete(word)}
-                      title="Xoá từ"
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-muted border border-border hover:bg-red-500/10 hover:border-red-500/30 text-muted-foreground hover:text-red-500 transition-all text-xs font-bold"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      Xoá
-                    </button>
-                  )}
-                </div>
+                    {/* Definitions block */}
+                    <div className="space-y-2">
+                      <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                        Định nghĩa:
+                      </div>
+                      <div className="text-base font-semibold text-foreground bg-muted/20 border border-border/30 rounded-2xl p-4 space-y-1">
+                        <p>{word.meaning}</p>
+                        {(word as any).definition && (
+                          <p className="text-sm text-muted-foreground font-normal italic">
+                            = {(word as any).definition}
+                          </p>
+                        )}
+                      </div>
+                    </div>
 
-                {/* Image asset */}
-                {word.imageUrl ? (
-                  <div className="w-full md:w-48 aspect-[4/3] md:aspect-square rounded-2xl overflow-hidden border border-border shadow-sm">
-                    <img
-                      src={word.imageUrl}
-                      alt={word.word}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      referrerPolicy="no-referrer"
-                    />
+                    {/* Examples block */}
+                    <div className="space-y-2">
+                      <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                        Ví dụ:
+                      </div>
+                      <div className="space-y-2">
+                        {(word.examples && word.examples.length > 0
+                          ? word.examples
+                          : [word.example]
+                        ).map((ex, exIdx) => (
+                          <div
+                            key={exIdx}
+                            className="bg-muted/10 border border-border/20 rounded-2xl p-4 flex gap-4 items-start"
+                          >
+                            <button
+                              onClick={() => speak(ex)}
+                              className="p-2 rounded-xl bg-primary/10 hover:bg-primary text-primary hover:text-white transition-all mt-0.5 shrink-0"
+                            >
+                              <Volume2 className="h-4 w-4" />
+                            </button>
+                            <div className="flex-1">
+                              <p className="text-foreground font-semibold italic text-base">{ex}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                ) : (
-                  <div className="w-full md:w-48 aspect-[4/3] md:aspect-square rounded-2xl bg-muted/25 border border-dashed border-border flex flex-col items-center justify-center text-muted-foreground p-4">
-                    <Sparkles className="h-8 w-8 text-primary mb-2 opacity-50" />
-                    <span className="italic text-xs text-center font-medium">Bản minh hoạ sẵn sàng</span>
+
+                  {/* Right side: Image + Actions */}
+                  <div className="flex flex-col items-end gap-3 shrink-0 self-start md:self-start">
+                    {/* Edit / Delete buttons */}
+                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {onEdit && (
+                        <button
+                          onClick={() => onEdit(word)}
+                          title="Sửa từ"
+                          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-muted border border-border hover:bg-primary/10 hover:border-primary/30 text-muted-foreground hover:text-primary transition-all text-xs font-bold"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                          Sửa
+                        </button>
+                      )}
+                      {onDelete && (
+                        <button
+                          onClick={() => onDelete(word)}
+                          title="Xoá từ"
+                          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-muted border border-border hover:bg-red-500/10 hover:border-red-500/30 text-muted-foreground hover:text-red-500 transition-all text-xs font-bold"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          Xoá
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Image asset */}
+                    {word.imageUrl ? (
+                      <div className="w-full md:w-48 aspect-[4/3] md:aspect-square rounded-2xl overflow-hidden border border-border shadow-sm">
+                        <img
+                          src={word.imageUrl}
+                          alt={word.word}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          referrerPolicy="no-referrer"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full md:w-48 aspect-[4/3] md:aspect-square rounded-2xl bg-muted/25 border border-dashed border-border flex flex-col items-center justify-center text-muted-foreground p-4">
+                        <Sparkles className="h-8 w-8 text-primary mb-2 opacity-50" />
+                        <span className="italic text-xs text-center font-medium">Bản minh hoạ sẵn sàng</span>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </motion.div>
-          ))
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Infinite scroll sentinel */}
+            <div ref={loaderRef} className="flex justify-center py-6">
+              {hasMore ? (
+                <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Đang tải thêm từ vựng...</span>
+                </div>
+              ) : (
+                words.length > PAGE_SIZE && (
+                  <p className="text-xs text-muted-foreground/60 font-medium tracking-wide">
+                    ✓ Đã hiển thị đầy đủ {words.length} từ vựng
+                  </p>
+                )
+              )}
+            </div>
+          </>
         )}
       </div>
     </motion.div>
