@@ -14,6 +14,7 @@ import { QuizMode } from '@/components/topic/QuizMode';
 import { MatchMode, MatchingCard } from '@/components/topic/MatchMode';
 import { DictationMode } from '@/components/topic/DictationMode';
 import { TranslateMode } from '@/components/topic/TranslateMode';
+import { SentencePracticeMode } from '@/components/topic/SentencePracticeMode';
 import { AddWordModal } from '@/components/topic/AddWordModal';
 import { createVocabularyAction, updateVocabularyAction, deleteVocabularyAction } from '@/actions/vocabulary.action';
 import { masterVocabularyAction } from '@/actions/progress.action';
@@ -501,6 +502,13 @@ export default function TopicDetailClient({ topic, userId, initialWords, initial
                 }}
                 onRestart={initTranslateGame}
                 onBackToList={() => handleModeChange('list')}
+              />
+            )}
+            {activeMode === 'sentence-practice' && (
+              <SentencePracticeMode
+                key="sentence-practice"
+                words={formattedWords}
+                onFinish={() => handleModeChange('list')}
               />
             )}
           </AnimatePresence>

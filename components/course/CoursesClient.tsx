@@ -226,7 +226,7 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
           {/* Sort dropdown */}
           <div className="relative" ref={sortMenuRef}>
             <button
-              onClick={() => setShowSortMenu((p) => !p)}
+              onClick={() => setShowSortMenu(!showSortMenu)}
               className={cn(
                   'flex items-center gap-2 px-4 py-3 rounded-2xl border font-bold text-sm transition-all',
                   showSortMenu

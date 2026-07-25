@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight, CheckCircle2, Plus } from 'lucide-react';
 import { VocabularyTopic } from '@/data/mockData';
 import { cn } from '@/lib/utils';
 
-type StudyMode = 'list' | 'flashcards' | 'quiz' | 'match' | 'dictation' | 'translate';
+type StudyMode = 'list' | 'flashcards' | 'quiz' | 'match' | 'dictation' | 'translate' | 'sentence-practice';
 
 const sidebarItems = [
   { mode: 'list' as StudyMode, label: 'Từ vựng: Danh sách từ', group: 'Từ vựng' },
@@ -15,6 +15,7 @@ const sidebarItems = [
   { mode: 'match' as StudyMode, label: 'Luyện tập: Tìm cặp', group: 'Luyện tập' },
   { mode: 'dictation' as StudyMode, label: 'Luyện tập: Nghe từ vựng', group: 'Luyện tập' },
   { mode: 'translate' as StudyMode, label: 'Luyện tập: Dịch nghĩa / Điền từ', group: 'Luyện tập' },
+    { mode: 'sentence-practice' as StudyMode, label: 'Luyện tập: Đặt câu với AI', group: 'Luyện tập' },
 ] as const;
 
 interface TopicSidebarProps {

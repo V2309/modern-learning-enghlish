@@ -4,7 +4,7 @@ import { createVocabulary, updateVocabulary, deleteVocabulary } from "@/services
 import { vocabularySchema, updateVocabularySchema } from "@/schemas/vocabulary.schema";
 import { PartOfSpeech } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-
+import { evaluateUserSentence } from "@/services/aiService";
 export async function createVocabularyAction(data: {
   topicId: string;
   word: string;
@@ -76,5 +76,23 @@ export async function deleteVocabularyAction(vocabularyId: string, topicId: stri
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
+  }
+}
+
+
+export async function evaluateSentenceAction(data: {
+  word: string;
+  meaning: string;
+  partOfSpeech?: string;
+  userSentence: string;
+}) {
+  try {
+    if (!data.userSentence || !data.userSentence.trim()) {
+      return { success: false, error: "Vui lòng nhập câu tiếng Anh của bạn trước khi gửi." };
+    }
+    const result = await evaluateUserSentence(data);
+    return { success: true, evaluation: result };
+  } catch (error: any) {
+    return { success: false, error: error?.message || "Đã có lỗi xảy ra khi phân tích câu." };
   }
 }
