@@ -32,6 +32,7 @@ model User {
   vocabularies       Vocabulary[]
   lessonProgresses   LessonProgress[]
   vocabProgresses    VocabularyProgress[]
+  shadowingVideos    ShadowingVideo[]
 
   @@map("users")
 }
@@ -96,6 +97,20 @@ model Lesson {
   progresses  LessonProgress[]
 
   @@map("lessons")
+}
+
+model ShadowingVideo {
+  id              String   @id @db.VarChar(255)
+  title           String   @db.VarChar(255)
+  description     String?  @db.Text
+  videoUrl        String   @map("video_url") @db.Text
+  transcript      String   @db.Text
+  createdByUserId String?  @map("created_by_user") @db.VarChar(255)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  createdByUser    User?    @relation(fields: [createdByUserId], references: [uid], onDelete: SetNull)
+
+  @@map("shadowing_videos")
 }
 
 model LessonProgress {

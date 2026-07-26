@@ -161,7 +161,7 @@ function parseVocabFile(filePath: string): VocabEntry[] {
 }
 
 async function main() {
-  console.log("🚀 Starting seed for List 13...");
+  console.log("🚀 Starting seed for List 14...");
 
   const filePath = path.join(process.cwd(), "list.txt");
 
@@ -178,24 +178,24 @@ async function main() {
   });
 
   const existingTopic = await prisma.topic.findFirst({
-    where: { name: "List 13 " },
+    where: { name: "List 14 " },
   });
 
   let topicId: string;
 
   if (existingTopic) {
-    console.log(`\n⚠️  Topic "List 13" already exists (id: ${existingTopic.id}). Using existing.`);
+    console.log(`\n⚠️  Topic "List 14" already exists (id: ${existingTopic.id}). Using existing.`);
     topicId = existingTopic.id;
   } else {
     const topic = await prisma.topic.create({
       data: {
         id: `topic-${Date.now()}`,
-        name: "List 13",
-        description: "Vocabulary List 13 - imported from list.txt",
+        name: "List 14",
+        description: "Vocabulary List 14 - imported from list.txt",
       },
     });
     topicId = topic.id;
-    console.log(`\n✅ Created topic "List 13" with id: ${topicId}`);
+    console.log(`\n✅ Created topic "List 14" with id: ${topicId}`);
   }
 
   let created = 0;

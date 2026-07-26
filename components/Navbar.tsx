@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, Home, PlayCircle, Library, Sun, Moon, Menu, X, User, LayoutDashboard, LineChart } from 'lucide-react';
+import { BookOpen, Home, PlayCircle, Library, Sun, Moon, Menu, X, User, LayoutDashboard, LineChart, Video } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/context/ThemeContext';
@@ -19,6 +19,7 @@ const Navbar = () => {
     { name: 'Home', path: '/', icon: Home },
     { name: 'Vocabulary', path: '/vocabulary', icon: BookOpen },
     { name: 'Courses', path: '/courses', icon: PlayCircle },
+    { name: 'Shadowing', path: '/shadowing', icon: Video },
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Progress', path: '/progress', icon: LineChart },
   ];
