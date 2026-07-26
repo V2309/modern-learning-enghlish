@@ -35,24 +35,18 @@ export const EditShadowingModal = ({
   const [isFetchingTranscript, setIsFetchingTranscript] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [fetchSuccess, setFetchSuccess] = useState(false);
+  const [lastFetchedUrl, setLastFetchedUrl] = useState(form.videoUrl);
 
   useEffect(() => {
-    const url = form.videoUrl.trim();
-    if (!url) { setUrlType('empty'); setYtParsed(null); return; }
-    const yt = parseYouTubeUrl(url);
-    if (yt) {
-      setYtParsed(yt);
-      setUrlType('youtube');
-    } else {
-      setYtParsed(null);
-      setUrlType(url.startsWith('http') ? 'direct' : 'invalid');
+    if (show) {
+      setLastFetchedUrl(form.videoUrl.trim());
     }
-    setFetchError(null);
-    setFetchSuccess(false);
-  }, [form.videoUrl]);
+  }, [show]);
 
-  const handleFetchTranscript = async () => {
-    if (urlType !== 'youtube') return;
+  const handleFetchTranscript = async (urlToFetch?: string) => {
+    const targetUrl = urlToFetch || form.videoUrl.trim();
+    if (!targetUrl) return;
+
     setIsFetchingTranscript(true);
     setFetchError(null);
     setFetchSuccess(false);
@@ -61,7 +55,7 @@ export const EditShadowingModal = ({
       const res = await fetch('/api/shadowing/generate-transcript', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ videoUrl: form.videoUrl }),
+        body: JSON.stringify({ videoUrl: targetUrl }),
       });
 
       const data = await res.json();
@@ -78,6 +72,32 @@ export const EditShadowingModal = ({
       setIsFetchingTranscript(false);
     }
   };
+
+  useEffect(() => {
+    const url = form.videoUrl.trim();
+    if (!url) {
+      setUrlType('empty');
+      setYtParsed(null);
+      setFetchError(null);
+      setFetchSuccess(false);
+      return;
+    }
+    const yt = parseYouTubeUrl(url);
+    if (yt) {
+      setYtParsed(yt);
+      setUrlType('youtube');
+
+      if (url !== lastFetchedUrl) {
+        setLastFetchedUrl(url);
+        void handleFetchTranscript(url);
+      }
+    } else {
+      setYtParsed(null);
+      setUrlType(url.startsWith('http') ? 'direct' : 'invalid');
+      setFetchError(null);
+      setFetchSuccess(false);
+    }
+  }, [form.videoUrl, lastFetchedUrl]);
 
   const canSave = form.title.trim() && form.videoUrl.trim() && form.transcript.trim() && urlType !== 'invalid';
 
@@ -146,7 +166,7 @@ export const EditShadowingModal = ({
                 {urlType === 'youtube' && (
                   <div className="flex flex-col gap-2">
                     <button
-                      onClick={handleFetchTranscript}
+                      onClick={() => handleFetchTranscript()}
                       disabled={isFetchingTranscript}
                       className={cn(
                         "flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all border cursor-pointer",

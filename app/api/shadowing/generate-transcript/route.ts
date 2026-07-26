@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
         transcriptItems = await YoutubeTranscript.fetchTranscript(videoUrl);
       } catch (err2: unknown) {
         const msg = err2 instanceof Error ? err2.message : String(err2);
+        console.error('Fetch transcript error:', err2);
 
         if (msg.includes('disabled') || msg.includes('No transcript')) {
           return NextResponse.json({
