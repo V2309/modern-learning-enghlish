@@ -88,64 +88,7 @@ export function parseTranscript(text: string): TranscriptLine[] {
   return result;
 }
 
-/**
- * Merge consecutive short transcript lines into longer, natural sentences.
- * @param lines - raw parsed lines
- * @param mode - 'short' (no merge), 'medium' (~8s chunks), 'full' (merge until sentence end)
- */
-export function mergeTranscriptLines(
-  lines: TranscriptLine[],
-  mode: 'short' | 'medium' | 'full'
-): TranscriptLine[] {
-  if (lines.length === 0 || mode === 'short') return lines;
 
-  const result: TranscriptLine[] = [];
-  let i = 0;
-
-  while (i < lines.length) {
-    let merged = { ...lines[i] };
-    let j = i + 1;
-
-    if (mode === 'medium') {
-      // Merge until combined duration >= ~8 seconds or sentence ends with punctuation
-      while (j < lines.length) {
-        const duration = lines[j].end - merged.start;
-        const prevText = merged.text.trim();
-        // Stop merging if sentence already ends cleanly AND we've got at least ~4s
-        if (/[.!?]$/.test(prevText) && duration >= 4) break;
-        // Stop merging if chunk would be too long (>10s)
-        if (duration > 10) break;
-        merged = {
-          start: merged.start,
-          end: lines[j].end,
-          text: merged.text.trimEnd() + ' ' + lines[j].text.trimStart(),
-        };
-        j++;
-      }
-    } else if (mode === 'full') {
-      // Merge until we hit a sentence-ending punctuation, with a max of ~15s
-      while (j < lines.length) {
-        const duration = lines[j].end - merged.start;
-        const prevText = merged.text.trim();
-        // Stop if current merged text ends with sentence punctuation
-        if (/[.!?]$/.test(prevText)) break;
-        // Safety cap: don't let a single chunk exceed ~15s
-        if (duration > 15) break;
-        merged = {
-          start: merged.start,
-          end: lines[j].end,
-          text: merged.text.trimEnd() + ' ' + lines[j].text.trimStart(),
-        };
-        j++;
-      }
-    }
-
-    result.push(merged);
-    i = j;
-  }
-
-  return result;
-}
 
 function parseSRT(text: string): TranscriptLine[] {
   const blocks = text.trim().split(/\r?\n\r?\n/);
@@ -215,8 +158,7 @@ export function ShadowingPlayer({ shadowingVideo, onBack }: ShadowingPlayerProps
   const [currentTime, setCurrentTime] = useState(0);
   const [activeLineIdx, setActiveLineIdx] = useState<number | null>(null);
   
-  // Chunk size mode: 'short' = raw, 'medium' = ~8s groups, 'full' = full sentences
-  const [chunkMode, setChunkMode] = useState<'short' | 'medium' | 'full'>('medium');
+
 
   // Media recorder states
   const [recordings, setRecordings] = useState<Record<number, string>>({});
@@ -311,18 +253,18 @@ export function ShadowingPlayer({ shadowingVideo, onBack }: ShadowingPlayerProps
     }
   }, [playbackSpeed, ytPlayer]);
 
-  // 4. Parse transcript (re-merge when chunkMode changes)
+  // 4. Parse transcript
   useEffect(() => {
     const parsed = parseTranscript(shadowingVideo.transcript);
     if (parsed.length > 0) {
-      setLines(mergeTranscriptLines(parsed, chunkMode));
+      setLines(parsed);
     } else {
       setLines(generateFallbackTranscript(shadowingVideo.description));
     }
-    // Reset recordings when chunk mode changes (indices shift)
+    // Reset recordings when transcript changes
     setRecordings({});
     setActiveLineIdx(null);
-  }, [shadowingVideo.transcript, shadowingVideo.description, chunkMode]);
+  }, [shadowingVideo.transcript, shadowingVideo.description]);
 
   // 5. Track Time & AB-Loop for YouTube (interval polling when playing)
   useEffect(() => {
@@ -516,27 +458,7 @@ export function ShadowingPlayer({ shadowingVideo, onBack }: ShadowingPlayerProps
 
         {/* Global Toolbar Options */}
         <div className="flex items-center gap-2 flex-wrap justify-end">
-          {/* Chunk size selector */}
-          <div className="flex items-center gap-1 border border-border bg-card rounded-xl p-1" title="Cỡ câu: gộp các dòng ngắn lại để thu âm dễ hơn">
-            {([
-              { key: 'short', label: 'Ngắn' },
-              { key: 'medium', label: 'Vừa' },
-              { key: 'full', label: 'Dài' },
-            ] as const).map(({ key, label }) => (
-              <button
-                key={key}
-                onClick={() => setChunkMode(key)}
-                className={cn(
-                  "px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer",
-                  chunkMode === key
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+
 
           {/* AB Loop Button */}
           <button
