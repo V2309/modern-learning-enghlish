@@ -156,9 +156,9 @@ export default function ShadowingListClient({ initialShadowings, userId }: Shado
   ];
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="container mx-auto px-8 py-8 ">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pb-6 border-b border-border/60">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6  pb-6 border-b border-border/60">
         <div>
           <h1 className="text-4xl font-black text-foreground tracking-tight flex items-center gap-3">
             Shadowing Videos
@@ -242,7 +242,7 @@ export default function ShadowingListClient({ initialShadowings, userId }: Shado
 
       {/* Grid */}
       {paginated.length > 0 ? (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {paginated.map((shadowing) => {
             const yt = parseYouTubeUrl(shadowing.videoUrl);
             const isCreatedByMe = shadowing.createdByUserId === userId;
