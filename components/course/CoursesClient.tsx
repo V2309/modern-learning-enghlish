@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { PlayCircle, Clock, BookOpen, Search, Plus, MoreVertical, Pencil, Trash2, ArrowUpDown, Check } from 'lucide-react';
+import { PlayCircle, Clock, BookOpen, Search, Plus, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AddCourseModal } from '@/components/course/AddCourseModal';
 import { EditCourseModal } from '@/components/course/EditCourseModal';
@@ -11,6 +11,7 @@ import { createCourseAction, updateCourseAction, deleteCourseAction } from '@/ac
 import { CourseLevel } from '@prisma/client';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import Pagination from '@/components/Pagination';
+import SortMenuButton from '@/components/SortMenuButton';
 import { useCoursesUiStore, type CourseSortKey } from '@/stores/useCoursesUiStore';
 import { defaultCourseDraft, defaultLessonDraft, useCoursesPageStore } from '@/stores/useCoursesPageStore';
 
@@ -183,8 +184,8 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
       switch (sortKey) {
         case 'newest': return new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime();
         case 'oldest': return new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime();
-        case 'az': return a.title.localeCompare(b.title);
-        case 'za': return b.title.localeCompare(a.title);
+        case 'az': return a.title.localeCompare(b.title, undefined, { numeric: true, sensitivity: 'base' });
+        case 'za': return b.title.localeCompare(a.title, undefined, { numeric: true, sensitivity: 'base' });
         case 'level': return (LEVEL_ORDER[a.level] ?? 0) - (LEVEL_ORDER[b.level] ?? 0);
         case 'lessons': return (b.lessons?.length ?? 0) - (a.lessons?.length ?? 0);
         default: return 0;
@@ -224,51 +225,14 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
           </div>
 
           {/* Sort dropdown */}
-          <div className="relative" ref={sortMenuRef}>
-            <button
-              onClick={() => setShowSortMenu(!showSortMenu)}
-              className={cn(
-                  'flex items-center gap-2 px-4 py-3 rounded-2xl border font-bold text-sm transition-all',
-                  showSortMenu
-                    ? 'bg-primary/10 border-primary/40 text-primary'
-                    : 'bg-card border-border text-muted-foreground hover:bg-muted hover:text-foreground'
-                )}
-            >
-              <ArrowUpDown className="h-4 w-4" />
-              <span className="hidden sm:inline">{SORT_OPTIONS.find((s) => s.key === sortKey)?.label ?? 'Sắp xếp'}</span>
-            </button>
-
-            <AnimatePresence>
-              {showSortMenu && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: -4 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: -4 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute right-0 mt-2 w-56 bg-card border border-border rounded-2xl shadow-xl overflow-hidden z-50"
-                >
-                  <div className="p-2">
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-3 py-2">Sắp xếp theo</p>
-                    {SORT_OPTIONS.map((opt) => (
-                      <button
-                        key={opt.key}
-                        onClick={() => { setSortKey(opt.key); setShowSortMenu(false); setCurrentPage(1); }}
-                        className={cn(
-                          'w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors',
-                          sortKey === opt.key
-                            ? 'bg-primary/10 text-primary'
-                            : 'text-foreground hover:bg-muted'
-                        )}
-                      >
-                        {opt.label}
-                        {sortKey === opt.key && <Check className="h-3.5 w-3.5 text-primary" />}
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          <SortMenuButton
+            options={SORT_OPTIONS}
+            value={sortKey}
+            onChange={(nextKey) => {
+              setSortKey(nextKey);
+              setCurrentPage(1);
+            }}
+          />
 
           <button
             onClick={() => setShowAddModal(true)}

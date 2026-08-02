@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { BookOpen, ChevronRight, Search, Plus, X, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { createTopicAction, updateTopicAction, deleteTopicAction } from '@/actions/topic.action';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
+import Pagination from '@/components/Pagination';
+import SortMenuButton from '@/components/SortMenuButton';
 import { useVocabularyUiStore } from '@/stores/useVocabularyUiStore';
 
 interface VocabularyClientProps {
@@ -13,14 +15,16 @@ interface VocabularyClientProps {
   userId: string;
 }
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 8;
 
 export default function VocabularyClient({ initialTopics, userId }: VocabularyClientProps) {
   const [topics, setTopics] = useState<any[]>(initialTopics);
   const searchQuery = useVocabularyUiStore((state) => state.searchQuery);
+  const currentPage = useVocabularyUiStore((state) => state.currentPage);
   const setSearchQuery = useVocabularyUiStore((state) => state.setSearchQuery);
+  const setCurrentPage = useVocabularyUiStore((state) => state.setCurrentPage);
 
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [sortKey, setSortKey] = useState<'newest' | 'oldest' | 'az' | 'za'>('newest');
 
   // Add modal
   const [showAddModal, setShowAddModal] = useState(false);
@@ -41,7 +45,6 @@ export default function VocabularyClient({ initialTopics, userId }: VocabularyCl
   // Dropdown menu
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -118,35 +121,40 @@ export default function VocabularyClient({ initialTopics, userId }: VocabularyCl
     }
   };
 
-  const filteredTopics = topics.filter(
-    (t) =>
-      t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const SORT_OPTIONS = [
+    { key: 'newest', label: 'Mới nhất' },
+    { key: 'oldest', label: 'Cũ nhất' },
+    { key: 'az', label: 'Tên A → Z' },
+    { key: 'za', label: 'Tên Z → A' },
+  ] as const;
+
+  const filteredTopics = topics
+    .filter(
+      (t) =>
+        t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        t.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => {
+      switch (sortKey) {
+        case 'newest':
+          return new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime();
+        case 'oldest':
+          return new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime();
+        case 'az':
+          return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+        case 'za':
+          return b.name.localeCompare(a.name, undefined, { numeric: true, sensitivity: 'base' });
+        default:
+          return 0;
+      }
+    });
 
   useEffect(() => {
-    setVisibleCount(PAGE_SIZE);
+    setCurrentPage(1);
   }, [searchQuery, topics.length]);
 
-  const visibleTopics = filteredTopics.slice(0, visibleCount);
-
-  useEffect(() => {
-    const target = loadMoreRef.current;
-    if (!target) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
-        if (entry?.isIntersecting) {
-          setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, filteredTopics.length));
-        }
-      },
-      { rootMargin: '200px 0px' }
-    );
-
-    observer.observe(target);
-    return () => observer.disconnect();
-  }, [filteredTopics.length]);
+  const totalPages = Math.max(1, Math.ceil(filteredTopics.length / PAGE_SIZE));
+  const paginatedTopics = filteredTopics.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -167,6 +175,14 @@ export default function VocabularyClient({ initialTopics, userId }: VocabularyCl
               className="pl-12 pr-6 py-3 w-full md:w-80 bg-muted border border-border rounded-4xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground"
             />
           </div>
+          <SortMenuButton
+            options={SORT_OPTIONS}
+            value={sortKey}
+            onChange={(nextKey) => {
+              setSortKey(nextKey);
+              setCurrentPage(1);
+            }}
+          />
           <button
             onClick={() => setShowAddModal(true)}
             className="flex items-center gap-2 px-6 py-3 rounded-4xl bg-primary text-white font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 cursor-pointer"
@@ -183,8 +199,8 @@ export default function VocabularyClient({ initialTopics, userId }: VocabularyCl
         </div>
       ) : (
         <>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" ref={menuRef}>
-            {visibleTopics.map((topic: any, i: number) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" ref={menuRef}>
+            {paginatedTopics.map((topic: any, i: number) => (
               <motion.div
                 key={topic.id}
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -259,11 +275,13 @@ export default function VocabularyClient({ initialTopics, userId }: VocabularyCl
             ))}
           </div>
 
-          {visibleCount < filteredTopics.length && (
-            <div ref={loadMoreRef} className="py-10 flex items-center justify-center text-sm text-muted-foreground">
-              Đang tải thêm từ vựng...
-            </div>
-          )}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={filteredTopics.length}
+            pageSize={PAGE_SIZE}
+            onPageChange={setCurrentPage}
+          />
         </>
       )}
 

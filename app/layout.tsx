@@ -27,7 +27,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider afterSignOutUrl="/auth/sign-in">
+    <ClerkProvider
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      signInUrl="/auth/sign-in"
+      signUpUrl="/auth/sign-up"
+      signInForceRedirectUrl="/"
+      signUpForceRedirectUrl="/"
+      afterSignOutUrl="/auth/sign-in"
+    >
       <html
         lang="en"
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
