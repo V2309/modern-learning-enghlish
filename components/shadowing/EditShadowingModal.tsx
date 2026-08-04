@@ -35,13 +35,6 @@ export const EditShadowingModal = ({
   const [isFetchingTranscript, setIsFetchingTranscript] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [fetchSuccess, setFetchSuccess] = useState(false);
-  const [lastFetchedUrl, setLastFetchedUrl] = useState(form.videoUrl);
-
-  useEffect(() => {
-    if (show) {
-      setLastFetchedUrl(form.videoUrl.trim());
-    }
-  }, [show]);
 
   const handleFetchTranscript = async (urlToFetch?: string) => {
     const targetUrl = urlToFetch || form.videoUrl.trim();
@@ -87,17 +80,13 @@ export const EditShadowingModal = ({
       setYtParsed(yt);
       setUrlType('youtube');
 
-      if (url !== lastFetchedUrl) {
-        setLastFetchedUrl(url);
-        void handleFetchTranscript(url);
-      }
     } else {
       setYtParsed(null);
       setUrlType(url.startsWith('http') ? 'direct' : 'invalid');
       setFetchError(null);
       setFetchSuccess(false);
     }
-  }, [form.videoUrl, lastFetchedUrl]);
+  }, [form.videoUrl]);
 
   const canSave = form.title.trim() && form.videoUrl.trim() && form.transcript.trim() && urlType !== 'invalid';
 

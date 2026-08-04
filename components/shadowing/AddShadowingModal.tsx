@@ -32,7 +32,6 @@ export const AddShadowingModal = ({ show, isSaving, onClose, onSave }: AddShadow
   const [isFetchingTranscript, setIsFetchingTranscript] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [fetchSuccess, setFetchSuccess] = useState(false);
-  const [lastFetchedUrl, setLastFetchedUrl] = useState('');
 
   const handleFetchTranscript = async (urlToFetch?: string) => {
     const targetUrl = urlToFetch || form.videoUrl.trim();
@@ -78,17 +77,13 @@ export const AddShadowingModal = ({ show, isSaving, onClose, onSave }: AddShadow
       setYtParsed(yt);
       setUrlType('youtube');
 
-      if (url !== lastFetchedUrl) {
-        setLastFetchedUrl(url);
-        void handleFetchTranscript(url);
-      }
     } else {
       setYtParsed(null);
       setUrlType(url.startsWith('http') ? 'direct' : 'invalid');
       setFetchError(null);
       setFetchSuccess(false);
     }
-  }, [form.videoUrl, lastFetchedUrl]);
+  }, [form.videoUrl]);
 
   const handleClose = () => {
     setForm({ title: '', videoUrl: '', description: '', transcript: '' });
@@ -96,7 +91,6 @@ export const AddShadowingModal = ({ show, isSaving, onClose, onSave }: AddShadow
     setUrlType('empty');
     setFetchError(null);
     setFetchSuccess(false);
-    setLastFetchedUrl('');
     onClose();
   };
 
