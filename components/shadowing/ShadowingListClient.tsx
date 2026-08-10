@@ -11,6 +11,8 @@ import { createShadowingVideoAction, updateShadowingVideoAction, deleteShadowing
 import { parseYouTubeUrl } from '@/components/course/AddLessonModal';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import Pagination from '@/components/Pagination';
+import SortMenuButton from '@/components/SortMenuButton';
+import { toast } from 'react-hot-toast';
 
 const PAGE_SIZE = 6;
 
@@ -40,19 +42,14 @@ export default function ShadowingListClient({ initialShadowings, userId }: Shado
   const [isDeleting, setIsDeleting] = useState(false);
   
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const [showSortMenu, setShowSortMenu] = useState(false);
   
   const menuRef = useRef<HTMLDivElement>(null);
-  const sortMenuRef = useRef<HTMLDivElement>(null);
 
   // Close menus on click outside
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setOpenMenuId(null);
-      }
-      if (sortMenuRef.current && !sortMenuRef.current.contains(e.target as Node)) {
-        setShowSortMenu(false);
       }
     };
     document.addEventListener('mousedown', handleClick);
@@ -93,8 +90,9 @@ export default function ShadowingListClient({ initialShadowings, userId }: Shado
     if (res.success && res.shadowing) {
       setShadowings((prev) => [res.shadowing, ...prev]);
       setShowAddModal(false);
+      toast.success('Thêm video shadowing thành công!');
     } else {
-      alert('Không thể tạo video: ' + (res.error || 'Có lỗi xảy ra'));
+      toast.error('Không thể tạo video: ' + (res.error || 'Có lỗi xảy ra'));
     }
   };
 
@@ -122,8 +120,9 @@ export default function ShadowingListClient({ initialShadowings, userId }: Shado
       );
       setShowEditModal(false);
       setEditingShadowing(null);
+      toast.success('Cập nhật video shadowing thành công!');
     } else {
-      alert('Không thể lưu thay đổi: ' + (res.error || 'Có lỗi xảy ra'));
+      toast.error('Không thể lưu thay đổi: ' + (res.error || 'Có lỗi xảy ra'));
     }
   };
 
@@ -143,8 +142,9 @@ export default function ShadowingListClient({ initialShadowings, userId }: Shado
       setShadowings((prev) => prev.filter((c) => c.id !== deletingShadowing.id));
       setShowDeleteModal(false);
       setDeletingShadowing(null);
+      toast.success('Xóa video shadowing thành công!');
     } else {
-      alert('Không thể xoá video: ' + (res.error || 'Có lỗi xảy ra'));
+      toast.error('Không thể xoá video: ' + (res.error || 'Có lỗi xảy ra'));
     }
   };
 
@@ -156,87 +156,50 @@ export default function ShadowingListClient({ initialShadowings, userId }: Shado
   ];
 
   return (
-    <div className="container mx-auto px-8 py-8 ">
+    <div className="container mx-auto px-4 py-12">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6  pb-6 border-b border-border/60">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <div>
-          <h1 className="text-4xl font-black text-foreground tracking-tight flex items-center gap-3">
-            Shadowing Videos
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-4xl font-bold text-foreground">Shadowing Videos</h1>
             <span className="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
               {shadowings.length} bài luyện
             </span>
-          </h1>
-          <p className="text-muted-foreground text-sm mt-2">
+          </div>
+          <p className="text-muted-foreground text-lg">
             Luyện phát âm chuẩn Mỹ & tốc độ nói tiếng Anh thông qua phim ảnh, tin tức thực tế.
           </p>
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center justify-center gap-2 px-6 py-4 rounded-[1.5rem] bg-primary text-white font-bold hover:bg-primary/95 transition-all shadow-lg shadow-primary/20 text-sm cursor-pointer"
-        >
-          <Plus className="h-5 w-5" />
-          Thêm video mới
-        </button>
-      </div>
 
-      {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 bg-card border border-border/60 p-4 rounded-3xl shadow-sm">
-        {/* Search */}
-        <div className="relative w-full sm:max-w-md">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Tìm bài học shadowing..."
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="relative group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-all" />
+            <input
+              type="text"
+              placeholder="Tìm bài học shadowing..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="pl-12 pr-6 py-3 w-full md:w-80 bg-muted border border-border rounded-4xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground"
+            />
+          </div>
+          <SortMenuButton
+            options={SORT_OPTIONS}
+            value={sortKey}
+            onChange={(nextKey) => {
+              setSortKey(nextKey);
               setCurrentPage(1);
             }}
-            className="w-full pl-11 pr-5 py-3 bg-muted/50 border border-border/50 rounded-2xl text-sm focus:outline-none focus:border-primary transition-all text-foreground font-semibold"
           />
-        </div>
-
-        {/* Sort */}
-        <div className="relative shrink-0 w-full sm:w-auto" ref={sortMenuRef}>
           <button
-            onClick={() => setShowSortMenu(!showSortMenu)}
-            className="w-full flex items-center justify-between gap-3 px-5 py-3 border border-border bg-muted/40 text-foreground hover:bg-muted rounded-2xl text-sm font-semibold transition-all cursor-pointer"
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-2 px-6 py-3 rounded-4xl bg-primary text-white font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 cursor-pointer"
           >
-            <ArrowUpDown className="h-4 w-4 text-primary" />
-            <span>Sắp xếp: {SORT_OPTIONS.find((o) => o.key === sortKey)?.label}</span>
+            <Plus className="h-5 w-5" />
+            Thêm video mới
           </button>
-
-          <AnimatePresence>
-            {showSortMenu && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                className="absolute right-0 mt-2 w-56 bg-card border border-border rounded-2xl shadow-xl z-50 overflow-hidden"
-              >
-                <div className="p-2 space-y-1">
-                  {SORT_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.key}
-                      onClick={() => {
-                        setSortKey(opt.key);
-                        setShowSortMenu(false);
-                      }}
-                      className={cn(
-                        'w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-left text-xs font-semibold transition-all cursor-pointer',
-                        sortKey === opt.key
-                          ? 'bg-primary/10 text-primary'
-                          : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                      )}
-                    >
-                      <span>{opt.label}</span>
-                      {sortKey === opt.key && <Check className="h-3.5 w-3.5" />}
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
       </div>
 
@@ -254,7 +217,7 @@ export default function ShadowingListClient({ initialShadowings, userId }: Shado
                 layout
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="group relative flex flex-col bg-card border border-border rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:border-primary/20"
+                className="group relative flex flex-col bg-card border border-border rounded-3xl overflow-hidden shadow-sm hover:shadow-md hover:border-primary/50 transition-all hover:bg-muted/50 duration-300"
               >
                 {/* Image / Thumbnail Container */}
                 <div className="aspect-video relative overflow-hidden bg-black shrink-0">
@@ -360,7 +323,7 @@ export default function ShadowingListClient({ initialShadowings, userId }: Shado
           })}
         </div>
       ) : (
-        <div className="bg-card border border-border/80 p-16 rounded-[2.5rem] text-center space-y-4">
+        <div className="bg-card border border-border/80 p-16 rounded-4xl text-center space-y-4">
           <div className="h-16 w-16 bg-primary/10 rounded-3xl flex items-center justify-center text-primary mx-auto">
             <Video className="h-8 w-8" />
           </div>

@@ -23,7 +23,7 @@ export default async function DashboardPage() {
   ]);
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-6xl space-y-12">
+    <div className="container mx-auto px-4 py-12 space-y-12">
       {/* Welcome Header */}
       <div className="p-8 rounded-[2.5rem] bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
@@ -72,7 +72,7 @@ export default async function DashboardPage() {
           <div key={i} className="p-6 rounded-3xl bg-card border border-border flex flex-col justify-between shadow-sm hover:shadow-md transition-all">
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider">{stat.title}</span>
-              <div className={`h-10 w-10 rounded-xl flex items-center justify-center border ${stat.color}`}>
+              <div className={`h-10 w-10 rounded-4xl flex items-center justify-center border ${stat.color}`}>
                 <stat.icon className="h-5 w-5" />
               </div>
             </div>
@@ -121,7 +121,7 @@ export default async function DashboardPage() {
 
                 <Link 
                   href={`/courses/${course.id}`} 
-                  className="px-4 py-2 text-xs font-bold text-white bg-primary rounded-xl hover:bg-primary/90 transition-all shrink-0 w-full sm:w-auto text-center"
+                  className="px-5 py-2.5 text-xs font-bold text-white bg-primary rounded-4xl hover:bg-primary/90 transition-all shrink-0 w-full sm:w-auto text-center"
                 >
                   Học Tiếp
                 </Link>
@@ -144,7 +144,7 @@ export default async function DashboardPage() {
             ) : (
               recentActivity.map((activity) => (
                 <div key={activity.id} className="flex gap-4 items-start">
-                  <div className={`p-2.5 rounded-xl shrink-0 border ${
+                  <div className={`p-2.5 rounded-4xl shrink-0 border ${
                     activity.type === 'lesson' 
                       ? 'text-primary bg-primary/10 border-primary/20' 
                       : 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20'

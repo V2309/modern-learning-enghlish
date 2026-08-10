@@ -59,7 +59,7 @@ export default function Pagination({
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="flex items-center justify-center h-9 w-9 rounded-xl border border-border bg-card hover:bg-muted text-muted-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          className="flex items-center justify-center h-9 w-9 rounded-4xl border border-border bg-card hover:bg-muted text-muted-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
@@ -76,7 +76,7 @@ export default function Pagination({
               onClick={() => onPageChange(page)}
               whileTap={{ scale: 0.9 }}
               className={cn(
-                'h-9 min-w-9 px-2.5 rounded-xl text-sm font-bold transition-all border',
+                'h-9 min-w-9 px-2.5 rounded-4xl text-sm font-bold transition-all border',
                 currentPage === page
                   ? 'bg-primary text-white border-primary shadow-md shadow-primary/25'
                   : 'bg-card border-border text-muted-foreground hover:bg-muted hover:text-foreground'
@@ -91,7 +91,7 @@ export default function Pagination({
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="flex items-center justify-center h-9 w-9 rounded-xl border border-border bg-card hover:bg-muted text-muted-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          className="flex items-center justify-center h-9 w-9 rounded-4xl border border-border bg-card hover:bg-muted text-muted-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all"
         >
           <ChevronRight className="h-4 w-4" />
         </button>

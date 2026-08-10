@@ -96,7 +96,7 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.22, ease: 'easeOut' }}
-                  className="bg-card border border-border rounded-[2rem] p-6 sm:p-8 hover:shadow-md transition-all duration-300 relative group flex flex-col md:flex-row gap-6 items-start justify-between"
+                  className="bg-card border border-border rounded-3xl p-6 sm:p-8 hover:shadow-md hover:border-primary/50 transition-all hover:bg-muted/50 duration-300 relative group flex flex-col md:flex-row gap-6 items-start justify-between"
                 >
                   <div className="space-y-4 flex-1 w-full">
                     {/* Title word header */}
@@ -107,7 +107,7 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
                       <span className="text-xs font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-full uppercase border border-primary/20">
                         {word.partOfSpeech}
                       </span>
-                      <div className="flex items-center gap-2 text-muted-foreground bg-muted/65 px-3 py-1 rounded-xl text-sm font-medium border border-border/40">
+                      <div className="flex items-center gap-2 text-muted-foreground bg-muted/65 px-3 py-1 rounded-4xl text-sm font-medium border border-border/40">
                         <span className="font-mono text-primary font-semibold">
                           {word.pronunciation || '/.../ '}
                         </span>
@@ -116,7 +116,7 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
                         <button
                           onClick={() => speak(word.word)}
                           title="Giọng UK"
-                          className="p-2 rounded-xl bg-muted border border-border/40 hover:bg-primary hover:text-white transition-all text-muted-foreground"
+                          className="p-2 rounded-full bg-muted border border-border/40 hover:bg-primary hover:text-white transition-all text-muted-foreground cursor-pointer"
                         >
                           <Volume2 className="h-4 w-4" />
                         </button>
@@ -124,7 +124,7 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
                         <button
                           onClick={() => speak(word.word)}
                           title="Giọng US"
-                          className="p-2 rounded-xl bg-muted border border-border/40 hover:bg-primary hover:text-white transition-all text-muted-foreground"
+                          className="p-2 rounded-full bg-muted border border-border/40 hover:bg-primary hover:text-white transition-all text-muted-foreground cursor-pointer"
                         >
                           <Volume2 className="h-4 w-4" />
                         </button>
@@ -135,7 +135,7 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
                             onClick={() => onToggleMaster(word.id)}
                             title={word.mastered ? 'Đã thuộc từ này' : 'Đánh dấu đã thuộc'}
                             className={cn(
-                              'p-2 rounded-xl border transition-all flex items-center gap-1.5 cursor-pointer text-xs font-bold',
+                              'p-2 rounded-4xl border transition-all flex items-center gap-1.5 cursor-pointer text-xs font-bold',
                               word.mastered
                                 ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/20'
                                 : 'bg-muted border-border/40 hover:bg-muted-foreground/10 text-muted-foreground'
@@ -153,7 +153,7 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
                       <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
                         Định nghĩa:
                       </div>
-                      <div className="text-base font-semibold text-foreground bg-muted/20 border border-border/30 rounded-2xl p-4 space-y-1">
+                      <div className="text-base font-semibold text-foreground bg-muted/20 border border-border/30 rounded-3xl p-4 space-y-1">
                         <p>{word.meaning}</p>
                         {(word as any).definition && (
                           <p className="text-sm text-muted-foreground font-normal italic">
@@ -175,11 +175,11 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
                         ).map((ex, exIdx) => (
                           <div
                             key={exIdx}
-                            className="bg-muted/10 border border-border/20 rounded-2xl p-4 flex gap-4 items-start"
+                            className="bg-muted/10 border border-border/20 rounded-3xl p-4 flex gap-4 items-start"
                           >
                             <button
                               onClick={() => speak(ex)}
-                              className="p-2 rounded-xl bg-primary/10 hover:bg-primary text-primary hover:text-white transition-all mt-0.5 shrink-0"
+                              className="p-2 rounded-full bg-primary/10 hover:bg-primary text-primary hover:text-white transition-all mt-0.5 shrink-0 cursor-pointer"
                             >
                               <Volume2 className="h-4 w-4" />
                             </button>
@@ -200,7 +200,7 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
                         <button
                           onClick={() => onEdit(word)}
                           title="Sửa từ"
-                          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-muted border border-border hover:bg-primary/10 hover:border-primary/30 text-muted-foreground hover:text-primary transition-all text-xs font-bold"
+                          className="flex items-center gap-1.5 px-3 py-2 rounded-4xl bg-muted border border-border hover:bg-primary/10 hover:border-primary/30 text-muted-foreground hover:text-primary transition-all text-xs font-bold cursor-pointer"
                         >
                           <Pencil className="h-3.5 w-3.5" />
                           Sửa
@@ -210,7 +210,7 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
                         <button
                           onClick={() => onDelete(word)}
                           title="Xoá từ"
-                          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-muted border border-border hover:bg-red-500/10 hover:border-red-500/30 text-muted-foreground hover:text-red-500 transition-all text-xs font-bold"
+                          className="flex items-center gap-1.5 px-3 py-2 rounded-4xl bg-muted border border-border hover:bg-red-500/10 hover:border-red-500/30 text-muted-foreground hover:text-red-500 transition-all text-xs font-bold cursor-pointer"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                           Xoá
@@ -220,7 +220,7 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
 
                     {/* Image asset */}
                     {word.imageUrl ? (
-                      <div className="w-full md:w-48 aspect-[4/3] md:aspect-square rounded-2xl overflow-hidden border border-border shadow-sm">
+                      <div className="w-full md:w-48 aspect-[4/3] md:aspect-square rounded-3xl overflow-hidden border border-border shadow-sm">
                         <img
                           src={word.imageUrl}
                           alt={word.word}
@@ -229,7 +229,7 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
                         />
                       </div>
                     ) : (
-                      <div className="w-full md:w-48 aspect-[4/3] md:aspect-square rounded-2xl bg-muted/25 border border-dashed border-border flex flex-col items-center justify-center text-muted-foreground p-4">
+                      <div className="w-full md:w-48 aspect-[4/3] md:aspect-square rounded-3xl bg-muted/25 border border-dashed border-border flex flex-col items-center justify-center text-muted-foreground p-4">
                         <Sparkles className="h-8 w-8 text-primary mb-2 opacity-50" />
                         <span className="italic text-xs text-center font-medium">Bản minh hoạ sẵn sàng</span>
                       </div>

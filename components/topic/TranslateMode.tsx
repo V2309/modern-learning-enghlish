@@ -65,7 +65,7 @@ export const TranslateMode = ({
             </div>
 
             {/* Question */}
-            <div className="p-6 bg-muted/40 border border-border rounded-2xl text-center space-y-3">
+            <div className="p-6 bg-muted/40 border border-border rounded-3xl text-center space-y-3">
               <span className="text-[10px] font-bold uppercase tracking-wide text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">
                 Cloze Gap-Fill
               </span>
@@ -75,7 +75,7 @@ export const TranslateMode = ({
               <h3 className="text-xl font-bold text-foreground leading-relaxed">
                 "{translateQuestions[translateIndex].question}"
               </h3>
-              <div className="flex justify-center items-center gap-1.5 text-xs font-semibold text-primary/75 mt-2 bg-primary/5 p-2 rounded-xl border border-primary/10">
+              <div className="flex justify-center items-center gap-1.5 text-xs font-semibold text-primary/75 mt-2 bg-primary/5 p-2 rounded-3xl border border-primary/10">
                 <Lightbulb className="h-4 w-4" />
                 <span>Gợi ý: {translateQuestions[translateIndex].hint}</span>
               </div>
@@ -97,7 +97,7 @@ export const TranslateMode = ({
                   }
                 }}
                 className={cn(
-                  'w-full bg-muted border rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-base font-semibold',
+                  'w-full bg-muted border rounded-4xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-base font-semibold',
                   isTranslateChecked
                     ? isTranslateCorrect
                       ? 'border-green-500 text-green-700 bg-green-500/5 focus:ring-transparent'
@@ -113,7 +113,7 @@ export const TranslateMode = ({
             {isTranslateChecked && (
               <div
                 className={cn(
-                  'p-4 rounded-xl text-center space-y-1 border text-sm font-semibold',
+                  'p-4 rounded-3xl text-center space-y-1 border text-sm font-semibold',
                   isTranslateCorrect
                     ? 'bg-green-500/10 border-green-500/20 text-green-700'
                     : 'bg-red-500/10 border-red-500/20 text-red-700'
@@ -134,20 +134,19 @@ export const TranslateMode = ({
               </div>
             )}
 
-            {/* Controls */}
             <div className="pt-4 border-t border-border flex justify-end">
               {!isTranslateChecked ? (
                 <button
                   onClick={onCheck}
                   disabled={!translateInput.trim()}
-                  className="px-6 py-3 bg-primary text-white font-bold rounded-xl text-xs hover:bg-primary/95 disabled:opacity-50 transition-all"
+                  className="px-6 py-3 bg-primary text-white font-bold rounded-4xl text-xs hover:bg-primary/95 disabled:opacity-50 transition-all cursor-pointer"
                 >
                   Kiểm tra kết quả
                 </button>
               ) : (
                 <button
                   onClick={onNext}
-                  className="px-6 py-3 bg-primary text-white font-bold rounded-xl text-xs hover:bg-primary/95 transition-all flex items-center gap-2"
+                  className="px-6 py-3 bg-primary text-white font-bold rounded-4xl text-xs hover:bg-primary/95 transition-all flex items-center gap-2 cursor-pointer"
                 >
                   <span>
                     {translateIndex + 1 < translateQuestions.length ? 'Từ kế tiếp' : 'Xem kết quả'}
@@ -178,13 +177,13 @@ export const TranslateMode = ({
           <div className="pt-4 flex gap-4">
             <button
               onClick={onRestart}
-              className="flex-1 py-3 border border-border hover:bg-muted text-foreground text-xs font-bold rounded-xl"
+              className="flex-1 py-3 border border-border hover:bg-muted text-foreground text-xs font-bold rounded-4xl cursor-pointer"
             >
               Điền lại
             </button>
             <button
               onClick={onBackToList}
-              className="flex-1 py-3 bg-primary text-white hover:bg-primary/95 text-xs font-bold rounded-xl"
+              className="flex-1 py-3 bg-primary text-white hover:bg-primary/95 text-xs font-bold rounded-4xl cursor-pointer"
             >
               Quay lại danh sách
             </button>

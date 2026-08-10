@@ -49,7 +49,7 @@ export const EditCourseModal = ({
                 <h2 className="text-2xl font-bold text-foreground">Sửa khoá học</h2>
                 <p className="text-muted-foreground text-sm">Cập nhật thông tin khoá học.</p>
               </div>
-              <button onClick={onClose} className="p-2 rounded-xl hover:bg-muted text-muted-foreground transition-colors">
+              <button onClick={onClose} className="p-2 rounded-4xl hover:bg-muted text-muted-foreground transition-colors">
                 <X />
               </button>
             </div>
@@ -62,7 +62,7 @@ export const EditCourseModal = ({
                   type="text"
                   value={form.title}
                   onChange={(e) => onChange('title', e.target.value)}
-                  className="w-full bg-muted border border-border rounded-2xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all"
+                  className="w-full bg-muted border border-border rounded-4xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all"
                   placeholder="e.g. English for Marketing"
                 />
               </div>
@@ -73,7 +73,7 @@ export const EditCourseModal = ({
                   value={form.description}
                   onChange={(e) => onChange('description', e.target.value)}
                   rows={4}
-                  className="w-full bg-muted border border-border rounded-2xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all resize-none"
+                  className="w-full bg-muted border border-border rounded-4xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all resize-none"
                   placeholder="Describe what users will learn..."
                 />
                 <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-medium italic">
@@ -88,7 +88,7 @@ export const EditCourseModal = ({
                   <select
                     value={form.level}
                     onChange={(e) => onChange('level', e.target.value)}
-                    className="w-full bg-muted border border-border rounded-2xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all appearance-none"
+                    className="w-full bg-muted border border-border rounded-4xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all appearance-none"
                   >
                     <option value="Beginner">Beginner</option>
                     <option value="Intermediate">Intermediate</option>
@@ -101,7 +101,7 @@ export const EditCourseModal = ({
                     type="text"
                     value={form.thumbnail}
                     onChange={(e) => onChange('thumbnail', e.target.value)}
-                    className="w-full bg-muted border border-border rounded-2xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all text-xs font-mono"
+                    className="w-full bg-muted border border-border rounded-4xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all text-xs font-mono"
                     placeholder="https://..."
                   />
                 </div>
@@ -109,7 +109,7 @@ export const EditCourseModal = ({
 
               {/* Thumbnail preview */}
               {form.thumbnail && (
-                <div className="rounded-2xl overflow-hidden border border-border aspect-video">
+                <div className="rounded-3xl overflow-hidden border border-border aspect-video">
                   <img src={form.thumbnail} alt="Thumbnail preview" className="w-full h-full object-cover" />
                 </div>
               )}
@@ -120,7 +120,7 @@ export const EditCourseModal = ({
               <button
                 onClick={onSave}
                 disabled={!form.title || isSaving}
-                className="w-full py-4 bg-primary disabled:opacity-50 disabled:grayscale text-white rounded-2xl font-bold hover:bg-primary/90 transition-all flex items-center justify-center gap-2"
+                className="w-full py-4 bg-primary disabled:opacity-50 disabled:grayscale text-white rounded-4xl font-bold hover:bg-primary/90 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-primary/20"
               >
                 {isSaving ? 'Đang lưu...' : 'Lưu thay đổi'}
               </button>

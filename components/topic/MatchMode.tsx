@@ -41,7 +41,7 @@ export const MatchMode = ({
       className="max-w-2xl mx-auto space-y-6"
     >
       {/* Banner */}
-      <div className="flex justify-between items-center bg-card border border-border p-4 rounded-2xl shadow-sm">
+      <div className="flex justify-between items-center bg-card border border-border p-4 rounded-3xl shadow-sm">
         <div className="flex items-center gap-2 text-sm text-foreground font-semibold">
           <Timer className="h-4 w-4 text-primary" />
           <span>Thời gian học: {matchSeconds} giây</span>
@@ -81,7 +81,7 @@ export const MatchMode = ({
                     disabled={card.isMatched}
                     onClick={() => onCardClick(card)}
                     className={cn(
-                      'h-28 rounded-2xl border p-4 flex items-center justify-center text-center font-semibold text-sm transition-all duration-200 shadow-sm',
+                      'h-28 rounded-3xl border p-4 flex items-center justify-center text-center font-semibold text-sm transition-all duration-200 shadow-sm cursor-pointer',
                       cardClass
                     )}
                   >
@@ -107,13 +107,13 @@ export const MatchMode = ({
           <div className="flex gap-4 pt-4">
             <button
               onClick={onRestart}
-              className="flex-1 py-3.5 border border-border text-foreground hover:bg-muted rounded-xl text-xs font-bold transition-all"
+              className="flex-1 py-3.5 border border-border text-foreground hover:bg-muted rounded-4xl text-xs font-bold transition-all cursor-pointer"
             >
               Chơi lại
             </button>
             <button
               onClick={onBackToList}
-              className="flex-1 py-3.5 bg-primary text-white hover:bg-primary/95 rounded-xl text-xs font-bold transition-all"
+              className="flex-1 py-3.5 bg-primary text-white hover:bg-primary/95 rounded-4xl text-xs font-bold transition-all cursor-pointer"
             >
               Thoát ra học từ
             </button>

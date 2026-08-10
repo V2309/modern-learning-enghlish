@@ -14,6 +14,7 @@ import { completeLessonAction } from '@/actions/progress.action';
 import { createLessonAction, updateLessonAction, deleteLessonAction } from '@/actions/lesson.action';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import { useCourseDetailStore } from '@/stores/useCourseDetailStore';
+import { toast } from 'react-hot-toast';
 
 interface CourseDetailClientProps {
   course: any;
@@ -81,7 +82,9 @@ export default function CourseDetailClient({ course, userId, initialCompletedLes
           ? [...completedIds, lessonId]
           : completedIds.filter((id) => id !== lessonId)
       );
-      alert('Không thể lưu tiến độ: ' + (res.error || 'Có lỗi xảy ra'));
+      toast.error('Không thể lưu tiến độ: ' + (res.error || 'Có lỗi xảy ra'));
+    } else {
+      toast.success(alreadyCompleted ? 'Đã hủy hoàn thành bài học!' : 'Hoàn thành bài học!');
     }
   };
 
@@ -115,8 +118,9 @@ export default function CourseDetailClient({ course, userId, initialCompletedLes
       }
       setShowEditLessonModal(false);
       setEditingLesson(null);
+      toast.success('Cập nhật bài học thành công!');
     } else {
-      alert('Không thể cập nhật bài học: ' + (res.error || 'Có lỗi xảy ra'));
+      toast.error('Không thể cập nhật bài học: ' + (res.error || 'Có lỗi xảy ra'));
     }
   };
 
@@ -139,8 +143,9 @@ export default function CourseDetailClient({ course, userId, initialCompletedLes
       }
       setShowDeleteLessonModal(false);
       setDeletingLesson(null);
+      toast.success('Xóa bài học thành công!');
     } else {
-      alert('Không thể xoá bài học: ' + (res.error || 'Có lỗi xảy ra'));
+      toast.error('Không thể xoá bài học: ' + (res.error || 'Có lỗi xảy ra'));
     }
   };
 
@@ -158,8 +163,9 @@ export default function CourseDetailClient({ course, userId, initialCompletedLes
     if (res.success && res.lesson) {
       setLessons([...lessons, res.lesson]);
       setShowAddLessonModal(false);
+      toast.success('Thêm bài học mới thành công!');
     } else {
-      alert('Không thể thêm bài học: ' + (res.error || 'Có lỗi xảy ra'));
+      toast.error('Không thể thêm bài học: ' + (res.error || 'Có lỗi xảy ra'));
     }
   };
 

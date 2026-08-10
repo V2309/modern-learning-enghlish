@@ -63,7 +63,7 @@ export const QuizMode = ({
             </div>
 
             {/* Question */}
-            <div className="p-6 rounded-2xl bg-muted/40 border border-border text-center space-y-2">
+            <div className="p-6 rounded-3xl bg-muted/40 border border-border text-center space-y-2">
               <span className="text-[10px] font-bold uppercase tracking-wide text-primary bg-primary/10 px-2 py-0.5 rounded-full">
                 {quizQuestions[currentQuizIndex].partOfSpeech}
               </span>
@@ -94,7 +94,7 @@ export const QuizMode = ({
                     disabled={isQuizAnswered}
                     onClick={() => onSelectAnswer(opt)}
                     className={cn(
-                      'w-full p-4 text-left rounded-2xl border transition-all text-sm flex items-center justify-between',
+                      'w-full p-4 text-left rounded-4xl border transition-all text-sm flex items-center justify-between cursor-pointer',
                       btnClass
                     )}
                   >
@@ -105,20 +105,19 @@ export const QuizMode = ({
               })}
             </div>
 
-            {/* Controls */}
             <div className="pt-4 border-t border-border flex justify-end">
               {!isQuizAnswered ? (
                 <button
                   onClick={onCheckAnswer}
                   disabled={!selectedQuizAnswer}
-                  className="px-6 py-3 bg-primary text-white font-bold rounded-xl text-xs hover:bg-primary/95 disabled:opacity-50 transition-all"
+                  className="px-6 py-3 bg-primary text-white font-bold rounded-4xl text-xs hover:bg-primary/95 disabled:opacity-50 transition-all cursor-pointer"
                 >
                   Kiểm tra kết quả
                 </button>
               ) : (
                 <button
                   onClick={onNext}
-                  className="px-6 py-3 bg-primary text-white font-bold rounded-xl text-xs hover:bg-primary/95 transition-all flex items-center gap-2"
+                  className="px-6 py-3 bg-primary text-white font-bold rounded-4xl text-xs hover:bg-primary/95 transition-all flex items-center gap-2 cursor-pointer"
                 >
                   <span>
                     {currentQuizIndex + 1 < quizQuestions.length ? 'Câu kế tiếp' : 'Xem kết quả'}
@@ -149,13 +148,13 @@ export const QuizMode = ({
           <div className="flex gap-4 max-w-sm mx-auto pt-4">
             <button
               onClick={onRestart}
-              className="flex-1 py-3 border border-border text-foreground hover:bg-muted font-bold rounded-xl text-xs transition-all"
+              className="flex-1 py-3 border border-border text-foreground hover:bg-muted font-bold rounded-4xl text-xs transition-all cursor-pointer"
             >
               Luyện tập lại
             </button>
             <button
               onClick={onBackToList}
-              className="flex-1 py-3 bg-primary text-white hover:bg-primary/90 font-bold rounded-xl text-xs transition-all"
+              className="flex-1 py-3 bg-primary text-white hover:bg-primary/90 font-bold rounded-4xl text-xs transition-all cursor-pointer"
             >
               Quay lại danh sách
             </button>

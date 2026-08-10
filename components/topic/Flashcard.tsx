@@ -29,16 +29,16 @@ export const Flashcard = ({
             animate={{ opacity: 1, rotateY: 0 }}
             exit={{ opacity: 0, rotateY: -180 }}
             transition={{ duration: 0.3 }}
-            className="absolute inset-0 w-full h-full p-10 rounded-[2.5rem] bg-white border border-slate-200 shadow-2xl flex flex-col items-center justify-center space-y-6 text-slate-900 backface-hidden"
+            className="absolute inset-0 w-full h-full p-10 rounded-[2.5rem] bg-card border border-border shadow-2xl flex flex-col items-center justify-center space-y-6 text-foreground backface-hidden"
           >
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32" />
             <span className="px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-bold uppercase tracking-wider border border-primary/20">
               {word.partOfSpeech}
             </span>
-            <h1 className="text-6xl md:text-7xl font-bold tracking-tight text-center text-slate-900">
+            <h1 className="text-6xl md:text-7xl font-bold tracking-tight text-center text-foreground">
               {word.word}
             </h1>
-            <div className="flex items-center gap-4 text-slate-500 text-sm font-medium mt-4">
+            <div className="flex items-center gap-4 text-muted-foreground text-sm font-medium mt-4">
               <Sparkles className="h-4 w-4" />
               Click to Reveal Meaning
             </div>
@@ -50,7 +50,7 @@ export const Flashcard = ({
             animate={{ opacity: 1, rotateY: 0 }}
             exit={{ opacity: 0, rotateY: 180 }}
             transition={{ duration: 0.3 }}
-            className="absolute inset-0 w-full h-full p-10 rounded-[2.5rem] bg-white border border-slate-200 shadow-2xl flex flex-col items-center justify-center space-y-8 relative text-slate-900 backface-hidden"
+            className="absolute inset-0 w-full h-full p-10 rounded-[2.5rem] bg-card border border-border shadow-2xl flex flex-col items-center justify-center space-y-8 relative text-foreground backface-hidden"
           >
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -ml-32 -mb-32" />
             <div className="absolute top-6 right-6 flex items-center gap-2 text-primary/60 text-xs font-bold uppercase tracking-widest">
@@ -59,13 +59,13 @@ export const Flashcard = ({
             </div>
             <div className="text-center space-y-2">
               <h2 className="text-2xl font-bold text-primary mb-1">Meaning</h2>
-              <p className="text-3xl font-medium text-slate-900">{word.meaning}</p>
+              <p className="text-3xl font-medium text-foreground">{word.meaning}</p>
               {(word as any).definition && (
-                <p className="text-base italic text-slate-500">= {(word as any).definition}</p>
+                <p className="text-base italic text-muted-foreground">= {(word as any).definition}</p>
               )}
             </div>
             <div className="flex flex-col items-center gap-3">
-              <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-4xl bg-muted border border-border text-muted-foreground">
                 <Languages className="h-5 w-5 text-primary" />
                 <span className="font-mono text-xl tracking-wide">
                   {word.pronunciation || '/.../'}
@@ -76,15 +76,15 @@ export const Flashcard = ({
                   e.stopPropagation();
                   speak(word.word);
                 }}
-                className="h-12 w-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all group"
+                className="h-12 w-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all group cursor-pointer"
               >
                 <Volume2 className="h-6 w-6 group-hover:scale-110 transition-transform" />
               </button>
             </div>
-            <div className="w-full space-y-2 text-center pt-4 border-t border-slate-100 max-h-[140px] overflow-y-auto pr-1">
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Example Usage</h4>
+            <div className="w-full space-y-2 text-center pt-4 border-t border-border/60 max-h-[140px] overflow-y-auto pr-1">
+              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Example Usage</h4>
               {(word.examples && word.examples.length > 0 ? word.examples : [word.example]).map((ex, exIdx) => (
-                <p key={exIdx} className="text-sm italic leading-relaxed px-4 text-slate-600">
+                <p key={exIdx} className="text-sm italic leading-relaxed px-4 text-muted-foreground">
                   "{ex}"
                 </p>
               ))}

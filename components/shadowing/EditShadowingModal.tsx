@@ -111,7 +111,7 @@ export const EditShadowingModal = ({
                 <h2 className="text-2xl font-bold text-foreground">Sửa bài học Shadowing</h2>
                 <p className="text-muted-foreground text-sm">Cập nhật thông tin video và phụ đề đồng bộ.</p>
               </div>
-              <button onClick={onClose} className="p-2 rounded-xl hover:bg-muted text-muted-foreground transition-colors cursor-pointer">
+              <button onClick={onClose} className="p-2 rounded-4xl hover:bg-muted text-muted-foreground transition-colors cursor-pointer">
                 <X />
               </button>
             </div>
@@ -125,7 +125,7 @@ export const EditShadowingModal = ({
                   type="text"
                   value={form.title}
                   onChange={(e) => onChange('title', e.target.value)}
-                  className="w-full bg-muted border border-border rounded-2xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all text-sm font-semibold"
+                  className="w-full bg-muted border border-border rounded-4xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all text-sm font-semibold"
                   placeholder="e.g. Luyện giọng Mỹ qua phim Friends"
                 />
               </div>
@@ -141,7 +141,7 @@ export const EditShadowingModal = ({
                     type="text"
                     value={form.videoUrl}
                     onChange={(e) => onChange('videoUrl', e.target.value)}
-                    className="w-full bg-muted border border-border rounded-2xl px-5 py-3 pr-12 text-foreground focus:outline-none focus:border-primary transition-all text-xs font-mono"
+                    className="w-full bg-muted border border-border rounded-4xl px-5 py-3 pr-12 text-foreground focus:outline-none focus:border-primary transition-all text-xs font-mono"
                     placeholder="https://www.youtube.com/watch?v=..."
                   />
                   <div className="absolute right-4 top-1/2 -translate-y-1/2">
@@ -158,7 +158,7 @@ export const EditShadowingModal = ({
                       onClick={() => handleFetchTranscript()}
                       disabled={isFetchingTranscript}
                       className={cn(
-                        "flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all border cursor-pointer",
+                        "flex items-center gap-2 px-4 py-2.5 rounded-4xl text-xs font-bold transition-all border cursor-pointer",
                         isFetchingTranscript
                           ? "bg-muted text-muted-foreground border-border"
                           : "bg-red-500/10 text-red-600 border-red-500/20 hover:bg-red-500 hover:text-white hover:border-red-500"
@@ -171,14 +171,14 @@ export const EditShadowingModal = ({
                     </button>
 
                     {fetchError && (
-                      <p className="text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-xl px-4 py-2.5 flex items-start gap-2">
+                      <p className="text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-3xl px-4 py-2.5 flex items-start gap-2">
                         <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
                         {fetchError}
                       </p>
                     )}
 
                     {fetchSuccess && !fetchError && (
-                      <p className="text-xs text-emerald-600 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-2.5 flex items-center gap-2">
+                      <p className="text-xs text-emerald-600 bg-emerald-500/10 border border-emerald-500/20 rounded-3xl px-4 py-2.5 flex items-center gap-2">
                         <CheckCircle2 className="h-3.5 w-3.5" />
                         Đã lấy được phụ đề từ YouTube! Bạn có thể chỉnh sửa bên dưới nếu cần.
                       </p>
@@ -193,7 +193,7 @@ export const EditShadowingModal = ({
                 <textarea
                   value={form.description}
                   onChange={(e) => onChange('description', e.target.value)}
-                  className="w-full bg-muted border border-border rounded-2xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all text-sm h-20 resize-none"
+                  className="w-full bg-muted border border-border rounded-4xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all text-sm h-20 resize-none"
                   placeholder="Ghi chú về từ vựng, ngữ pháp hay cách phát âm trong video này..."
                 />
               </div>
@@ -215,7 +215,7 @@ export const EditShadowingModal = ({
                 <textarea
                   value={form.transcript}
                   onChange={(e) => onChange('transcript', e.target.value)}
-                  className="w-full bg-muted border border-border rounded-2xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all text-xs font-mono h-44 resize-none"
+                  className="w-full bg-muted border border-border rounded-4xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all text-xs font-mono h-44 resize-none"
                   placeholder="Nhập theo dạng LRC:&#10;[00:00.00] Welcome to our channel.&#10;[00:02.50] Today we study English.&#10;&#10;Hoặc nhấn nút 'Tự động lấy phụ đề' ở trên."
                 />
               </div>
@@ -226,7 +226,7 @@ export const EditShadowingModal = ({
               <button
                 onClick={onSave}
                 disabled={!canSave || isSaving}
-                className="w-full py-4 bg-primary disabled:opacity-50 disabled:grayscale text-white rounded-2xl font-bold hover:bg-primary/95 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-primary/20"
+                className="w-full py-4 bg-primary disabled:opacity-50 disabled:grayscale text-white rounded-4xl font-bold hover:bg-primary/95 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-primary/20"
               >
                 {isSaving ? 'Đang lưu...' : 'Lưu thay đổi'}
               </button>

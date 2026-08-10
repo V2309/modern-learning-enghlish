@@ -62,7 +62,7 @@ export const AddCourseModal = ({
                 <h2 className="text-2xl font-bold text-foreground">Create New Course</h2>
                 <p className="text-muted-foreground text-sm">Design your own learning path.</p>
               </div>
-              <button onClick={onClose} className="p-2 rounded-xl hover:bg-muted text-muted-foreground">
+              <button onClick={onClose} className="p-2 rounded-4xl hover:bg-muted text-muted-foreground transition-all">
                 <X />
               </button>
             </div>
@@ -74,7 +74,7 @@ export const AddCourseModal = ({
                 <input
                   type="text" value={newCourse.title}
                   onChange={(e) => onCourseChange('title', e.target.value)}
-                  className="w-full bg-muted border border-border rounded-2xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all"
+                  className="w-full bg-muted border border-border rounded-4xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all"
                   placeholder="e.g. English for Marketing"
                 />
               </div>
@@ -85,7 +85,7 @@ export const AddCourseModal = ({
                   value={newCourse.description}
                   onChange={(e) => onCourseChange('description', e.target.value)}
                   rows={3}
-                  className="w-full bg-muted border border-border rounded-2xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all resize-none"
+                  className="w-full bg-muted border border-border rounded-4xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all resize-none"
                   placeholder="Describe what users will learn..."
                 />
                 <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-medium italic">
@@ -100,7 +100,7 @@ export const AddCourseModal = ({
                   <select
                     value={newCourse.level}
                     onChange={(e) => onCourseChange('level', e.target.value)}
-                    className="w-full bg-muted border border-border rounded-2xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all appearance-none"
+                    className="w-full bg-muted border border-border rounded-4xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all appearance-none"
                   >
                     <option value="Beginner">Beginner</option>
                     <option value="Intermediate">Intermediate</option>
@@ -109,7 +109,7 @@ export const AddCourseModal = ({
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-muted-foreground uppercase tracking-widest pl-1">Thumbnail</label>
-                  <div className="h-12 flex items-center gap-4 bg-muted border border-border rounded-2xl px-4">
+                  <div className="h-12 flex items-center gap-4 bg-muted border border-border rounded-4xl px-4">
                     <Layout className="h-4 w-4 text-muted-foreground" />
                     <span className="text-xs text-muted-foreground truncate">Default Random Image</span>
                   </div>
@@ -124,7 +124,7 @@ export const AddCourseModal = ({
                   </label>
                   <button
                     type="button" onClick={onAddLesson}
-                    className="flex items-center gap-1 px-3 py-1.5 text-xs text-primary bg-primary/10 rounded-xl hover:bg-primary hover:text-white transition-all font-bold"
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs text-primary bg-primary/10 rounded-4xl hover:bg-primary hover:text-white transition-all font-bold cursor-pointer"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Add Lesson
@@ -132,11 +132,11 @@ export const AddCourseModal = ({
                 </div>
                 <div className="space-y-3">
                   {newLessons.map((lesson, idx) => (
-                    <div key={idx} className="p-4 bg-muted/40 border border-border rounded-2xl space-y-3">
+                    <div key={idx} className="p-4 bg-muted/40 border border-border rounded-3xl space-y-3">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">Lesson {idx + 1}</span>
                         {newLessons.length > 1 && (
-                          <button type="button" onClick={() => onRemoveLesson(idx)} className="p-1 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors">
+                          <button type="button" onClick={() => onRemoveLesson(idx)} className="p-1 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors cursor-pointer">
                             <X className="h-4 w-4" />
                           </button>
                         )}
@@ -144,18 +144,18 @@ export const AddCourseModal = ({
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div className="col-span-1 md:col-span-2">
                           <input type="text" value={lesson.title} onChange={(e) => onUpdateLesson(idx, 'title', e.target.value)}
-                            className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary transition-all"
+                            className="w-full bg-background border border-border rounded-4xl px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary transition-all"
                             placeholder="e.g. Lesson Title" />
                         </div>
                         <input type="text" value={lesson.duration} onChange={(e) => onUpdateLesson(idx, 'duration', e.target.value)}
-                          className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary transition-all"
+                          className="w-full bg-background border border-border rounded-4xl px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary transition-all"
                           placeholder="Duration (e.g. 10:00)" />
                       </div>
                       <input type="text" value={lesson.videoUrl} onChange={(e) => onUpdateLesson(idx, 'videoUrl', e.target.value)}
-                        className="w-full bg-background border border-border rounded-xl px-3 py-2 text-xs text-muted-foreground focus:outline-none focus:border-primary transition-all font-mono"
+                        className="w-full bg-background border border-border rounded-4xl px-3 py-2 text-xs text-muted-foreground focus:outline-none focus:border-primary transition-all font-mono"
                         placeholder="Video Link (e.g. mp4 URL)" />
                       <input type="text" value={lesson.description} onChange={(e) => onUpdateLesson(idx, 'description', e.target.value)}
-                        className="w-full bg-background border border-border rounded-xl px-3 py-2 text-xs text-foreground focus:outline-none focus:border-primary transition-all"
+                        className="w-full bg-background border border-border rounded-4xl px-3 py-2 text-xs text-foreground focus:outline-none focus:border-primary transition-all"
                         placeholder="Mô tả ngắn gọn nội dung bài tập/bài học..." />
                     </div>
                   ))}
@@ -166,7 +166,7 @@ export const AddCourseModal = ({
             {/* Footer */}
             <div className="p-8 bg-muted/50 border-t border-border shrink-0">
               <button onClick={onSave} disabled={!newCourse.title}
-                className="w-full py-4 bg-primary disabled:opacity-50 disabled:grayscale text-white rounded-2xl font-bold hover:bg-primary/90 transition-all flex items-center justify-center gap-2">
+                className="w-full py-4 bg-primary disabled:opacity-50 disabled:grayscale text-white rounded-4xl font-bold hover:bg-primary/90 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-primary/20">
                 <Plus className="h-5 w-5" />
                 Create Course
               </button>

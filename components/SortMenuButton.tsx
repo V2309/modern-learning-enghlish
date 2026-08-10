@@ -45,7 +45,7 @@ export default function SortMenuButton<T extends string>({
         type="button"
         onClick={() => setOpen((prev) => !prev)}
         className={cn(
-          'flex items-center gap-2 px-4 py-3 rounded-2xl border font-bold text-sm transition-all',
+          'flex items-center gap-2 px-4 py-3 rounded-4xl border font-bold text-sm transition-all',
           open
             ? 'bg-primary/10 border-primary/40 text-primary'
             : 'bg-card border-border text-muted-foreground hover:bg-muted hover:text-foreground',
@@ -63,7 +63,7 @@ export default function SortMenuButton<T extends string>({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -4 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 mt-2 w-56 bg-card border border-border rounded-2xl shadow-xl overflow-hidden z-50"
+            className="absolute right-0 mt-2 w-56 bg-card border border-border rounded-3xl shadow-xl overflow-hidden z-50"
           >
             <div className="p-2">
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-3 py-2">Sắp xếp theo</p>
@@ -76,7 +76,7 @@ export default function SortMenuButton<T extends string>({
                     setOpen(false);
                   }}
                   className={cn(
-                    'w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors',
+                    'w-full flex items-center justify-between px-3 py-2.5 rounded-2xl text-sm font-medium transition-colors',
                     value === option.key
                       ? 'bg-primary/10 text-primary'
                       : 'text-foreground hover:bg-muted'

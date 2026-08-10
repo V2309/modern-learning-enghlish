@@ -9,6 +9,7 @@ import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import Pagination from '@/components/Pagination';
 import SortMenuButton from '@/components/SortMenuButton';
 import { useVocabularyUiStore } from '@/stores/useVocabularyUiStore';
+import { toast } from 'react-hot-toast';
 
 interface VocabularyClientProps {
   initialTopics: any[];
@@ -70,8 +71,9 @@ export default function VocabularyClient({ initialTopics, userId }: VocabularyCl
       setTopics((prev) => [{ ...res.topic, vocabularies: [] }, ...prev]);
       setShowAddModal(false);
       setNewTopic({ name: '', description: '' });
+      toast.success('Tạo chủ đề mới thành công!');
     } else {
-      alert('Không thể tạo chủ đề: ' + (res.error || 'Có lỗi xảy ra'));
+      toast.error('Không thể tạo chủ đề: ' + (res.error || 'Có lỗi xảy ra'));
     }
   };
 
@@ -95,8 +97,9 @@ export default function VocabularyClient({ initialTopics, userId }: VocabularyCl
       setTopics((prev) => prev.map((t) => (t.id === editTopic.id ? { ...t, ...res.topic } : t)));
       setShowEditModal(false);
       setEditTopic(null);
+      toast.success('Cập nhật chủ đề thành công!');
     } else {
-      alert('Không thể cập nhật chủ đề: ' + (res.error || 'Có lỗi xảy ra'));
+      toast.error('Không thể cập nhật chủ đề: ' + (res.error || 'Có lỗi xảy ra'));
     }
   };
 
@@ -116,8 +119,9 @@ export default function VocabularyClient({ initialTopics, userId }: VocabularyCl
       setTopics((prev) => prev.filter((t) => t.id !== deletingTopic.id));
       setShowDeleteModal(false);
       setDeletingTopic(null);
+      toast.success('Xóa chủ đề thành công!');
     } else {
-      alert('Không thể xoá chủ đề: ' + (res.error || 'Có lỗi xảy ra'));
+      toast.error('Không thể xoá chủ đề: ' + (res.error || 'Có lỗi xảy ra'));
     }
   };
 

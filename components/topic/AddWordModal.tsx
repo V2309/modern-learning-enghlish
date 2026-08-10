@@ -63,7 +63,7 @@ export const AddWordModal = ({
                   Bổ sung từ vựng mới vào chủ đề {topicName}.
                 </p>
               </div>
-              <button onClick={onClose} className="p-2 rounded-xl hover:bg-muted text-muted-foreground">
+              <button onClick={onClose} className="p-2 rounded-4xl hover:bg-muted text-muted-foreground transition-all">
                 <X />
               </button>
             </div>
@@ -78,7 +78,7 @@ export const AddWordModal = ({
                   type="text"
                   value={newWord.word}
                   onChange={(e) => onWordChange('word', e.target.value)}
-                  className="w-full bg-muted border border-border rounded-2xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all"
+                  className="w-full bg-muted border border-border rounded-4xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all"
                   placeholder="e.g. Resilience"
                 />
               </div>
@@ -92,7 +92,7 @@ export const AddWordModal = ({
                     type="text"
                     value={newWord.meaning}
                     onChange={(e) => onWordChange('meaning', e.target.value)}
-                    className="w-full bg-muted border border-border rounded-2xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all"
+                    className="w-full bg-muted border border-border rounded-4xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all"
                     placeholder="e.g. Sự kiên cường"
                   />
                 </div>
@@ -103,7 +103,7 @@ export const AddWordModal = ({
                   <select
                     value={newWord.partOfSpeech}
                     onChange={(e) => onWordChange('partOfSpeech', e.target.value)}
-                    className="w-full bg-muted border border-border rounded-2xl px-5 py-[11px] text-foreground focus:outline-none focus:border-primary transition-all appearance-none"
+                    className="w-full bg-muted border border-border rounded-4xl px-5 py-[11px] text-foreground focus:outline-none focus:border-primary transition-all appearance-none"
                   >
                     <option value="Noun">Noun</option>
                     <option value="Verb">Verb</option>
@@ -122,7 +122,7 @@ export const AddWordModal = ({
                   type="text"
                   value={newWord.definition}
                   onChange={(e) => onWordChange('definition', e.target.value)}
-                  className="w-full bg-muted border border-border rounded-2xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all"
+                  className="w-full bg-muted border border-border rounded-4xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all"
                   placeholder="e.g. the ability to recover quickly from difficulties"
                 />
               </div>
@@ -136,7 +136,7 @@ export const AddWordModal = ({
                   <button
                     type="button"
                     onClick={onAddExample}
-                    className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all rounded-xl font-bold text-xs"
+                    className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all rounded-4xl font-bold text-xs cursor-pointer"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Thêm ví dụ
@@ -152,14 +152,14 @@ export const AddWordModal = ({
                         type="text"
                         value={ex}
                         onChange={(e) => onUpdateExample(idx, e.target.value)}
-                        className="flex-1 bg-muted border border-border rounded-2xl px-4 py-2 text-sm text-foreground focus:outline-none focus:border-primary transition-all"
+                        className="flex-1 bg-muted border border-border rounded-4xl px-4 py-2 text-sm text-foreground focus:outline-none focus:border-primary transition-all"
                         placeholder="e.g. He showed great resilience during the crisis."
                       />
                       {newWordExamples.length > 1 && (
                         <button
                           type="button"
                           onClick={() => onRemoveExample(idx)}
-                          className="p-1.5 rounded-xl hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors shrink-0"
+                          className="p-1.5 rounded-4xl hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors shrink-0 cursor-pointer"
                         >
                           <X className="h-4 w-4" />
                         </button>
@@ -175,7 +175,7 @@ export const AddWordModal = ({
               <button
                 onClick={onSave}
                 disabled={!newWord.word || !newWord.meaning}
-                className="w-full py-4 bg-primary disabled:opacity-50 disabled:grayscale text-white rounded-2xl font-bold hover:bg-primary/95 transition-all flex items-center justify-center gap-2"
+                className="w-full py-4 bg-primary disabled:opacity-50 disabled:grayscale text-white rounded-4xl font-bold hover:bg-primary/95 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Plus className="h-5 w-5" />
                 Save Word

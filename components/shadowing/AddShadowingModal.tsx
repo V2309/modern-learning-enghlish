@@ -117,7 +117,7 @@ export const AddShadowingModal = ({ show, isSaving, onClose, onSave }: AddShadow
                 <h2 className="text-2xl font-bold text-foreground">Thêm video Shadowing mới</h2>
                 <p className="text-muted-foreground text-sm">Nhập link video và phụ đề đồng bộ thời gian.</p>
               </div>
-              <button onClick={handleClose} className="p-2 rounded-xl hover:bg-muted text-muted-foreground transition-colors cursor-pointer">
+              <button onClick={handleClose} className="p-2 rounded-4xl hover:bg-muted text-muted-foreground transition-colors cursor-pointer">
                 <X />
               </button>
             </div>
@@ -131,7 +131,7 @@ export const AddShadowingModal = ({ show, isSaving, onClose, onSave }: AddShadow
                   type="text"
                   value={form.title}
                   onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
-                  className="w-full bg-muted border border-border rounded-2xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all text-sm font-semibold"
+                  className="w-full bg-muted border border-border rounded-4xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all text-sm font-semibold"
                   placeholder="e.g. Luyện giọng Mỹ qua phim Friends"
                 />
               </div>
@@ -147,7 +147,7 @@ export const AddShadowingModal = ({ show, isSaving, onClose, onSave }: AddShadow
                     type="text"
                     value={form.videoUrl}
                     onChange={(e) => setForm((p) => ({ ...p, videoUrl: e.target.value }))}
-                    className="w-full bg-muted border border-border rounded-2xl px-5 py-3 pr-12 text-foreground focus:outline-none focus:border-primary transition-all text-xs font-mono"
+                    className="w-full bg-muted border border-border rounded-4xl px-5 py-3 pr-12 text-foreground focus:outline-none focus:border-primary transition-all text-xs font-mono"
                     placeholder="https://www.youtube.com/watch?v=..."
                   />
                   <div className="absolute right-4 top-1/2 -translate-y-1/2">
@@ -164,7 +164,7 @@ export const AddShadowingModal = ({ show, isSaving, onClose, onSave }: AddShadow
                       onClick={() => handleFetchTranscript()}
                       disabled={isFetchingTranscript}
                       className={cn(
-                        "flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all border cursor-pointer",
+                        "flex items-center gap-2 px-4 py-2.5 rounded-4xl text-xs font-bold transition-all border cursor-pointer",
                         isFetchingTranscript
                           ? "bg-muted text-muted-foreground border-border"
                           : "bg-red-500/10 text-red-600 border-red-500/20 hover:bg-red-500 hover:text-white hover:border-red-500"
@@ -177,14 +177,14 @@ export const AddShadowingModal = ({ show, isSaving, onClose, onSave }: AddShadow
                     </button>
 
                     {fetchError && (
-                      <p className="text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-xl px-4 py-2.5 flex items-start gap-2">
+                      <p className="text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-3xl px-4 py-2.5 flex items-start gap-2">
                         <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
                         {fetchError}
                       </p>
                     )}
 
                     {fetchSuccess && !fetchError && (
-                      <p className="text-xs text-emerald-600 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-2.5 flex items-center gap-2">
+                      <p className="text-xs text-emerald-600 bg-emerald-500/10 border border-emerald-500/20 rounded-3xl px-4 py-2.5 flex items-center gap-2">
                         <CheckCircle2 className="h-3.5 w-3.5" />
                         Đã lấy được phụ đề từ YouTube! Bạn có thể chỉnh sửa bên dưới nếu cần.
                       </p>
@@ -199,7 +199,7 @@ export const AddShadowingModal = ({ show, isSaving, onClose, onSave }: AddShadow
                 <textarea
                   value={form.description}
                   onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
-                  className="w-full bg-muted border border-border rounded-2xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all text-sm h-20 resize-none"
+                  className="w-full bg-muted border border-border rounded-4xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all text-sm h-20 resize-none"
                   placeholder="Ghi chú về từ vựng, ngữ pháp hay cách phát âm trong video này..."
                 />
               </div>
@@ -221,7 +221,7 @@ export const AddShadowingModal = ({ show, isSaving, onClose, onSave }: AddShadow
                 <textarea
                   value={form.transcript}
                   onChange={(e) => setForm((p) => ({ ...p, transcript: e.target.value }))}
-                  className="w-full bg-muted border border-border rounded-2xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all text-xs font-mono h-44 resize-none"
+                  className="w-full bg-muted border border-border rounded-4xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all text-xs font-mono h-44 resize-none"
                   placeholder="Nhập theo dạng LRC:&#10;[00:00.00] Welcome to our channel.&#10;[00:02.50] Today we study English.&#10;&#10;Hoặc dán phụ đề dạng SRT tiêu chuẩn.&#10;Hoặc nhấn nút 'Tự động lấy phụ đề' ở trên."
                 />
               </div>
@@ -232,7 +232,7 @@ export const AddShadowingModal = ({ show, isSaving, onClose, onSave }: AddShadow
               <button
                 onClick={() => canSave && onSave(form)}
                 disabled={!canSave || isSaving}
-                className="w-full py-4 bg-primary disabled:opacity-50 disabled:grayscale text-white rounded-2xl font-bold hover:bg-primary/95 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-primary/20"
+                className="w-full py-4 bg-primary disabled:opacity-50 disabled:grayscale text-white rounded-4xl font-bold hover:bg-primary/95 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-primary/20"
               >
                 {isSaving ? 'Đang thêm...' : 'Thêm video Shadowing'}
               </button>

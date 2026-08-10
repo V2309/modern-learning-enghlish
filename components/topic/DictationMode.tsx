@@ -67,22 +67,22 @@ export const DictationMode = ({
             </div>
 
             {/* Sound Button */}
-            <div className="p-8 bg-muted/40 border border-border rounded-2xl flex flex-col items-center justify-center gap-4">
+            <div className="p-8 bg-muted/40 border border-border rounded-3xl flex flex-col items-center justify-center gap-4">
               <button
                 onClick={() => speak(dictationQuestions[dictationIndex].word)}
-                className="h-20 w-20 rounded-full bg-primary text-white flex items-center justify-center hover:scale-105 transition-all shadow-lg shadow-primary/30"
+                className="h-20 w-20 rounded-full bg-primary text-white flex items-center justify-center hover:scale-105 transition-all shadow-lg shadow-primary/30 cursor-pointer"
               >
                 <Volume2 className="h-10 w-10" />
               </button>
               <button
                 type="button"
                 onClick={() => setShowMeaning((prev) => !prev)}
-                className="text-xs font-bold text-primary hover:underline"
+                className="text-xs font-bold text-primary hover:underline cursor-pointer"
               >
                 {showMeaning ? 'Ẩn nghĩa' : 'Hiện nghĩa'}
               </button>
               {showMeaning && (
-                <div className="text-center text-sm font-semibold text-foreground bg-background/80 border border-border rounded-xl px-4 py-3">
+                <div className="text-center text-sm font-semibold text-foreground bg-background/80 border border-border rounded-3xl px-4 py-3">
                   {dictationQuestions[dictationIndex].meaning}
                 </div>
               )}
@@ -107,7 +107,7 @@ export const DictationMode = ({
                   }
                 }}
                 className={cn(
-                  'w-full bg-muted border rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-base font-semibold',
+                  'w-full bg-muted border rounded-4xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-base font-semibold',
                   isDictationChecked
                     ? isDictationCorrect
                       ? 'border-green-500 text-green-700 bg-green-500/5 focus:ring-transparent'
@@ -123,7 +123,7 @@ export const DictationMode = ({
             {isDictationChecked && (
               <div
                 className={cn(
-                  'p-4 rounded-xl text-center space-y-1 border text-sm font-semibold',
+                  'p-4 rounded-3xl text-center space-y-1 border text-sm font-semibold',
                   isDictationCorrect
                     ? 'bg-green-500/10 border-green-500/20 text-green-700'
                     : 'bg-red-500/10 border-red-500/20 text-red-700'
@@ -156,14 +156,14 @@ export const DictationMode = ({
                 <button
                   onClick={onCheck}
                   disabled={!typedWord.trim()}
-                  className="px-6 py-3 bg-primary text-white font-bold rounded-xl text-xs hover:bg-primary/95 disabled:opacity-50 transition-all"
+                  className="px-6 py-3 bg-primary text-white font-bold rounded-4xl text-xs hover:bg-primary/95 disabled:opacity-50 transition-all"
                 >
                   Kiểm tra kết quả
                 </button>
               ) : (
                 <button
                   onClick={onNext}
-                  className="px-6 py-3 bg-primary text-white font-bold rounded-xl text-xs hover:bg-primary/95 transition-all flex items-center gap-2"
+                  className="px-6 py-3 bg-primary text-white font-bold rounded-4xl text-xs hover:bg-primary/95 transition-all flex items-center gap-2"
                 >
                   <span>
                     {dictationIndex + 1 < dictationQuestions.length ? 'Từ kế tiếp' : 'Xem điểm số'}
@@ -192,13 +192,13 @@ export const DictationMode = ({
           <div className="pt-4 flex gap-4">
             <button
               onClick={onRestart}
-              className="flex-1 py-3 border border-border hover:bg-muted text-foreground text-xs font-bold rounded-xl"
+              className="flex-1 py-3 border border-border hover:bg-muted text-foreground text-xs font-bold rounded-4xl"
             >
               Học lại dictation
             </button>
             <button
               onClick={onBackToList}
-              className="flex-1 py-3 bg-primary text-white hover:bg-primary/95 text-xs font-bold rounded-xl"
+              className="flex-1 py-3 bg-primary text-white hover:bg-primary/95 text-xs font-bold rounded-4xl"
             >
               Quay lại danh sách
             </button>

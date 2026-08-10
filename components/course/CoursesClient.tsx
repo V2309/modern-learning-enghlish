@@ -13,6 +13,7 @@ import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import Pagination from '@/components/Pagination';
 import SortMenuButton from '@/components/SortMenuButton';
 import { useCoursesUiStore, type CourseSortKey } from '@/stores/useCoursesUiStore';
+import { toast } from 'react-hot-toast';
 import { defaultCourseDraft, defaultLessonDraft, useCoursesPageStore } from '@/stores/useCoursesPageStore';
 
 const PAGE_SIZE = 6;
@@ -112,8 +113,9 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
       setShowAddModal(false);
       setNewCourse(defaultCourseDraft);
       setNewLessons([{ ...defaultLessonDraft }]);
+      toast.success('Tạo khóa học mới thành công!');
     } else {
-      alert('Không thể lưu khoá học: ' + (res.error || 'Có lỗi xảy ra'));
+      toast.error('Không thể lưu khoá học: ' + (res.error || 'Có lỗi xảy ra'));
     }
   };
 
@@ -146,8 +148,9 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
       );
       setShowEditModal(false);
       setEditingCourse(null);
+      toast.success('Cập nhật khóa học thành công!');
     } else {
-      alert('Không thể cập nhật khoá học: ' + (res.error || 'Có lỗi xảy ra'));
+      toast.error('Không thể cập nhật khoá học: ' + (res.error || 'Có lỗi xảy ra'));
     }
   };
 
@@ -167,8 +170,9 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
       setCourses((prev) => prev.filter((c) => c.id !== deletingCourse.id));
       setShowDeleteModal(false);
       setDeletingCourse(null);
+      toast.success('Xóa khóa học thành công!');
     } else {
-      alert('Không thể xoá khoá học: ' + (res.error || 'Có lỗi xảy ra'));
+      toast.error('Không thể xoá khoá học: ' + (res.error || 'Có lỗi xảy ra'));
     }
   };
 
@@ -205,7 +209,7 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
   );
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-6xl">
+    <div className="container mx-auto px-4 py-12">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <div>
@@ -220,7 +224,7 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
               placeholder="Search courses..."
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-              className="pl-12 pr-6 py-3 w-64 bg-muted border border-border rounded-2xl focus:outline-none focus:border-primary transition-all text-foreground"
+              className="pl-12 pr-6 py-3 w-64 bg-muted border border-border rounded-4xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground"
             />
           </div>
 
@@ -236,7 +240,7 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
 
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-2xl font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 cursor-pointer"
+            className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-4xl font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 cursor-pointer"
           >
             <Plus className="h-5 w-5" />
             Add Course
@@ -261,7 +265,7 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
             >
               <Link
                 href={`/courses/${course.id}`}
-                className="flex flex-col sm:flex-row bg-card border border-border rounded-4xl overflow-hidden hover:border-primary/50 transition-all hover:bg-muted/50 shadow-sm"
+                className="flex flex-col sm:flex-row bg-card border border-border rounded-3xl overflow-hidden hover:border-primary/50 transition-all hover:bg-muted/50 shadow-sm"
               >
                 {/* Thumbnail Section */}
                 <div className="relative w-full sm:w-72 md:w-80 aspect-video sm:aspect-auto shrink-0 overflow-hidden">

@@ -22,7 +22,7 @@ export default async function ProgressPage() {
   ]);
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-5xl space-y-12">
+    <div className="container mx-auto px-4 py-12 space-y-12">
       {/* Header */}
       <div>
         <h1 className="text-4xl font-black text-foreground tracking-tight mb-2">Thành tích học tập</h1>
@@ -33,7 +33,7 @@ export default async function ProgressPage() {
         {/* Completed Lessons Section */}
         <div className="space-y-6">
           <div className="flex items-center gap-3 border-b border-border pb-4">
-            <div className="p-2.5 bg-primary/10 border border-primary/20 text-primary rounded-xl">
+            <div className="p-2.5 bg-primary/10 border border-primary/20 text-primary rounded-4xl">
               <BookOpen className="h-5 w-5" />
             </div>
             <h2 className="text-2xl font-black text-foreground">Bài học đã hoàn thành ({lessons.length})</h2>
@@ -56,7 +56,7 @@ export default async function ProgressPage() {
                   </div>
                   <Link 
                     href={`/courses/${lp.lesson.courseId}`} 
-                    className="p-2 bg-muted hover:bg-primary hover:text-white rounded-xl transition-all text-muted-foreground shrink-0"
+                    className="p-2 bg-muted hover:bg-primary hover:text-white rounded-4xl transition-all text-muted-foreground shrink-0 cursor-pointer"
                   >
                     <ChevronRight className="h-4 w-4" />
                   </Link>
@@ -69,7 +69,7 @@ export default async function ProgressPage() {
         {/* Mastered Vocabulary Section */}
         <div className="space-y-6">
           <div className="flex items-center gap-3 border-b border-border pb-4">
-            <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-xl">
+            <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-4xl">
               <Award className="h-5 w-5" />
             </div>
             <h2 className="text-2xl font-black text-foreground">Từ vựng đã thuộc ({vocabularies.length})</h2>
@@ -97,7 +97,7 @@ export default async function ProgressPage() {
                   </div>
                   <Link 
                     href={`/vocabulary/topic/${vp.vocabulary.topicId}`} 
-                    className="p-2 bg-muted hover:bg-emerald-500 hover:text-white rounded-xl transition-all text-muted-foreground shrink-0"
+                    className="p-2 bg-muted hover:bg-emerald-500 hover:text-white rounded-4xl transition-all text-muted-foreground shrink-0 cursor-pointer"
                   >
                     <ChevronRight className="h-4 w-4" />
                   </Link>

@@ -273,10 +273,10 @@ export const SentencePracticeMode: React.FC<SentencePracticeModeProps> = ({ word
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Top Header & Progress */}
-      <div className="p-6 rounded-[2rem] bg-card border border-border shadow-sm space-y-4">
+      <div className="p-6 rounded-3xl bg-card border border-border shadow-sm space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-primary/10 text-primary">
+            <div className="p-2 rounded-4xl bg-primary/10 text-primary">
               <Sparkles className="h-5 w-5" />
             </div>
             <div>
@@ -315,7 +315,7 @@ export const SentencePracticeMode: React.FC<SentencePracticeModeProps> = ({ word
               </h3>
               <button
                 onClick={() => handleSpeak(currentWord.word)}
-                className="p-2.5 rounded-2xl bg-primary/10 hover:bg-primary/20 text-primary transition-all active:scale-95"
+                className="p-2.5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-all active:scale-95 cursor-pointer"
                 title="Phát âm từ này"
               >
                 <Volume2 className="h-5 w-5" />
@@ -359,7 +359,7 @@ export const SentencePracticeMode: React.FC<SentencePracticeModeProps> = ({ word
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
-                className="mt-2 p-3 rounded-xl bg-muted/60 border border-border text-xs space-y-1"
+                className="mt-2 p-3 rounded-3xl bg-muted/60 border border-border text-xs space-y-1"
               >
                 <p className="font-semibold text-foreground italic">&quot;{currentWord.example}&quot;</p>
               </motion.div>
@@ -400,12 +400,12 @@ export const SentencePracticeMode: React.FC<SentencePracticeModeProps> = ({ word
             }}
             placeholder={`Ví dụ: ${currentWord.example ? currentWord.example : `Write a complete sentence containing "${currentWord.word}"...`}`}
             rows={3}
-            className="w-full p-4 rounded-2xl bg-muted/30 border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 text-foreground text-base placeholder:text-muted-foreground/60 resize-none outline-none transition-all"
+            className="w-full p-4 rounded-4xl bg-muted/30 border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 text-foreground text-base placeholder:text-muted-foreground/60 resize-none outline-none transition-all"
           />
         </div>
 
         {errorMsg && (
-          <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-medium flex items-center gap-2">
+          <div className="p-3 rounded-3xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-medium flex items-center gap-2">
             <AlertCircle className="h-4 w-4 shrink-0" />
             <span>{errorMsg}</span>
           </div>
@@ -416,7 +416,7 @@ export const SentencePracticeMode: React.FC<SentencePracticeModeProps> = ({ word
             <button
               onClick={handlePrevWord}
               disabled={currentIndex === 0 || isEvaluating}
-              className="px-4 py-2.5 rounded-xl border border-border text-muted-foreground hover:text-foreground hover:bg-muted text-xs font-bold disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1.5"
+              className="px-4 py-2.5 rounded-4xl border border-border text-muted-foreground hover:text-foreground hover:bg-muted text-xs font-bold disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <ArrowLeft className="h-4 w-4" />
               Từ trước
@@ -426,7 +426,7 @@ export const SentencePracticeMode: React.FC<SentencePracticeModeProps> = ({ word
           <button
             onClick={handleSubmit}
             disabled={isEvaluating || !userSentence.trim()}
-            className="px-6 py-3 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary/95 transition-all shadow-md shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-6 py-3 rounded-4xl bg-primary text-white text-sm font-bold hover:bg-primary/95 transition-all shadow-md shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
           >
             {isEvaluating ? (
               <>
@@ -457,7 +457,7 @@ export const SentencePracticeMode: React.FC<SentencePracticeModeProps> = ({ word
               <div className="flex items-center gap-3">
                 <div
                   className={cn(
-                    'p-3 rounded-2xl border flex items-center justify-center',
+                    'p-3 rounded-4xl border flex items-center justify-center',
                     evaluation.isCorrect
                       ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
                       : 'bg-amber-500/10 text-amber-500 border-amber-500/20'
@@ -506,7 +506,7 @@ export const SentencePracticeMode: React.FC<SentencePracticeModeProps> = ({ word
                 <Sparkles className="h-3.5 w-3.5" />
                 Nhận xét chi tiết từ AI
               </h5>
-              <p className="text-sm text-foreground/90 leading-relaxed bg-muted/40 p-4 rounded-2xl border border-border">
+              <p className="text-sm text-foreground/90 leading-relaxed bg-muted/40 p-4 rounded-3xl border border-border">
                 {evaluation.feedback}
               </p>
             </div>
@@ -530,7 +530,7 @@ export const SentencePracticeMode: React.FC<SentencePracticeModeProps> = ({ word
             )}
 
             {/* Suggested Sentence */}
-            <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20 space-y-2">
+            <div className="p-4 rounded-3xl bg-primary/5 border border-primary/20 space-y-2">
               <div className="flex items-center justify-between">
                 <h5 className="text-xs font-extrabold text-primary uppercase tracking-wider flex items-center gap-1.5">
                   <Lightbulb className="h-3.5 w-3.5" />
@@ -538,7 +538,7 @@ export const SentencePracticeMode: React.FC<SentencePracticeModeProps> = ({ word
                 </h5>
                 <button
                   onClick={() => handleSpeak(evaluation.suggestedSentence)}
-                  className="p-1 rounded-lg hover:bg-primary/10 text-primary text-xs font-bold flex items-center gap-1"
+                  className="p-1 rounded-lg hover:bg-primary/10 text-primary text-xs font-bold flex items-center gap-1 cursor-pointer"
                 >
                   <Volume2 className="h-3.5 w-3.5" />
                   Nghe câu gợi ý
@@ -559,7 +559,7 @@ export const SentencePracticeMode: React.FC<SentencePracticeModeProps> = ({ word
                 onClick={() => {
                   setEvaluation(null);
                 }}
-                className="text-xs font-bold text-muted-foreground hover:text-foreground flex items-center gap-1"
+                className="text-xs font-bold text-muted-foreground hover:text-foreground flex items-center gap-1 cursor-pointer"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
                 Đặt câu khác cho từ này
@@ -567,7 +567,7 @@ export const SentencePracticeMode: React.FC<SentencePracticeModeProps> = ({ word
 
               <button
                 onClick={handleNextWord}
-                className="px-6 py-3 rounded-xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700 transition-all shadow-md flex items-center gap-2"
+                className="px-6 py-3 rounded-4xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700 transition-all shadow-md flex items-center gap-2 cursor-pointer"
               >
                 <span>{currentIndex < shuffledWords.length - 1 ? 'Từ tiếp theo' : 'Xem tổng kết bài học'}</span>
                 <ArrowRight className="h-4 w-4" />

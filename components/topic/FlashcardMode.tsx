@@ -87,7 +87,7 @@ export const FlashcardMode = ({
             onClick={() => setFlashcardIndex((prev) => Math.max(0, prev - 1))}
             disabled={flashcardIndex === 0}
             title="Thẻ trước (←)"
-            className="p-3.5 rounded-xl bg-muted border border-border text-foreground hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
+            className="p-3.5 rounded-4xl bg-muted border border-border text-foreground hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm cursor-pointer"
           >
             <ChevronLeft size={20} />
           </button>
@@ -95,7 +95,7 @@ export const FlashcardMode = ({
           <button
             onClick={() => setIsFlipped((prev) => !prev)}
             title="Lật thẻ (Space)"
-            className="px-5 py-2.5 rounded-xl bg-primary/10 border border-primary/30 text-primary font-semibold text-sm hover:bg-primary hover:text-white transition-all shadow-sm"
+            className="px-5 py-2.5 rounded-4xl bg-primary/10 border border-primary/30 text-primary font-semibold text-sm hover:bg-primary hover:text-white transition-all shadow-sm cursor-pointer"
           >
             Lật thẻ
           </button>
@@ -104,7 +104,7 @@ export const FlashcardMode = ({
             onClick={() => setFlashcardIndex((prev) => Math.min(words.length - 1, prev + 1))}
             disabled={flashcardIndex === words.length - 1}
             title="Thẻ tiếp theo (→)"
-            className="p-3.5 rounded-xl bg-muted border border-border text-foreground hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
+            className="p-3.5 rounded-4xl bg-muted border border-border text-foreground hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm cursor-pointer"
           >
             <ChevronRight size={20} />
           </button>
