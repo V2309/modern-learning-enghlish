@@ -15,14 +15,18 @@ const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isSignedIn, user: clerkUser, isLoaded } = useUser();
 
-  const navItems = [
-    { name: 'Home', path: '/' },
-    { name: 'Vocabulary', path: '/vocabulary' },
-    { name: 'Courses', path: '/courses' },
-    { name: 'Shadowing', path: '/shadowing' },
-    { name: 'Dashboard', path: '/dashboard' },
-    { name: 'Progress', path: '/progress' },
+  const allNavItems = [
+    { name: 'Home', path: '/', requiresAuth: false },
+    { name: 'Vocabulary', path: '/vocabulary', requiresAuth: true },
+    { name: 'Courses', path: '/courses', requiresAuth: false },
+    { name: 'Shadowing', path: '/shadowing', requiresAuth: true },
+    { name: 'Dashboard', path: '/dashboard', requiresAuth: true },
+    { name: 'Progress', path: '/progress', requiresAuth: true },
   ];
+
+  const navItems = allNavItems.filter(
+    (item) => !item.requiresAuth || isSignedIn
+  );
 
   const handleLinkClick = () => {
     setMobileMenuOpen(false);

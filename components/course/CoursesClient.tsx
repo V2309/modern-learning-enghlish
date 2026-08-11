@@ -23,6 +23,7 @@ import { EditCourseModal } from '@/components/course/EditCourseModal';
 import { AccessCodeModal } from '@/components/course/AccessCodeModal';
 import { createCourseAction, updateCourseAction, deleteCourseAction } from '@/actions/course.action';
 import { CourseLevel } from '@prisma/client';
+import { useUser } from '@clerk/nextjs';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import Pagination from '@/components/Pagination';
 import SortMenuButton from '@/components/SortMenuButton';
@@ -38,6 +39,8 @@ interface CoursesClientProps {
 }
 
 export default function CoursesClient({ initialCourses, userAccessCourseIds = [] }: CoursesClientProps) {
+  const { user } = useUser();
+  const isAdmin = user?.id === 'user_3DRcDBsgk0yYQLjs2JkTgQHsr9v';
   const router = useRouter();
   const [courses, setCourses] = useState<any[]>(initialCourses);
   const [accessCourseIds, setAccessCourseIds] = useState<string[]>(userAccessCourseIds);
@@ -288,13 +291,15 @@ export default function CoursesClient({ initialCourses, userAccessCourseIds = []
             />
           </div>
 
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-1.5 px-5 py-2.5 bg-primary text-white rounded-full text-xs font-black hover:bg-primary/95 transition-all shadow-md shadow-primary/20 cursor-pointer shrink-0"
-          >
-            <Plus className="h-4 w-4" />
-            Thêm Khóa Học
-          </button>
+          {isAdmin && (
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center gap-1.5 px-5 py-2.5 bg-primary text-white rounded-full text-xs font-black hover:bg-primary/95 transition-all shadow-md shadow-primary/20 cursor-pointer shrink-0"
+            >
+              <Plus className="h-4 w-4" />
+              Thêm Khóa Học
+            </button>
+          )}
         </div>
       </div>
 
@@ -416,44 +421,46 @@ export default function CoursesClient({ initialCourses, userAccessCourseIds = []
                 </div>
 
                 {/* Edit / Delete context menu for administrators */}
-                <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setOpenMenuId(openMenuId === course.id ? null : course.id);
-                    }}
-                    className="p-1 rounded-md bg-card/90 backdrop-blur border border-border hover:bg-muted text-muted-foreground hover:text-foreground transition-all shadow-xs cursor-pointer"
-                  >
-                    <MoreVertical className="h-3 w-3" />
-                  </button>
+                {isAdmin && (
+                  <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setOpenMenuId(openMenuId === course.id ? null : course.id);
+                      }}
+                      className="p-1 rounded-md bg-card/90 backdrop-blur border border-border hover:bg-muted text-muted-foreground hover:text-foreground transition-all shadow-xs cursor-pointer"
+                    >
+                      <MoreVertical className="h-3 w-3" />
+                    </button>
 
-                  <AnimatePresence>
-                    {openMenuId === course.id && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.9, y: -4 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, y: -4 }}
-                        className="absolute right-0 mt-1 w-40 bg-card border border-border rounded-xl shadow-xl overflow-hidden z-50 text-xs"
-                      >
-                        <button
-                          onClick={(e) => { e.preventDefault(); openEditModal(course); }}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-left font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer"
+                    <AnimatePresence>
+                      {openMenuId === course.id && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.9, y: -4 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.9, y: -4 }}
+                          className="absolute right-0 mt-1 w-40 bg-card border border-border rounded-xl shadow-xl overflow-hidden z-50 text-xs"
                         >
-                          <Pencil className="h-3.5 w-3.5 text-primary" />
-                          Sửa khóa học
-                        </button>
-                        <button
-                          onClick={(e) => { e.preventDefault(); openDeleteModal(course); }}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-left font-semibold text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                          Xóa khóa học
-                        </button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                          <button
+                            onClick={(e) => { e.preventDefault(); openEditModal(course); }}
+                            className="w-full flex items-center gap-2 px-3 py-2 text-left font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer"
+                          >
+                            <Pencil className="h-3.5 w-3.5 text-primary" />
+                            Sửa khóa học
+                          </button>
+                          <button
+                            onClick={(e) => { e.preventDefault(); openDeleteModal(course); }}
+                            className="w-full flex items-center gap-2 px-3 py-2 text-left font-semibold text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                            Xóa khóa học
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                )}
               </motion.div>
             );
           })}

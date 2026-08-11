@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, CheckCircle2, Plus } from 'lucide-react';
 import { VocabularyTopic } from '@/data/mockData';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
+import { useUser } from '@clerk/nextjs';
 
 type StudyMode = 'list' | 'flashcards' | 'quiz' | 'match' | 'dictation' | 'translate' | 'sentence-practice';
 
@@ -38,6 +39,8 @@ export const TopicSidebar = ({
   onOpenAddWord,
   onClose,
 }: TopicSidebarProps) => {
+  const { user } = useUser();
+  const isAdmin = user?.id === 'user_3DRcDBsgk0yYQLjs2JkTgQHsr9v';
   const pathname = usePathname();
 
   // Determine active mode dynamically based on URL if not explicitly provided
@@ -125,7 +128,7 @@ export const TopicSidebar = ({
         </Link>
 
         {/* Add Word CTA (only show on list view) */}
-        {activeMode === 'list' && (
+        {activeMode === 'list' && isAdmin && (
           <button
             onClick={() => {
               onOpenAddWord();

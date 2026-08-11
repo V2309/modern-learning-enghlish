@@ -75,12 +75,33 @@ export const FlashcardMode = ({
       </div>
 
       <div className="relative">
-        <Flashcard
-          word={words[flashcardIndex]}
-          speak={speak}
-          isFlipped={isFlipped}
-          onFlip={() => setIsFlipped((prev) => !prev)}
-        />
+        <motion.div
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.6}
+          onDragEnd={(e, info) => {
+            const swipeThreshold = 60; // Pixels cần drag qua để trigger chuyển thẻ
+            if (info.offset.x < -swipeThreshold) {
+              // Vuốt sang trái -> Tiếp theo
+              if (flashcardIndex < words.length - 1) {
+                setFlashcardIndex((prev) => prev + 1);
+              }
+            } else if (info.offset.x > swipeThreshold) {
+              // Vuốt sang phải -> Trước
+              if (flashcardIndex > 0) {
+                setFlashcardIndex((prev) => prev - 1);
+              }
+            }
+          }}
+          className="cursor-grab active:cursor-grabbing touch-pan-y"
+        >
+          <Flashcard
+            word={words[flashcardIndex]}
+            speak={speak}
+            isFlipped={isFlipped}
+            onFlip={() => setIsFlipped((prev) => !prev)}
+          />
+        </motion.div>
 
         <div className="flex items-center justify-center gap-6 mt-8">
           <button

@@ -9,6 +9,7 @@ import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import Pagination from '@/components/Pagination';
 import SortMenuButton from '@/components/SortMenuButton';
 import { useVocabularyUiStore } from '@/stores/useVocabularyUiStore';
+import { useUser } from '@clerk/nextjs';
 import { toast } from 'react-hot-toast';
 
 interface VocabularyClientProps {
@@ -19,6 +20,8 @@ interface VocabularyClientProps {
 const PAGE_SIZE = 8;
 
 export default function VocabularyClient({ initialTopics, userId }: VocabularyClientProps) {
+  const { user } = useUser();
+  const isAdmin = user?.id === 'user_3DRcDBsgk0yYQLjs2JkTgQHsr9v';
   const [topics, setTopics] = useState<any[]>(initialTopics);
   const searchQuery = useVocabularyUiStore((state) => state.searchQuery);
   const currentPage = useVocabularyUiStore((state) => state.currentPage);
@@ -187,13 +190,15 @@ export default function VocabularyClient({ initialTopics, userId }: VocabularyCl
               setCurrentPage(1);
             }}
           />
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 px-6 py-3 rounded-4xl bg-primary text-white font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 cursor-pointer"
-          >
-            <Plus className="h-5 w-5" />
-            New Topic
-          </button>
+          {isAdmin && (
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center gap-2 px-6 py-3 rounded-4xl bg-primary text-white font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 cursor-pointer"
+            >
+              <Plus className="h-5 w-5" />
+              New Topic
+            </button>
+          )}
         </div>
       </div>
 
@@ -236,45 +241,47 @@ export default function VocabularyClient({ initialTopics, userId }: VocabularyCl
                   </div>
                 </Link>
 
-                <div className="absolute top-4 right-4 z-10">
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setOpenMenuId(openMenuId === topic.id ? null : topic.id);
-                    }}
-                    className="p-2 rounded-xl bg-card/80 backdrop-blur border border-border hover:bg-muted text-muted-foreground transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
-                    id={`topic-menu-btn-${topic.id}`}
-                  >
-                    <MoreVertical className="h-4 w-4" />
-                  </button>
+                {isAdmin && (
+                  <div className="absolute top-4 right-4 z-10">
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setOpenMenuId(openMenuId === topic.id ? null : topic.id);
+                      }}
+                      className="p-2 rounded-xl bg-card/80 backdrop-blur border border-border hover:bg-muted text-muted-foreground transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+                      id={`topic-menu-btn-${topic.id}`}
+                    >
+                      <MoreVertical className="h-4 w-4" />
+                    </button>
 
-                  <AnimatePresence>
-                    {openMenuId === topic.id && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.9, y: -4 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, y: -4 }}
-                        className="absolute right-0 mt-1 w-40 bg-card border border-border rounded-4xl shadow-xl overflow-hidden z-50"
-                      >
-                        <button
-                          onClick={(e) => { e.preventDefault(); openEditModal(topic); }}
-                          className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                    <AnimatePresence>
+                      {openMenuId === topic.id && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.9, y: -4 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.9, y: -4 }}
+                          className="absolute right-0 mt-1 w-40 bg-card border border-border rounded-4xl shadow-xl overflow-hidden z-50"
                         >
-                          <Pencil className="h-4 w-4 text-primary" />
-                          Sửa chủ đề
-                        </button>
-                        <button
-                          onClick={(e) => { e.preventDefault(); openDeleteModal(topic); }}
-                          className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                          Xoá chủ đề
-                        </button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                          <button
+                            onClick={(e) => { e.preventDefault(); openEditModal(topic); }}
+                            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                          >
+                            <Pencil className="h-4 w-4 text-primary" />
+                            Sửa chủ đề
+                          </button>
+                          <button
+                            onClick={(e) => { e.preventDefault(); openDeleteModal(topic); }}
+                            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Xoá chủ đề
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                )}
               </motion.div>
             ))}
           </div>

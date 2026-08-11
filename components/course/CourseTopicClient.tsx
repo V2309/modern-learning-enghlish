@@ -22,6 +22,7 @@ import { cn } from '@/lib/utils';
 import { EditLessonModal } from '@/components/course/EditLessonModal';
 import { AddLessonModal } from '@/components/course/AddLessonModal';
 import { CustomVideoPlayer } from '@/components/CustomVideoPlayer';
+import { useUser } from '@clerk/nextjs';
 import { completeLessonAction } from '@/actions/progress.action';
 import { createLessonAction, updateLessonAction, deleteLessonAction } from '@/actions/lesson.action';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
@@ -41,6 +42,8 @@ export default function CourseTopicClient({
   initialCompletedLessonIds,
   basePath,
 }: CourseTopicClientProps) {
+  const { user } = useUser();
+  const isAdmin = user?.id === 'user_3DRcDBsgk0yYQLjs2JkTgQHsr9v';
   const courseBasePath = basePath ?? `/courses/${topic.courseId}`;
   const {
     completedIds,
@@ -274,38 +277,40 @@ export default function CourseTopicClient({
         </div>
 
         {/* Edit / Delete hover buttons */}
-        <div className="absolute right-14 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity z-10">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              openEditLesson(lesson);
-            }}
-            title="Sửa bài học"
-            className={cn(
-              'p-1.5 rounded-lg transition-colors',
-              isActive
-                ? 'bg-white/20 hover:bg-white/30 text-white'
-                : 'bg-muted hover:bg-primary/10 hover:text-primary text-muted-foreground'
-            )}
-          >
-            <Pencil className="h-3.5 w-3.5" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              openDeleteLesson(lesson);
-            }}
-            title="Xoá bài học"
-            className={cn(
-              'p-1.5 rounded-lg transition-colors',
-              isActive
-                ? 'bg-white/20 hover:bg-red-400/40 text-white'
-                : 'bg-muted hover:bg-red-500/10 hover:text-red-500 text-muted-foreground'
-            )}
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
-        </div>
+        {isAdmin && (
+          <div className="absolute right-14 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity z-10">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                openEditLesson(lesson);
+              }}
+              title="Sửa bài học"
+              className={cn(
+                'p-1.5 rounded-lg transition-colors',
+                isActive
+                  ? 'bg-white/20 hover:bg-white/30 text-white'
+                  : 'bg-muted hover:bg-primary/10 hover:text-primary text-muted-foreground'
+              )}
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                openDeleteLesson(lesson);
+              }}
+              title="Xoá bài học"
+              className={cn(
+                'p-1.5 rounded-lg transition-colors',
+                isActive
+                  ? 'bg-white/20 hover:bg-red-400/40 text-white'
+                  : 'bg-muted hover:bg-red-500/10 hover:text-red-500 text-muted-foreground'
+              )}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
       </motion.div>
     );
   };
@@ -335,13 +340,15 @@ export default function CourseTopicClient({
         </div>
 
         {/* Add lesson button */}
-        <button
-          onClick={() => setShowAddLessonModal(true)}
-          className="mt-4 w-full flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-dashed border-border hover:border-primary/50 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all text-sm font-bold cursor-pointer"
-        >
-          <Plus className="h-4 w-4" />
-          Thêm bài học
-        </button>
+        {isAdmin && (
+          <button
+            onClick={() => setShowAddLessonModal(true)}
+            className="mt-4 w-full flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-dashed border-border hover:border-primary/50 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all text-sm font-bold cursor-pointer"
+          >
+            <Plus className="h-4 w-4" />
+            Thêm bài học
+          </button>
+        )}
 
         {/* Progress bar */}
         <div className="mt-8 p-6 rounded-2xl bg-primary/10 border border-primary/20">

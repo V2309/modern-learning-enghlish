@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Volume2, Sparkles, HelpCircle, CheckCircle2, Pencil, Trash2, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useUser } from '@clerk/nextjs';
 import { Vocabulary } from '@/data/mockData';
 
 interface VocabListProps {
@@ -18,6 +19,8 @@ interface VocabListProps {
 const PAGE_SIZE = 10;
 
 export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit, onDelete }: VocabListProps) => {
+  const { user } = useUser();
+  const isAdmin = user?.id === 'user_3DRcDBsgk0yYQLjs2JkTgQHsr9v';
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const loaderRef = useRef<HTMLDivElement>(null);
 
@@ -195,28 +198,30 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
                   {/* Right side: Image + Actions */}
                   <div className="flex flex-col items-end gap-3 shrink-0 self-start md:self-start">
                     {/* Edit / Delete buttons */}
-                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      {onEdit && (
-                        <button
-                          onClick={() => onEdit(word)}
-                          title="Sửa từ"
-                          className="flex items-center gap-1.5 px-3 py-2 rounded-4xl bg-muted border border-border hover:bg-primary/10 hover:border-primary/30 text-muted-foreground hover:text-primary transition-all text-xs font-bold cursor-pointer"
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                          Sửa
-                        </button>
-                      )}
-                      {onDelete && (
-                        <button
-                          onClick={() => onDelete(word)}
-                          title="Xoá từ"
-                          className="flex items-center gap-1.5 px-3 py-2 rounded-4xl bg-muted border border-border hover:bg-red-500/10 hover:border-red-500/30 text-muted-foreground hover:text-red-500 transition-all text-xs font-bold cursor-pointer"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                          Xoá
-                        </button>
-                      )}
-                    </div>
+                    {isAdmin && (
+                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {onEdit && (
+                          <button
+                            onClick={() => onEdit(word)}
+                            title="Sửa từ"
+                            className="flex items-center gap-1.5 px-3 py-2 rounded-4xl bg-muted border border-border hover:bg-primary/10 hover:border-primary/30 text-muted-foreground hover:text-primary transition-all text-xs font-bold cursor-pointer"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                            Sửa
+                          </button>
+                        )}
+                        {onDelete && (
+                          <button
+                            onClick={() => onDelete(word)}
+                            title="Xoá từ"
+                            className="flex items-center gap-1.5 px-3 py-2 rounded-4xl bg-muted border border-border hover:bg-red-500/10 hover:border-red-500/30 text-muted-foreground hover:text-red-500 transition-all text-xs font-bold cursor-pointer"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                            Xoá
+                          </button>
+                        )}
+                      </div>
+                    )}
 
                     {/* Image asset */}
                     {word.imageUrl ? (

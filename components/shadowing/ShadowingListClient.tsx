@@ -12,6 +12,7 @@ import { parseYouTubeUrl } from '@/components/course/AddLessonModal';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import Pagination from '@/components/Pagination';
 import SortMenuButton from '@/components/SortMenuButton';
+import { useUser } from '@clerk/nextjs';
 import { toast } from 'react-hot-toast';
 
 const PAGE_SIZE = 6;
@@ -24,6 +25,8 @@ interface ShadowingListClientProps {
 export type ShadowingSortKey = 'newest' | 'oldest' | 'az' | 'za';
 
 export default function ShadowingListClient({ initialShadowings, userId }: ShadowingListClientProps) {
+  const { user } = useUser();
+  const isAdmin = user?.id === 'user_3DRcDBsgk0yYQLjs2JkTgQHsr9v';
   const [shadowings, setShadowings] = useState<any[]>(initialShadowings);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -193,13 +196,15 @@ export default function ShadowingListClient({ initialShadowings, userId }: Shado
               setCurrentPage(1);
             }}
           />
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 px-6 py-3 rounded-4xl bg-primary text-white font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 cursor-pointer"
-          >
-            <Plus className="h-5 w-5" />
-            Thêm video mới
-          </button>
+          {isAdmin && (
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center gap-2 px-6 py-3 rounded-4xl bg-primary text-white font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 cursor-pointer"
+            >
+              <Plus className="h-5 w-5" />
+              Thêm video mới
+            </button>
+          )}
         </div>
       </div>
 
@@ -258,7 +263,7 @@ export default function ShadowingListClient({ initialShadowings, userId }: Shado
                       </Link>
 
                       {/* Admin action button */}
-                      {isCreatedByMe && (
+                      {isAdmin && (
                         <div className="relative shrink-0" ref={openMenuId === shadowing.id ? menuRef : null}>
                           <button
                             onClick={(e) => {
