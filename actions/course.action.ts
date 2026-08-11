@@ -10,6 +10,7 @@ export async function createCourseAction(data: {
   description: string;
   thumbnail: string;
   level: CourseLevel;
+  accessCode?: string;
   lessons?: { title: string; duration: string; videoUrl: string; description?: string }[];
 }) {
   try {
@@ -34,6 +35,7 @@ export async function updateCourseAction(courseId: string, data: {
   description?: string;
   thumbnail?: string;
   level?: CourseLevel;
+  accessCode?: string;
 }) {
   try {
     const validation = updateCourseSchema.safeParse(data);

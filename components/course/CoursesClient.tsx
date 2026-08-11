@@ -3,10 +3,24 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { PlayCircle, Clock, BookOpen, Search, Plus, MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { 
+  PlayCircle, 
+  Clock, 
+  BookOpen, 
+  Search, 
+  Plus, 
+  MoreVertical, 
+  Pencil, 
+  Trash2, 
+  Star, 
+  Lock,
+  Unlock
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AddCourseModal } from '@/components/course/AddCourseModal';
 import { EditCourseModal } from '@/components/course/EditCourseModal';
+import { AccessCodeModal } from '@/components/course/AccessCodeModal';
 import { createCourseAction, updateCourseAction, deleteCourseAction } from '@/actions/course.action';
 import { CourseLevel } from '@prisma/client';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
@@ -20,16 +34,22 @@ const PAGE_SIZE = 6;
 
 interface CoursesClientProps {
   initialCourses: any[];
+  userAccessCourseIds?: string[];
 }
 
-export default function CoursesClient({ initialCourses }: CoursesClientProps) {
+export default function CoursesClient({ initialCourses, userAccessCourseIds = [] }: CoursesClientProps) {
+  const router = useRouter();
   const [courses, setCourses] = useState<any[]>(initialCourses);
+  const [accessCourseIds, setAccessCourseIds] = useState<string[]>(userAccessCourseIds);
+  const [accessModalCourse, setAccessModalCourse] = useState<any | null>(null);
+  const [selectedTag, setSelectedTag] = useState<string>('Tất cả');
   const searchQuery = useCoursesUiStore((state) => state.searchQuery);
   const currentPage = useCoursesUiStore((state) => state.currentPage);
   const sortKey = useCoursesUiStore((state) => state.sortKey);
   const setSearchQuery = useCoursesUiStore((state) => state.setSearchQuery);
   const setCurrentPage = useCoursesUiStore((state) => state.setCurrentPage);
   const setSortKey = useCoursesUiStore((state) => state.setSortKey);
+  
   const {
     showAddModal,
     newCourse,
@@ -58,18 +78,8 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
     reset: resetCoursePageState,
   } = useCoursesPageStore();
 
-  // Sort
-  const SORT_OPTIONS: { key: CourseSortKey; label: string }[] = [
-    { key: 'newest', label: 'Mới nhất' },
-    { key: 'oldest', label: 'Cũ nhất' },
-    { key: 'az', label: 'Tên A → Z' },
-    { key: 'za', label: 'Tên Z → A' },
-    { key: 'level', label: 'Cấp độ (Beginner → Advanced)' },
-    { key: 'lessons', label: 'Nhiều bài học nhất' },
-  ];
-  const sortMenuRef = useRef<HTMLDivElement>(null);
-
   const menuRef = useRef<HTMLDivElement>(null);
+  const sortMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -88,7 +98,7 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
     resetCoursePageState();
   }, [resetCoursePageState]);
 
-  // ── Handlers ──────────────────────────────────
+  // Handlers for Add/Edit/Delete
   const handleSaveCourse = async () => {
     if (!newCourse.title.trim()) return;
     const filteredLessons = newLessons
@@ -105,6 +115,7 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
       description: newCourse.description,
       thumbnail: newCourse.thumbnail,
       level: newCourse.level,
+      accessCode: newCourse.accessCode || undefined,
       lessons: filteredLessons,
     });
 
@@ -126,6 +137,7 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
       description: course.description,
       thumbnail: course.thumbnail,
       level: course.level,
+      accessCode: course.accessCode || '',
     });
     setOpenMenuId(null);
     setShowEditModal(true);
@@ -139,6 +151,7 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
       description: editForm.description,
       thumbnail: editForm.thumbnail,
       level: editForm.level as CourseLevel,
+      accessCode: editForm.accessCode || undefined,
     });
     setIsSaving(false);
 
@@ -176,14 +189,27 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
     }
   };
 
+  // Tag filter options
+  const filterTags = ['Tất cả', 'IELTS', 'Tiếng Anh Đi Làm', 'Giao Tiếp', 'Ngữ Pháp'];
+
+  // Level mapping for sorting
   const LEVEL_ORDER: Record<string, number> = { Beginner: 0, Intermediate: 1, Advanced: 2 };
 
+  // Filter & Sort logic
   const filteredCourses = courses
-    .filter(
-      (c) =>
-        c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.description.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    .filter((c) => {
+      // Search matching title or description
+      const matchesSearch = c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            c.description.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      if (!matchesSearch) return false;
+
+      // Tag subject matching
+      if (selectedTag === 'Tất cả') return true;
+      
+      const subject = c.subject || '';
+      return subject.toLowerCase() === selectedTag.toLowerCase();
+    })
     .sort((a, b) => {
       switch (sortKey) {
         case 'newest': return new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime();
@@ -208,157 +234,233 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
     currentPage * PAGE_SIZE
   );
 
+  const formatPrice = (value: number) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
+      .format(value)
+      .replace('₫', 'đ');
+  };
+
   return (
-    <div className="container mx-auto px-4 py-12">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-        <div>
-          <h1 className="text-4xl font-bold text-foreground mb-2">Learning Paths</h1>
-          <p className="text-muted-foreground text-lg">Curated courses to master English in specific contexts.</p>
+    <div className="container mx-auto px-4 py-16 text-center select-none">
+      {/* ── HEADER ── */}
+      <div className="space-y-4 max-w-4xl mx-auto mb-12">
+        <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-foreground">
+          Khám Phá Các Khóa Học
+        </h1>
+        <p className="text-slate-500 dark:text-muted-foreground text-sm md:text-base leading-relaxed">
+          Nâng tầm kỹ năng ngoại ngữ của bạn với các khóa học chất lượng cao, thiết kế bài bản từ cơ bản đến nâng cao, phù hợp với mọi nhu cầu học tập và công việc.
+        </p>
+      </div>
+
+      {/* ── FILTER TAGS & CONTROLS ── */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 border-b border-border/40 pb-8">
+        {/* Filter tags row */}
+        <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5">
+          {filterTags.map((tag) => (
+            <button
+              key={tag}
+              onClick={() => {
+                setSelectedTag(tag);
+                setCurrentPage(1);
+              }}
+              className={cn(
+                "px-5 py-2.5 rounded-full text-xs font-black tracking-wide transition-all cursor-pointer border",
+                selectedTag === tag
+                  ? "bg-primary text-white border-primary shadow-md shadow-primary/20"
+                  : "bg-[#f1f5f9] dark:bg-muted text-slate-700 dark:text-muted-foreground border-transparent hover:bg-slate-200/80 dark:hover:bg-muted/80"
+              )}
+            >
+              {tag}
+            </button>
+          ))}
         </div>
-        <div className="flex items-center gap-3">
+
+        {/* Right side controls (Search & Add Course) */}
+        <div className="flex items-center justify-center gap-3">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Search courses..."
+              placeholder="Tìm kiếm khóa học..."
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-              className="pl-12 pr-6 py-3 w-64 bg-muted border border-border rounded-4xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground"
+              className="pl-11 pr-5 py-2.5 w-60 bg-muted border border-border rounded-full focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-xs text-foreground placeholder:text-muted-foreground"
             />
           </div>
 
-          {/* Sort dropdown */}
-          <SortMenuButton
-            options={SORT_OPTIONS}
-            value={sortKey}
-            onChange={(nextKey) => {
-              setSortKey(nextKey);
-              setCurrentPage(1);
-            }}
-          />
-
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-4xl font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 cursor-pointer"
+            className="flex items-center gap-1.5 px-5 py-2.5 bg-primary text-white rounded-full text-xs font-black hover:bg-primary/95 transition-all shadow-md shadow-primary/20 cursor-pointer shrink-0"
           >
-            <Plus className="h-5 w-5" />
-            Add Course
+            <Plus className="h-4 w-4" />
+            Thêm Khóa Học
           </button>
         </div>
       </div>
 
-      {/* Grid */}
+      {/* ── COURSE GRID ── */}
       {filteredCourses.length === 0 ? (
-        <div className="text-center py-20 bg-card border border-border rounded-4xl text-muted-foreground">
+        <div className="text-center py-20 bg-card border border-border rounded-3xl text-muted-foreground">
           Chưa có khoá học nào được tìm thấy.
         </div>
       ) : (
-        <div className="flex flex-col gap-6" ref={menuRef}>
-          {paginatedCourses.map((course, i) => (
-            <motion.div
-              key={course.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="group relative"
-            >
-              <Link
-                href={`/courses/${course.id}`}
-                className="flex flex-col sm:flex-row bg-card border border-border rounded-3xl overflow-hidden hover:border-primary/50 transition-all hover:bg-muted/50 shadow-sm"
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch text-left" ref={menuRef}>
+          {paginatedCourses.map((course, i) => {
+            const hasOriginalPrice = course.originalPrice && course.originalPrice > course.price;
+            return (
+              <motion.div
+                key={course.id}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.04 }}
+                className="group relative flex flex-col bg-white dark:bg-card border border-border/80 rounded-2xl overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300"
               >
-                {/* Thumbnail Section */}
-                <div className="relative w-full sm:w-72 md:w-80 aspect-video sm:aspect-auto shrink-0 overflow-hidden">
+                {/* Image Section */}
+                <div className="aspect-video relative overflow-hidden bg-slate-100 shrink-0">
                   <img
                     src={course.thumbnail}
                     alt={course.title}
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-linear-to-t sm:bg-linear-to-r from-slate-950/40 via-transparent to-transparent" />
                   
-                  {/* Play icon overlay on hover */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
-                    <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center text-white shadow-lg transform scale-90 group-hover:scale-100 transition-transform duration-300">
-                      <PlayCircle className="h-6 w-6" />
+                  {/* Rating Badge */}
+                  {course.rating && (
+                    <div className="absolute top-3 right-3 bg-white/95 dark:bg-card/95 border border-border/50 px-2 py-0.5 rounded-full text-[9px] font-black text-slate-800 dark:text-foreground shadow-sm flex items-center gap-1">
+                      <Star className="h-2.5 w-2.5 fill-amber-400 text-amber-400" />
+                      <span>{course.rating.toFixed(1)}</span>
                     </div>
-                  </div>
+                  )}
+
+                  {/* Best Seller Badge */}
+                  {course.isBestSeller && (
+                    <div className="absolute top-3 left-3 bg-amber-600/95 text-white px-2 py-0.5 rounded-full text-[8px] font-black tracking-wider uppercase shadow-sm">
+                      Bán chạy nhất
+                    </div>
+                  )}
                 </div>
 
                 {/* Content Section */}
-                <div className="p-6 md:p-8 flex flex-col justify-between grow">
-                  <div>
-                    {/* Level Badge */}
-                    <div className="mb-3">
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                  <div className="space-y-3">
+                    {/* Category tags */}
+                    <div className="flex flex-wrap gap-1.5">
                       <span className={cn(
-                        "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider",
+                        "px-2 py-0.5 rounded-md text-[8px] font-black tracking-wider uppercase",
                         course.level === 'Beginner' && "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
                         course.level === 'Intermediate' && "bg-blue-500/10 text-blue-600 dark:text-blue-400",
                         course.level === 'Advanced' && "bg-rose-500/10 text-rose-600 dark:text-rose-400"
                       )}>
                         {course.level}
                       </span>
+                      {course.subject && (
+                        <span className="px-2 py-0.5 bg-slate-100 dark:bg-muted text-slate-600 dark:text-muted-foreground rounded-md text-[8px] font-black tracking-wider uppercase">
+                          {course.subject}
+                        </span>
+                      )}
                     </div>
 
-                    <h3 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors pr-10">
+                    <h3 className="text-base font-extrabold text-slate-850 dark:text-foreground group-hover:text-primary transition-colors line-clamp-1 pr-6">
                       {course.title}
                     </h3>
-                    <p className="text-muted-foreground text-sm line-clamp-2 sm:line-clamp-3 mb-6">
+                    
+                    <p className="text-slate-500 dark:text-muted-foreground text-[12px] leading-relaxed line-clamp-2">
                       {course.description.replace(/[#*`]/g, '')}
                     </p>
+
+                    {/* Meta info */}
+                    <div className="flex items-center gap-3 text-[9px] font-bold text-slate-400 dark:text-muted-foreground uppercase tracking-widest pt-2.5 border-t border-border/30">
+                      <div className="flex items-center gap-1">
+                        <PlayCircle className="h-3.5 w-3.5 text-primary" />
+                        <span>{course.lessons?.length || 0} bài giảng</span>
+                      </div>
+                      {course.weeks && (
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-3.5 w-3.5 text-primary" />
+                          <span>{course.weeks} tuần</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-4 text-xs font-bold text-muted-foreground uppercase tracking-widest border-t border-border pt-4">
-                    <div className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" />12h</div>
-                    <div className="flex items-center gap-1.5"><BookOpen className="h-3.5 w-3.5" />{course.lessons?.length || 0} Lessons</div>
+                  {/* Pricing and Action row */}
+                  <div className="flex items-center justify-between pt-3 border-t border-border/40 gap-3">
+                    <div className="flex flex-col">
+                      {hasOriginalPrice && (
+                        <span className="text-[9px] text-slate-400 dark:text-muted-foreground line-through font-medium leading-none mb-0.5">
+                          {formatPrice(course.originalPrice as number)}
+                        </span>
+                      )}
+                      <span className="text-sm font-black text-slate-900 dark:text-foreground leading-none">
+                        {course.price > 0 ? formatPrice(course.price) : 'Miễn Phí'}
+                      </span>
+                    </div>
+
+                    {accessCourseIds.includes(course.id) ? (
+                      <Link
+                        href={`/courses/${course.id}`}
+                        className="flex items-center gap-1 px-3.5 py-1.5 text-[10px] font-black bg-primary text-white rounded-lg transition-all cursor-pointer text-center"
+                      >
+                        <Unlock className="h-3 w-3" />
+                        Vào học
+                      </Link>
+                    ) : (
+                      <button
+                        onClick={() => setAccessModalCourse(course)}
+                        className="flex items-center gap-1 px-3.5 py-1.5 text-[10px] font-black border border-primary text-primary hover:bg-primary hover:text-white rounded-lg transition-all cursor-pointer text-center"
+                      >
+                        <Lock className="h-3 w-3" />
+                        {(course.price ?? 0) === 0 ? 'Đăng ký miễn phí' : 'Nhập mã'}
+                      </button>
+                    )}
                   </div>
                 </div>
-              </Link>
 
-              {/* Action menu — outside Link */}
-              <div className="absolute top-6 right-6 z-10">
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setOpenMenuId(openMenuId === course.id ? null : course.id);
-                  }}
-                  className="p-2 rounded-xl bg-card/85 backdrop-blur border border-border hover:bg-muted text-muted-foreground hover:text-foreground transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 shadow-sm cursor-pointer"
-                  id={`course-menu-btn-${course.id}`}
-                >
-                  <MoreVertical className="h-4 w-4" />
-                </button>
+                {/* Edit / Delete context menu for administrators */}
+                <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setOpenMenuId(openMenuId === course.id ? null : course.id);
+                    }}
+                    className="p-1 rounded-md bg-card/90 backdrop-blur border border-border hover:bg-muted text-muted-foreground hover:text-foreground transition-all shadow-xs cursor-pointer"
+                  >
+                    <MoreVertical className="h-3 w-3" />
+                  </button>
 
-                <AnimatePresence>
-                  {openMenuId === course.id && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.9, y: -4 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.9, y: -4 }}
-                      className="absolute right-0 mt-1 w-44 bg-card border border-border rounded-2xl shadow-xl overflow-hidden z-50"
-                    >
-                      <button
-                        onClick={(e) => { e.preventDefault(); openEditModal(course); }}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
+                  <AnimatePresence>
+                    {openMenuId === course.id && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9, y: -4 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9, y: -4 }}
+                        className="absolute right-0 mt-1 w-40 bg-card border border-border rounded-xl shadow-xl overflow-hidden z-50 text-xs"
                       >
-                        <Pencil className="h-4 w-4 text-primary" />
-                        Sửa khoá học
-                      </button>
-                      <button
-                        onClick={(e) => { e.preventDefault(); openDeleteModal(course); }}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        Xoá khoá học
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </motion.div>
-          ))}
+                        <button
+                          onClick={(e) => { e.preventDefault(); openEditModal(course); }}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-left font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer"
+                        >
+                          <Pencil className="h-3.5 w-3.5 text-primary" />
+                          Sửa khóa học
+                        </button>
+                        <button
+                          onClick={(e) => { e.preventDefault(); openDeleteModal(course); }}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-left font-semibold text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          Xóa khóa học
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       )}
 
+      {/* Pagination */}
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
@@ -403,6 +505,20 @@ export default function CoursesClient({ initialCourses }: CoursesClientProps) {
         onConfirm={handleDeleteCourse}
         onCancel={() => { setShowDeleteModal(false); setDeletingCourse(null); }}
       />
+
+      {/* Access Code Modal */}
+      {accessModalCourse && (
+        <AccessCodeModal
+          show={!!accessModalCourse}
+          course={accessModalCourse}
+          onClose={() => setAccessModalCourse(null)}
+          onSuccess={(courseId) => {
+            setAccessCourseIds((prev) => [...prev, courseId]);
+            setAccessModalCourse(null);
+            router.push(`/my-courses/${courseId}`);
+          }}
+        />
+      )}
     </div>
   );
 }

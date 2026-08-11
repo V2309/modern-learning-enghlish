@@ -9,6 +9,7 @@ interface EditCourseForm {
   description: string;
   thumbnail: string;
   level: 'Beginner' | 'Intermediate' | 'Advanced';
+  accessCode: string;
 }
 
 interface EditCourseModalProps {
@@ -113,6 +114,19 @@ export const EditCourseModal = ({
                   <img src={form.thumbnail} alt="Thumbnail preview" className="w-full h-full object-cover" />
                 </div>
               )}
+
+              {/* Access Code */}
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-muted-foreground uppercase tracking-widest pl-1">Mã Truy Cập</label>
+                <input
+                  type="text"
+                  value={form.accessCode}
+                  onChange={(e) => onChange('accessCode', e.target.value.toUpperCase())}
+                  className="w-full bg-muted border border-border rounded-4xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all font-mono tracking-widest"
+                  placeholder="VD: TOEIC-2025 (để trống nếu miễn phí)"
+                />
+                <p className="text-[10px] text-muted-foreground pl-1">Để trống nếu khóa học miễn phí.</p>
+              </div>
             </div>
 
             {/* Footer */}

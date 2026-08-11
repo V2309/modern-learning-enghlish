@@ -33,6 +33,7 @@ model User {
   lessonProgresses   LessonProgress[]
   vocabProgresses    VocabularyProgress[]
   shadowingVideos    ShadowingVideo[]
+  courseAccesses     CourseAccess[]
 
   @@map("users")
 }
@@ -72,28 +73,65 @@ model Vocabulary {
 }
 
 model Course {
-  id          String      @id @db.VarChar(255)
-  title       String      @db.VarChar(255)
-  description String      @db.Text
-  thumbnail   String      @db.Text
-  level       CourseLevel
-  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamp()
+  id            String        @id @db.VarChar(255)
+  title         String        @db.VarChar(255)
+  description   String        @db.Text
+  thumbnail     String        @db.Text
+  level         CourseLevel
+  subject       String?       @db.VarChar(255)
+  accessCode    String?       @map("access_code") @db.VarChar(100)
+  rating        Float?        @default(4.8)
+  weeks         Int?          @default(8)
+  price         Int?          @default(0)
+  originalPrice Int?          @map("original_price")
+  isBestSeller  Boolean       @default(false) @map("is_best_seller")
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamp()
 
-  lessons     Lesson[]
+  lessons       Lesson[]
+  topics        CourseTopic[]
+  accesses      CourseAccess[]
 
   @@map("courses")
+}
+
+model CourseAccess {
+  id          String   @id @db.VarChar(255)
+  userId      String   @map("user_id") @db.VarChar(255)
+  courseId    String   @map("course_id") @db.VarChar(255)
+  redeemedAt  DateTime @default(now()) @map("redeemed_at") @db.Timestamp()
+
+  user        User     @relation(fields: [userId], references: [uid], onDelete: Cascade)
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId], name: "uniqueUserCourseAccess")
+  @@map("course_access")
+}
+
+model CourseTopic {
+  id          String   @id @db.VarChar(255)
+  courseId    String   @map("course_id") @db.VarChar(255)
+  title       String   @db.VarChar(255)
+  description String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons     Lesson[]
+
+  @@map("course_topics")
 }
 
 model Lesson {
   id          String   @id @db.VarChar(255)
   courseId    String   @map("course_id") @db.VarChar(255)
+  topicId     String?  @map("topic_id") @db.VarChar(255)
   title       String   @db.VarChar(255)
   duration    String   @db.VarChar(20)
   videoUrl    String   @map("video_url") @db.Text
   description String?  @db.Text
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp()
 
-  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseTopic CourseTopic? @relation(fields: [topicId], references: [id], onDelete: Cascade)
   progresses  LessonProgress[]
 
   @@map("lessons")

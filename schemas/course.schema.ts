@@ -11,6 +11,7 @@ export const courseSchema = z.object({
   description: z.string().min(1, "Description is required"),
   thumbnail: z.string().url("Invalid thumbnail URL"),
   level: courseLevelEnum,
+  accessCode: z.string().max(100).optional(),
 });
 
 export const updateCourseSchema = courseSchema.partial();

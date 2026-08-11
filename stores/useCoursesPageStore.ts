@@ -16,6 +16,7 @@ export interface CourseDraft {
   description: string;
   thumbnail: string;
   level: CourseLevelOption;
+  accessCode: string;
 }
 
 interface CoursesPageStoreState {
@@ -53,6 +54,7 @@ const DEFAULT_COURSE: CourseDraft = {
   description: '',
   thumbnail: 'https://picsum.photos/seed/new/800/450',
   level: 'Beginner',
+  accessCode: '',
 };
 
 const initialState = {

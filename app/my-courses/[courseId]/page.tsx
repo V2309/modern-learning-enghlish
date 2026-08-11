@@ -11,7 +11,7 @@ interface PageProps {
   params: Promise<{ courseId: string }>;
 }
 
-export default async function CourseDetailPage(props: PageProps) {
+export default async function MyCourseDetailPage(props: PageProps) {
   const params = await props.params;
   const courseId = params.courseId;
 
@@ -28,7 +28,7 @@ export default async function CourseDetailPage(props: PageProps) {
   if (!course) {
     return (
       <div className="container mx-auto px-4 py-20 text-center text-muted-foreground">
-        Course not found
+        Khóa học không tồn tại.
       </div>
     );
   }
@@ -38,7 +38,6 @@ export default async function CourseDetailPage(props: PageProps) {
   if (!isFree) {
     const access = await getCourseAccess(user.uid, courseId);
     if (!access) {
-      // Redirect back to courses list — the modal will handle the code entry
       redirect('/courses');
     }
   }
@@ -53,6 +52,7 @@ export default async function CourseDetailPage(props: PageProps) {
       course={course}
       userId={user.uid}
       initialCompletedLessonIds={initialCompletedLessonIds}
+      basePath={`/my-courses/${courseId}`}
     />
   );
 }

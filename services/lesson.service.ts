@@ -15,6 +15,7 @@ export async function getLessonById(lessonId: string) {
 
 export async function createLesson(data: {
   courseId: string;
+  topicId?: string;
   title: string;
   duration: string;
   videoUrl: string;
@@ -25,6 +26,7 @@ export async function createLesson(data: {
     data: {
       id,
       courseId: data.courseId,
+      topicId: data.topicId,
       title: data.title,
       duration: data.duration,
       videoUrl: data.videoUrl,

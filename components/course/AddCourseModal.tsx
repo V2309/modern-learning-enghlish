@@ -16,6 +16,7 @@ interface NewCourse {
   description: string;
   thumbnail: string;
   level: 'Beginner' | 'Intermediate' | 'Advanced';
+  accessCode: string;
 }
 
 interface AddCourseModalProps {
@@ -114,6 +115,19 @@ export const AddCourseModal = ({
                     <span className="text-xs text-muted-foreground truncate">Default Random Image</span>
                   </div>
                 </div>
+              </div>
+
+              {/* Access Code */}
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-muted-foreground uppercase tracking-widest pl-1">Mã Truy Cập</label>
+                <input
+                  type="text"
+                  value={newCourse.accessCode}
+                  onChange={(e) => onCourseChange('accessCode', e.target.value.toUpperCase())}
+                  className="w-full bg-muted border border-border rounded-4xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all font-mono tracking-widest"
+                  placeholder="VD: TOEIC-2025 (để trống nếu miễn phí)"
+                />
+                <p className="text-[10px] text-muted-foreground pl-1">Để trống nếu khóa học miễn phí. User phải nhập đúng mã này để truy cập.</p>
               </div>
 
               {/* Lessons */}

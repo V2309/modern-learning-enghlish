@@ -1,389 +1,339 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, PlayCircle, BookOpen, Menu, X } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import { motion } from 'framer-motion';
+import {
+  ChevronLeft,
+  PlayCircle,
+  BookOpen,
+  Clock,
+  CheckCircle2,
+  ChevronRight,
+  Star,
+  Layers,
+  TrendingUp,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { CurriculumPanel } from '@/components/course/CurriculumPanel';
-import { EditLessonModal } from '@/components/course/EditLessonModal';
-import { AddLessonModal, parseYouTubeUrl } from '@/components/course/AddLessonModal';
-import { completeLessonAction } from '@/actions/progress.action';
-import { createLessonAction, updateLessonAction, deleteLessonAction } from '@/actions/lesson.action';
-import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
-import { useCourseDetailStore } from '@/stores/useCourseDetailStore';
-import { toast } from 'react-hot-toast';
+import ReactMarkdown from 'react-markdown';
 
 interface CourseDetailClientProps {
   course: any;
   userId: string;
   initialCompletedLessonIds: string[];
+  basePath?: string; // e.g. '/my-courses/[courseId]' or '/courses/[courseId]'
 }
 
-export default function CourseDetailClient({ course, userId, initialCompletedLessonIds }: CourseDetailClientProps) {
-  const {
-    completedIds,
-    activeLesson,
-    lessons,
-    isDesktopSidebarOpen,
-    isMobileDrawerOpen,
-    showEditLessonModal,
-    editingLesson,
-    editLessonForm,
-    isSavingLesson,
-    showDeleteLessonModal,
-    deletingLesson,
-    isDeletingLesson,
-    showAddLessonModal,
-    isAddingLesson,
-    setCompletedIds,
-    setActiveLesson,
-    setLessons,
-    setIsDesktopSidebarOpen,
-    setIsMobileDrawerOpen,
-    setShowEditLessonModal,
-    setEditingLesson,
-    setEditLessonForm,
-    setIsSavingLesson,
-    setShowDeleteLessonModal,
-    setDeletingLesson,
-    setIsDeletingLesson,
-    setShowAddLessonModal,
-    setIsAddingLesson,
-    reset: resetCourseDetailState,
-  } = useCourseDetailStore();
+const LEVEL_LABEL: Record<string, { label: string; cls: string }> = {
+  Beginner: { label: 'Cơ bản', cls: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' },
+  Intermediate: { label: 'Trung cấp', cls: 'bg-blue-500/10 text-blue-600 dark:text-blue-400' },
+  Advanced: { label: 'Nâng cao', cls: 'bg-rose-500/10 text-rose-600 dark:text-rose-400' },
+};
 
-  useEffect(() => {
-    resetCourseDetailState();
-    useCourseDetailStore.getState().setCompletedIds(initialCompletedLessonIds);
-    useCourseDetailStore.getState().setLessons(course?.lessons || []);
-    useCourseDetailStore.getState().setActiveLesson(course?.lessons?.[0] || null);
-    return () => resetCourseDetailState();
-  }, [course, initialCompletedLessonIds, resetCourseDetailState]);
+export default function CourseDetailClient({
+  course,
+  userId,
+  initialCompletedLessonIds,
+  basePath,
+}: CourseDetailClientProps) {
+  const courseBasePath = basePath ?? `/courses/${course.id}`;
+  const backPath = basePath ? '/my-courses' : '/courses';
+  const completedIds = new Set(initialCompletedLessonIds);
 
-  const handleToggleComplete = async (lessonId: string, event: React.MouseEvent) => {
-    event.stopPropagation();
-    
-    // Optimistic UI update
-    const alreadyCompleted = completedIds.includes(lessonId);
-    setCompletedIds(
-      alreadyCompleted
-        ? completedIds.filter((id) => id !== lessonId)
-        : [...completedIds, lessonId]
-    );
+  // Tất cả lessons trong toàn course
+  const allLessons: any[] = course.lessons || [];
 
-    const res = await completeLessonAction(userId, lessonId, course.id);
-    if (!res.success) {
-      // Revert if failed
-      setCompletedIds(
-        alreadyCompleted
-          ? [...completedIds, lessonId]
-          : completedIds.filter((id) => id !== lessonId)
-      );
-      toast.error('Không thể lưu tiến độ: ' + (res.error || 'Có lỗi xảy ra'));
-    } else {
-      toast.success(alreadyCompleted ? 'Đã hủy hoàn thành bài học!' : 'Hoàn thành bài học!');
-    }
+  // Topics của course
+  const topics: any[] = course.topics || [];
+
+  // Lessons không thuộc topic nào
+  const generalLessons = allLessons.filter(
+    (l) => !l.topicId || !topics.some((t) => t.id === l.topicId)
+  );
+
+  const totalLessons = allLessons.length;
+  const completedCount = allLessons.filter((l) => completedIds.has(l.id)).length;
+  const progressPercent =
+    totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+
+  const level = LEVEL_LABEL[course.level] ?? { label: course.level, cls: 'bg-muted text-muted-foreground' };
+
+  const getTopicProgress = (topic: any) => {
+    const tLessons: any[] = topic.lessons || [];
+    if (tLessons.length === 0) return { completed: 0, total: 0, pct: 0 };
+    const done = tLessons.filter((l) => completedIds.has(l.id)).length;
+    return { completed: done, total: tLessons.length, pct: Math.round((done / tLessons.length) * 100) };
   };
 
-  // ── Edit lesson handlers ──
-  const openEditLesson = (lesson: any) => {
-    setEditingLesson(lesson);
-    setEditLessonForm({
-      title: lesson.title,
-      duration: lesson.duration,
-      videoUrl: lesson.videoUrl,
-      description: lesson.description || '',
-    });
-    setShowEditLessonModal(true);
-  };
-
-  const handleEditLesson = async () => {
-    if (!editingLesson) return;
-    setIsSavingLesson(true);
-    const res = await updateLessonAction(editingLesson.id, course.id, {
-      title: editLessonForm.title,
-      duration: editLessonForm.duration,
-      videoUrl: editLessonForm.videoUrl,
-      description: editLessonForm.description,
-    });
-    setIsSavingLesson(false);
-
-    if (res.success && res.lesson) {
-      setLessons(lessons.map((l) => (l.id === editingLesson.id ? { ...l, ...res.lesson } : l)));
-      if (activeLesson?.id === editingLesson.id) {
-        setActiveLesson({ ...activeLesson, ...res.lesson });
-      }
-      setShowEditLessonModal(false);
-      setEditingLesson(null);
-      toast.success('Cập nhật bài học thành công!');
-    } else {
-      toast.error('Không thể cập nhật bài học: ' + (res.error || 'Có lỗi xảy ra'));
-    }
-  };
-
-  const openDeleteLesson = (lesson: any) => {
-    setDeletingLesson(lesson);
-    setShowDeleteLessonModal(true);
-  };
-
-  const handleDeleteLesson = async () => {
-    if (!deletingLesson) return;
-    setIsDeletingLesson(true);
-    const res = await deleteLessonAction(deletingLesson.id, course.id);
-    setIsDeletingLesson(false);
-
-    if (res.success) {
-      const updated = lessons.filter((l) => l.id !== deletingLesson.id);
-      setLessons(updated);
-      if (activeLesson?.id === deletingLesson.id) {
-        setActiveLesson(updated[0] || null);
-      }
-      setShowDeleteLessonModal(false);
-      setDeletingLesson(null);
-      toast.success('Xóa bài học thành công!');
-    } else {
-      toast.error('Không thể xoá bài học: ' + (res.error || 'Có lỗi xảy ra'));
-    }
-  };
-
-  const handleAddLesson = async (form: { title: string; duration: string; videoUrl: string; description: string }) => {
-    setIsAddingLesson(true);
-    const res = await createLessonAction({
-      courseId: course.id,
-      title: form.title,
-      duration: form.duration || '00:00',
-      videoUrl: form.videoUrl,
-      description: form.description,
-    });
-    setIsAddingLesson(false);
-
-    if (res.success && res.lesson) {
-      setLessons([...lessons, res.lesson]);
-      setShowAddLessonModal(false);
-      toast.success('Thêm bài học mới thành công!');
-    } else {
-      toast.error('Không thể thêm bài học: ' + (res.error || 'Có lỗi xảy ra'));
-    }
-  };
-
-  const formattedLessons = lessons.map((l: any) => ({
-    ...l,
-    completed: completedIds.includes(l.id)
-  }));
-
-  const formattedCourse = {
-    ...course,
-    lessons: formattedLessons
-  };
-
-  const completedCount = completedIds.length;
-  const progressPercent = formattedLessons.length > 0 
-    ? Math.round((completedCount / formattedLessons.length) * 100) 
-    : 0;
+  const hasTopics = topics.length > 0;
 
   return (
-    <div className="container mx-auto px-4 py-8 relative">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <Link href="/courses" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors group">
-          <ChevronLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
-          Back to Courses
-        </Link>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setIsMobileDrawerOpen(true)}
-            className="lg:hidden flex items-center gap-2 px-4 py-2 border border-border bg-card rounded-xl text-xs font-bold hover:bg-muted"
-          >
-            <BookOpen className="h-4 w-4 text-primary" />
-            <span>Mục lục ({formattedLessons.length})</span>
-          </button>
-          <button
-            onClick={() => setIsDesktopSidebarOpen(!isDesktopSidebarOpen)}
-            className="hidden lg:flex items-center gap-2 px-4 py-2 border border-border bg-card rounded-xl text-xs font-bold hover:bg-muted transition-all"
-          >
-            <Menu className="h-4 w-4 text-primary" />
-            <span>{isDesktopSidebarOpen ? 'Cinema View (Ẩn mục lục)' : 'Hiện mục lục'}</span>
-          </button>
-        </div>
-      </div>
+    <div className="container mx-auto px-4 py-8">
+      {/* ── Back navigation ── */}
+      <Link
+        href={backPath}
+        className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors group mb-10"
+      >
+        <ChevronLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+        <span className="text-sm font-semibold">{backPath === '/my-courses' ? 'My Courses' : 'Tất cả khóa học'}</span>
+      </Link>
 
-      <div className="grid lg:grid-cols-12 gap-12">
-        {/* Video + Info */}
-        <div className={cn('transition-all duration-300 space-y-8', isDesktopSidebarOpen ? 'lg:col-span-8' : 'lg:col-span-12')}>
-          <div className="aspect-video rounded-[2.5rem] bg-card border border-border overflow-hidden shadow-2xl">
-            {activeLesson ? (
-              (() => {
-                const yt = parseYouTubeUrl(activeLesson.videoUrl);
-                return yt ? (
-                  <iframe
-                    key={yt.embedUrl}
-                    src={yt.embedUrl}
-                    title={activeLesson.title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="w-full h-full"
-                  />
-                ) : (
-                  <video
-                    key={activeLesson.videoUrl}
-                    src={activeLesson.videoUrl}
-                    controls
-                    className="w-full h-full object-cover"
-                    poster={course.thumbnail}
-                  />
-                );
-              })()
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
-                <PlayCircle className="h-20 w-20 text-muted" />
-                <p className="text-muted-foreground font-bold uppercase tracking-widest text-sm">Select a lesson to start</p>
+      {/* ── Hero section ── */}
+      <div className="grid lg:grid-cols-12 gap-10 mb-14">
+        {/* Left — info */}
+        <div className="lg:col-span-7 space-y-5">
+          {/* Badges */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className={cn('px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase', level.cls)}>
+              {level.label}
+            </span>
+            {course.subject && (
+              <span className="px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase bg-muted text-muted-foreground">
+                {course.subject}
+              </span>
+            )}
+            {course.isBestSeller && (
+              <span className="px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase bg-amber-500/10 text-amber-600">
+                🏆 Bán chạy nhất
+              </span>
+            )}
+          </div>
+
+          <h1 className="text-3xl md:text-4xl font-black text-foreground leading-tight">
+            {course.title}
+          </h1>
+
+          <p className="text-muted-foreground leading-relaxed text-sm md:text-base">
+            {course.description.replace(/[#*`]/g, '').slice(0, 220)}
+            {course.description.length > 220 ? '…' : ''}
+          </p>
+
+          {/* Stats row */}
+          <div className="flex flex-wrap items-center gap-5 text-sm font-semibold text-muted-foreground">
+            {course.rating && (
+              <div className="flex items-center gap-1.5">
+                <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                <span className="text-foreground font-bold">{course.rating.toFixed(1)}</span>
+              </div>
+            )}
+            <div className="flex items-center gap-1.5">
+              <PlayCircle className="h-4 w-4 text-primary" />
+              <span>{totalLessons} bài giảng</span>
+            </div>
+            {hasTopics && (
+              <div className="flex items-center gap-1.5">
+                <Layers className="h-4 w-4 text-primary" />
+                <span>{topics.length} chủ đề</span>
+              </div>
+            )}
+            {course.weeks && (
+              <div className="flex items-center gap-1.5">
+                <Clock className="h-4 w-4 text-primary" />
+                <span>{course.weeks} tuần</span>
               </div>
             )}
           </div>
 
-          <div className="p-10 rounded-[2.5rem] bg-card border border-border space-y-8">
-            <div>
-              <h1 className="text-4xl font-bold text-foreground mb-4 underline decoration-primary decoration-4 underline-offset-8">
-                {activeLesson ? activeLesson.title : course.title}
-              </h1>
-              {activeLesson?.description && (
-                <div className="mt-6 p-6 rounded-2xl bg-muted/40 border border-border/50">
-                  <h4 className="text-xs font-bold text-primary uppercase tracking-widest mb-3">Lesson Description</h4>
-                  <div className="prose-sm text-muted-foreground leading-relaxed">
-                    <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
-                      components={{
-                        h1: ({ children }) => <h1 className="text-lg font-extrabold text-foreground mt-3 mb-1.5 pb-1 border-b border-border">{children}</h1>,
-                        h2: ({ children }) => <h2 className="text-base font-bold text-foreground mt-2 mb-1">{children}</h2>,
-                        h3: ({ children }) => <h3 className="text-sm font-bold text-primary mt-1.5 mb-1">{children}</h3>,
-                        p: ({ children }) => <p className="text-sm text-foreground/80 leading-relaxed mb-2">{children}</p>,
-                        ul: ({ children }) => <ul className="list-disc pl-5 text-sm text-foreground/80 space-y-1 mb-2">{children}</ul>,
-                        ol: ({ children }) => <ol className="list-decimal pl-5 text-sm text-foreground/80 space-y-1 mb-2">{children}</ol>,
-                        li: ({ children }) => <li className="leading-relaxed">{children}</li>,
-                        blockquote: ({ children }) => <blockquote className="border-l-4 border-primary/50 pl-3 py-1 bg-primary/5 rounded-r-lg text-sm italic text-muted-foreground mb-2">{children}</blockquote>,
-                        code: ({ children, className: cls }) => {
-                          const isBlock = cls?.includes('language-');
-                          return isBlock
-                            ? <code className="block bg-muted border border-border rounded-xl px-4 py-3 text-xs font-mono text-foreground mb-2 overflow-x-auto">{children}</code>
-                            : <code className="bg-muted border border-border/50 px-1.5 py-0.5 rounded-md text-xs font-mono text-primary">{children}</code>;
-                        },
-                        table: ({ children }) => <div className="overflow-x-auto mb-3 rounded-xl border border-border"><table className="min-w-full text-sm">{children}</table></div>,
-                        thead: ({ children }) => <thead className="bg-muted/60">{children}</thead>,
-                        th: ({ children }) => <th className="px-3 py-2 text-left font-bold text-foreground text-xs uppercase tracking-widest border-b border-border">{children}</th>,
-                        td: ({ children }) => <td className="px-3 py-2 text-foreground/80 border-b border-border/40 text-sm">{children}</td>,
-                        strong: ({ children }) => <strong className="font-bold text-foreground">{children}</strong>,
-                        hr: () => <hr className="border-border my-3" />,
-                      }}
-                    >
-                      {activeLesson.description}
-                    </ReactMarkdown>
-                  </div>
+          {/* Overall progress */}
+          {totalLessons > 0 && (
+            <div className="p-5 rounded-2xl bg-primary/8 border border-primary/20 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-sm font-bold text-primary">
+                  <TrendingUp className="h-4 w-4" />
+                  Tiến độ của bạn
                 </div>
-              )}
+                <span className="text-sm font-black text-primary">{progressPercent}%</span>
+              </div>
+              <div className="h-2.5 w-full bg-primary/15 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progressPercent}%` }}
+                  transition={{ duration: 0.8, ease: 'easeOut' }}
+                  className="h-full bg-primary rounded-full"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {completedCount} / {totalLessons} bài học đã hoàn thành
+              </p>
             </div>
-            <div className="pt-6 border-t border-border">
-              <h3 className="text-lg font-bold text-foreground mb-4">Course Syllabus</h3>
-              <div className="prose dark:prose-invert prose-lg max-w-none prose-headings:text-primary prose-strong:text-primary/80 prose-li:text-muted-foreground prose-p:text-muted-foreground">
-                <ReactMarkdown>{course.description}</ReactMarkdown>
+          )}
+        </div>
+
+        {/* Right — thumbnail */}
+        <div className="lg:col-span-5">
+          <div className="relative rounded-2xl overflow-hidden shadow-2xl aspect-video bg-muted">
+            <img
+              src={course.thumbnail}
+              alt={course.title}
+              className="w-full h-full object-cover"
+            />
+            {/* Overlay play hint */}
+            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+              <div className="h-16 w-16 rounded-full bg-white/20 backdrop-blur-sm border border-white/40 flex items-center justify-center shadow-xl">
+                <PlayCircle className="h-10 w-10 text-white" />
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Desktop Sidebar */}
-        {isDesktopSidebarOpen && (
-          <div className="hidden lg:block lg:col-span-4 space-y-6">
-            <CurriculumPanel
-              course={formattedCourse}
-              activeLesson={activeLesson}
-              progressPercent={progressPercent}
-              onSelectLesson={(lesson) => { setActiveLesson(lesson); setIsMobileDrawerOpen(false); }}
-              onToggleComplete={handleToggleComplete}
-              onEditLesson={openEditLesson}
-              onDeleteLesson={openDeleteLesson}
-              onAddLesson={() => setShowAddLessonModal(true)}
-            />
+      {/* ── Course content ── */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-extrabold text-foreground flex items-center gap-2">
+            <BookOpen className="h-5 w-5 text-primary" />
+            Nội dung khóa học
+          </h2>
+          <span className="text-xs font-bold text-muted-foreground bg-muted px-3 py-1.5 rounded-full">
+            {totalLessons} bài · {topics.length} chủ đề
+          </span>
+        </div>
+
+        {/* ── Topic cards ── */}
+        {hasTopics && (
+          <div className="space-y-4">
+            {topics.map((topic, idx) => {
+              const prog = getTopicProgress(topic);
+              const isComplete = prog.total > 0 && prog.completed === prog.total;
+              return (
+                <motion.div
+                  key={topic.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                >
+                  <Link
+                    href={`${courseBasePath}/${topic.id}`}
+                    className="group flex items-center gap-5 p-5 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-md hover:shadow-primary/5 transition-all"
+                  >
+                    {/* Index badge */}
+                    <div
+                      className={cn(
+                        'h-12 w-12 shrink-0 rounded-xl flex items-center justify-center font-black text-base shadow-sm transition-colors',
+                        isComplete
+                          ? 'bg-emerald-500/15 text-emerald-500'
+                          : 'bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white'
+                      )}
+                    >
+                      {isComplete ? <CheckCircle2 className="h-6 w-6" /> : idx + 1}
+                    </div>
+
+                    {/* Text */}
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-primary">
+                        Chủ đề {idx + 1}
+                      </p>
+                      <h3 className="font-extrabold text-foreground group-hover:text-primary transition-colors truncate">
+                        {topic.title}
+                      </h3>
+                      {topic.description && (
+                        <p className="text-xs text-muted-foreground line-clamp-1">
+                          {topic.description}
+                        </p>
+                      )}
+                      {/* Mini progress */}
+                      {prog.total > 0 && (
+                        <div className="flex items-center gap-2 pt-1">
+                          <div className="h-1.5 w-24 bg-muted rounded-full overflow-hidden">
+                            <div
+                              className={cn(
+                                'h-full rounded-full transition-all',
+                                isComplete ? 'bg-emerald-500' : 'bg-primary'
+                              )}
+                              style={{ width: `${prog.pct}%` }}
+                            />
+                          </div>
+                          <span className="text-[10px] font-bold text-muted-foreground">
+                            {prog.completed}/{prog.total} bài
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Meta & arrow */}
+                    <div className="flex items-center gap-4 shrink-0">
+                      <div className="hidden sm:flex flex-col items-end gap-0.5">
+                        <div className="flex items-center gap-1 text-xs font-bold text-muted-foreground">
+                          <PlayCircle className="h-3.5 w-3.5 text-primary" />
+                          {prog.total} bài giảng
+                        </div>
+                      </div>
+                      <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+                    </div>
+                  </Link>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* ── General lessons (without topic) — shown if any ── */}
+        {generalLessons.length > 0 && (
+          <div className="mt-6 space-y-3">
+            {hasTopics && (
+              <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-widest px-1">
+                Bài học khác
+              </h3>
+            )}
+            {generalLessons.map((lesson, idx) => {
+              const done = completedIds.has(lesson.id);
+              return (
+                <motion.div
+                  key={lesson.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: (topics.length + idx) * 0.04 }}
+                  className={cn(
+                    'flex items-center gap-4 p-4 rounded-2xl border bg-card transition-all',
+                    done
+                      ? 'border-emerald-500/30 bg-emerald-500/5'
+                      : 'border-border hover:border-primary/30'
+                  )}
+                >
+                  <div
+                    className={cn(
+                      'h-9 w-9 shrink-0 rounded-xl flex items-center justify-center text-xs font-bold',
+                      done ? 'bg-emerald-500/15 text-emerald-500' : 'bg-muted text-muted-foreground'
+                    )}
+                  >
+                    {done ? <CheckCircle2 className="h-4 w-4" /> : idx + 1}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm text-foreground truncate">{lesson.title}</p>
+                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
+                      <Clock className="h-3 w-3" />
+                      {lesson.duration}
+                    </div>
+                  </div>
+                  {done && (
+                    <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">
+                      Hoàn thành
+                    </span>
+                  )}
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Empty state */}
+        {!hasTopics && generalLessons.length === 0 && (
+          <div className="text-center py-20 rounded-3xl border border-border bg-card text-muted-foreground">
+            <BookOpen className="h-12 w-12 mx-auto mb-3 opacity-30" />
+            <p className="font-bold">Chưa có nội dung trong khóa học này.</p>
           </div>
         )}
       </div>
 
-      {/* FAB Mobile */}
-      <div className="lg:hidden fixed bottom-6 right-6 z-40">
-        <button
-          onClick={() => setIsMobileDrawerOpen(true)}
-          className="flex items-center gap-2 h-14 px-6 bg-primary text-white rounded-full font-bold shadow-2xl hover:bg-primary/95 transition-all shadow-primary/30"
-        >
-          <BookOpen className="h-5 w-5" />
-          <span>Bài học ({formattedLessons.length})</span>
-        </button>
-      </div>
-
-      {/* Mobile Drawer */}
-      <AnimatePresence>
-        {isMobileDrawerOpen && (
-          <div className="fixed inset-0 z-50 flex justify-end lg:hidden">
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setIsMobileDrawerOpen(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            />
-            <motion.div
-              initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="relative w-full max-w-sm h-full bg-card border-l border-border p-6 shadow-2xl overflow-y-auto z-10 flex flex-col space-y-6"
-            >
-              <div className="flex items-center justify-between pb-4 border-b border-border">
-                <span className="text-lg font-bold text-foreground">Menu Chương Học</span>
-                <button onClick={() => setIsMobileDrawerOpen(false)} className="p-2 bg-muted hover:bg-accent text-foreground rounded-xl">
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-              <div className="flex-1">
-                <CurriculumPanel
-                  course={formattedCourse}
-                  activeLesson={activeLesson}
-                  progressPercent={progressPercent}
-                  onSelectLesson={(lesson) => { setActiveLesson(lesson); setIsMobileDrawerOpen(false); }}
-                  onToggleComplete={handleToggleComplete}
-                  onEditLesson={openEditLesson}
-                  onDeleteLesson={openDeleteLesson}
-                  onAddLesson={() => { setIsMobileDrawerOpen(false); setShowAddLessonModal(true); }}
-                />
-              </div>
-            </motion.div>
+      {/* ── Syllabus description ── */}
+      {course.description && course.description.length > 60 && (
+        <div className="mt-14 p-8 md:p-10 rounded-[2.5rem] bg-card border border-border">
+          <h2 className="text-xl font-extrabold text-foreground mb-6">Giới thiệu khóa học</h2>
+          <div className="prose dark:prose-invert prose-sm md:prose-base max-w-none prose-headings:text-primary prose-strong:text-foreground/90 prose-li:text-muted-foreground prose-p:text-muted-foreground">
+            <ReactMarkdown>{course.description}</ReactMarkdown>
           </div>
-        )}
-      </AnimatePresence>
-      {/* Add Lesson Modal */}
-      <AddLessonModal
-        show={showAddLessonModal}
-        isSaving={isAddingLesson}
-        onClose={() => setShowAddLessonModal(false)}
-        onSave={handleAddLesson}
-      />
-
-      {/* Edit Lesson Modal */}
-      <EditLessonModal
-        show={showEditLessonModal}
-        form={editLessonForm}
-        isSaving={isSavingLesson}
-        onClose={() => { setShowEditLessonModal(false); setEditingLesson(null); }}
-        onSave={handleEditLesson}
-        onChange={(field, value) => setEditLessonForm({ ...editLessonForm, [field]: value })}
-      />
-
-      {/* Delete Lesson Confirm Modal */}
-      <ConfirmDeleteModal
-        show={showDeleteLessonModal}
-        title={`Xoá bài học "${deletingLesson?.title}"?`}
-        description="Bài học này sẽ bị xoá vĩnh viễn. Hành động này không thể hoàn tác."
-        isLoading={isDeletingLesson}
-        onConfirm={handleDeleteLesson}
-        onCancel={() => { setShowDeleteLessonModal(false); setDeletingLesson(null); }}
-      />
+        </div>
+      )}
     </div>
   );
 }

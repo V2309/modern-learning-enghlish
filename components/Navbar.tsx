@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, Home, PlayCircle, Library, Sun, Moon, Menu, X, User, LayoutDashboard, LineChart, Video } from 'lucide-react';
+import { Sun, Moon, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/context/ThemeContext';
@@ -16,12 +16,12 @@ const Navbar = () => {
   const { isSignedIn, user: clerkUser, isLoaded } = useUser();
 
   const navItems = [
-    { name: 'Home', path: '/', icon: Home },
-    { name: 'Vocabulary', path: '/vocabulary', icon: BookOpen },
-    { name: 'Courses', path: '/courses', icon: PlayCircle },
-    { name: 'Shadowing', path: '/shadowing', icon: Video },
-    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Progress', path: '/progress', icon: LineChart },
+    { name: 'Home', path: '/' },
+    { name: 'Vocabulary', path: '/vocabulary' },
+    { name: 'Courses', path: '/courses' },
+    { name: 'Shadowing', path: '/shadowing' },
+    { name: 'Dashboard', path: '/dashboard' },
+    { name: 'Progress', path: '/progress' },
   ];
 
   const handleLinkClick = () => {
@@ -33,7 +33,6 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-xl font-bold text-primary" onClick={handleLinkClick}>
-            <Library className="h-6 w-6" />
             <span>Linguify</span>
           </Link>
           
@@ -45,14 +44,24 @@ const Navbar = () => {
                   key={item.path}
                   href={item.path}
                   className={cn(
-                    "flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary",
+                    "text-sm font-medium transition-colors hover:text-primary",
                     pathname === item.path ? "text-primary" : "text-muted-foreground"
                   )}
                 >
-                  <item.icon className="h-4 w-4" />
                   {item.name}
                 </Link>
               ))}
+              {isSignedIn && (
+                <Link
+                  href="/my-courses"
+                  className={cn(
+                    "text-sm font-medium transition-colors hover:text-primary",
+                    pathname === '/my-courses' ? "text-primary" : "text-muted-foreground"
+                  )}
+                >
+                  My Courses
+                </Link>
+              )}
             </div>
 
             {/* Toggle Theme Button */}
@@ -79,10 +88,9 @@ const Navbar = () => {
               ) : (
                 <Link
                   href="/auth/sign-in"
-                  className="px-4 py-2 text-xs font-bold text-white bg-primary rounded-xl hover:bg-primary/90 transition-all flex items-center gap-1.5"
+                  className="px-4 py-2 text-xs font-bold text-white bg-primary rounded-xl hover:bg-primary/90 transition-all"
                 >
-                  <User size={14} />
-                  <span>Đăng nhập</span>
+                  Đăng nhập
                 </Link>
               )}
             </div>
@@ -118,17 +126,30 @@ const Navbar = () => {
                     href={item.path}
                     onClick={handleLinkClick}
                     className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all",
+                      "px-4 py-3 rounded-xl text-sm font-medium transition-all",
                       isActive 
                         ? "bg-primary/10 text-primary font-bold" 
                         : "text-muted-foreground hover:bg-muted hover:text-foreground"
                     )}
                   >
-                    <item.icon className="h-5 w-5" />
                     {item.name}
                   </Link>
                 );
               })}
+              {isSignedIn && (
+                <Link
+                  href="/my-courses"
+                  onClick={handleLinkClick}
+                  className={cn(
+                    "px-4 py-3 rounded-xl text-sm font-medium transition-all",
+                    pathname === '/my-courses'
+                      ? "bg-primary/10 text-primary font-bold"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  )}
+                >
+                  My Courses
+                </Link>
+              )}
 
               <div className="pt-4 mt-2 border-t border-border space-y-2">
                 {!isLoaded ? (
@@ -147,7 +168,7 @@ const Navbar = () => {
                     onClick={handleLinkClick}
                     className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-white bg-primary text-sm font-bold hover:bg-primary/90 transition-all text-center shadow-lg shadow-primary/20"
                   >
-                    <User className="h-5 w-5" />
+                    
                     Đăng nhập
                   </Link>
                 )}
