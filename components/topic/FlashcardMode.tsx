@@ -23,12 +23,12 @@ export const FlashcardMode = ({
 }: FlashcardModeProps) => {
   const [isFlipped, setIsFlipped] = React.useState(false);
   const [shuffledWords, setShuffledWords] = React.useState(() =>
-    [...words].sort(() => Math.random() - 0.5)
+    [...words]
   );
 
-  // Sync and shuffle when words list changes
+  // Sync when words list changes
   React.useEffect(() => {
-    setShuffledWords([...words].sort(() => Math.random() - 0.5));
+    setShuffledWords([...words]);
   }, [words]);
 
   // Reset flip state when card changes
