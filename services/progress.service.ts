@@ -65,29 +65,90 @@ export async function getVocabularyProgress(userId: string) {
 }
 
 export async function getCourseCompletion(userId: string, courseId: string) {
-  const lessons = await prisma.lesson.findMany({
+  const topics = await prisma.courseTopic.findMany({
     where: { courseId },
-    select: { id: true }
+    include: {
+      lessons: {
+        select: { id: true }
+      }
+    }
   });
 
-  if (lessons.length === 0) {
+  if (topics.length === 0) {
     return {
       completedCount: 0,
       totalCount: 0,
-      percentage: 0
+      percentage: 0,
+      completedTopicsCount: 0,
+      totalTopicsCount: 0
     };
   }
 
-  const completedCount = await prisma.lessonProgress.count({
+  const completedLessonIds = (await prisma.lessonProgress.findMany({
     where: {
       userId,
-      lessonId: { in: lessons.map(l => l.id) }
+      lesson: { courseId }
+    },
+    select: { lessonId: true }
+  })).map(lp => lp.lessonId);
+
+  const completedLessonSet = new Set(completedLessonIds);
+
+  let completedTopicsCount = 0;
+  let totalLessonsCount = 0;
+  let completedLessonsCount = 0;
+
+  topics.forEach(t => {
+    const topicLessons = t.lessons;
+    if (topicLessons.length > 0) {
+      totalLessonsCount += topicLessons.length;
+      const isTopicCompleted = topicLessons.every(l => completedLessonSet.has(l.id));
+      if (isTopicCompleted) {
+        completedTopicsCount++;
+      }
+      completedLessonsCount += topicLessons.filter(l => completedLessonSet.has(l.id)).length;
     }
   });
 
   return {
-    completedCount,
-    totalCount: lessons.length,
-    percentage: Math.round((completedCount / lessons.length) * 100)
+    completedCount: completedLessonsCount,
+    totalCount: totalLessonsCount,
+    percentage: totalLessonsCount > 0 ? Math.round((completedLessonsCount / totalLessonsCount) * 100) : 0,
+    completedTopicsCount,
+    totalTopicsCount: topics.length
   };
 }
+
+export async function toggleTopicCompletion(userId: string, topicId: string, complete: boolean) {
+  const existing = await prisma.topicProgress.findUnique({
+    where: {
+      uniqueUserTopicProgress: { userId, topicId }
+    }
+  });
+
+  if (complete) {
+    if (!existing) {
+      const id = `tp-${Date.now()}`;
+      await prisma.topicProgress.create({
+        data: {
+          id,
+          userId,
+          topicId
+        }
+      });
+    }
+  } else {
+    if (existing) {
+      await prisma.topicProgress.delete({
+        where: { id: existing.id }
+      });
+    }
+  }
+}
+
+export async function getTopicProgress(userId: string) {
+  return await prisma.topicProgress.findMany({
+    where: { userId }
+  });
+}
+

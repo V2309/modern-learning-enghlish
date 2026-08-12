@@ -1,15 +1,27 @@
 import React from 'react';
 import { getTopics } from '@/services/topic.service';
 import { getCurrentUser } from '@/services/user.service';
+import { getTopicProgress } from '@/services/progress.service';
 import VocabularyClient from '@/components/topic/VocabularyClient';
 
 export const dynamic = "force-dynamic";
 
 export default async function VocabularyPage() {
-  const [topics, user] = await Promise.all([
+  const user = await getCurrentUser();
+  const [topics, progress] = await Promise.all([
     getTopics(),
-    getCurrentUser()
+    user ? getTopicProgress(user.uid) : Promise.resolve([])
   ]);
 
-  return <VocabularyClient initialTopics={topics} userId={user?.uid || ""} />;
+  const completedTopicIds = progress.map((p) => p.topicId);
+
+  return (
+    <VocabularyClient
+      initialTopics={topics}
+      userId={user?.uid || ""}
+      completedTopicIds={completedTopicIds}
+      isAdmin={user?.role === 'admin'}
+    />
+  );
 }
+

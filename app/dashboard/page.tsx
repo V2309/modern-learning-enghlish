@@ -1,8 +1,11 @@
 import React from 'react';
 import { getCurrentUser } from '@/services/user.service';
-import { getDashboardStats, getRecentLearning, getLearningStreak } from '@/services/dashboard.service';
-import { BookOpen, CheckCircle, Award, Flame, Calendar, BookOpenCheck, ChevronRight } from 'lucide-react';
+import { getDashboardStats, getRecentLearning, getLearningStreak, getDailyActivity } from '@/services/dashboard.service';
+import { BookOpen, CheckCircle, Award, Flame, Calendar, BookOpenCheck, ChevronRight, Video } from 'lucide-react';
 import Link from 'next/link';
+import LearningHeatmap from '@/components/dashboard/LearningHeatmap';
+import DashboardCharts from '@/components/dashboard/DashboardCharts';
+import TopicProgressList from '@/components/dashboard/TopicProgressList';
 
 export const dynamic = "force-dynamic";
 
@@ -16,10 +19,11 @@ export default async function DashboardPage() {
     );
   }
 
-  const [stats, recentActivity, streakData] = await Promise.all([
+  const [stats, recentActivity, streakData, activityMap] = await Promise.all([
     getDashboardStats(user.uid),
     getRecentLearning(user.uid),
-    getLearningStreak(user.uid)
+    getLearningStreak(user.uid),
+    getDailyActivity(user.uid)
   ]);
 
   return (
@@ -84,9 +88,21 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      {/* Courses Progress */}
+      {/* Courses & Vocabulary Progress */}
       <div className="grid lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-8 space-y-6">
+        <div className="lg:col-span-8 space-y-10">
+          {/* Learning Heatmap */}
+          <LearningHeatmap userCreatedAt={user.createdAt.toISOString()} activityMap={activityMap} />
+
+          {/* Data Visualisation Charts */}
+          <DashboardCharts
+            activityMap={activityMap}
+            vocabMastered={stats.vocabMastered}
+            totalVocab={stats.totalVocab}
+            lessonsCompleted={stats.lessonsCompleted}
+            totalLessons={stats.totalLessons}
+          />
+
           <div className="flex items-center justify-between border-b border-border pb-4">
             <h2 className="text-2xl font-black text-foreground">Lộ trình học tập của bạn</h2>
             <Link href="/courses" className="text-xs font-bold text-primary hover:underline flex items-center gap-1">
@@ -95,6 +111,7 @@ export default async function DashboardPage() {
           </div>
 
           <div className="space-y-4">
+            {/* Courses Progress */}
             {stats.courseCompletionRates.map((course) => (
               <div key={course.id} className="p-6 rounded-3xl bg-card border border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 hover:border-primary/45 transition-colors">
                 <div className="space-y-1.5 flex-1">
@@ -104,8 +121,10 @@ export default async function DashboardPage() {
                     </span>
                     <h3 className="text-lg font-bold text-foreground line-clamp-1">{course.title}</h3>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span>{course.completedCount} / {course.totalCount} bài học hoàn thành</span>
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                    <span>{course.completedCount} / {course.totalCount} bài học</span>
+                    <span>•</span>
+                    <span>{course.completedTopicsCount} / {course.totalTopicsCount} chủ đề đã xong</span>
                   </div>
                 </div>
 
@@ -127,7 +146,86 @@ export default async function DashboardPage() {
                 </Link>
               </div>
             ))}
+
+            {/* Vocabulary Progress Card */}
+            {(() => {
+              const vocabPercentage = stats.totalTopicsCount > 0 ? Math.round((stats.completedTopicsCount / stats.totalTopicsCount) * 100) : 0;
+              return (
+                <div className="p-6 rounded-3xl bg-card border border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 hover:border-emerald-500/40 transition-colors">
+                  <div className="space-y-1.5 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-bold uppercase border border-emerald-500/20">
+                        VOCABULARY
+                      </span>
+                      <h3 className="text-lg font-bold text-foreground line-clamp-1">Thư viện Từ vựng</h3>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                      <span>{stats.vocabMastered} / {stats.totalVocab} từ đã thuộc</span>
+                      <span>•</span>
+                      <span>{stats.completedTopicsCount} / {stats.totalTopicsCount} chủ đề đã xong</span>
+                    </div>
+                  </div>
+
+                  <div className="w-full sm:w-48 flex items-center gap-4">
+                    <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden border border-border">
+                      <div 
+                        className="bg-emerald-500 h-full rounded-full transition-all duration-500" 
+                        style={{ width: `${vocabPercentage}%` }}
+                      />
+                    </div>
+                    <span className="text-sm font-bold text-foreground w-12 text-right">{vocabPercentage}%</span>
+                  </div>
+
+                  <Link 
+                    href="/vocabulary" 
+                    className="px-5 py-2.5 text-xs font-bold text-white bg-emerald-500 rounded-4xl hover:bg-emerald-600 transition-all shrink-0 w-full sm:w-auto text-center"
+                  >
+                    Học Tiếp
+                  </Link>
+                </div>
+              );
+            })()}
+
+            {/* Shadowing Progress Card */}
+            {(() => {
+              const shadowingPercentage = stats.totalShadowingCount > 0 ? Math.round((stats.completedShadowingCount / stats.totalShadowingCount) * 100) : 0;
+              return (
+                <div className="p-6 rounded-3xl bg-card border border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 hover:border-rose-500/40 transition-colors">
+                  <div className="space-y-1.5 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-500 text-[10px] font-bold uppercase border border-rose-500/20">
+                        SHADOWING
+                      </span>
+                      <h3 className="text-lg font-bold text-foreground line-clamp-1">Luyện nói Shadowing</h3>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                      <span>{stats.completedShadowingCount} / {stats.totalShadowingCount} video đã hoàn thành</span>
+                    </div>
+                  </div>
+
+                  <div className="w-full sm:w-48 flex items-center gap-4">
+                    <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden border border-border">
+                      <div 
+                        className="bg-rose-500 h-full rounded-full transition-all duration-500" 
+                        style={{ width: `${shadowingPercentage}%` }}
+                      />
+                    </div>
+                    <span className="text-sm font-bold text-foreground w-12 text-right">{shadowingPercentage}%</span>
+                  </div>
+
+                  <Link 
+                    href="/shadowing" 
+                    className="px-5 py-2.5 text-xs font-bold text-white bg-rose-500 rounded-4xl hover:bg-rose-600 transition-all shrink-0 w-full sm:w-auto text-center"
+                  >
+                    Học Tiếp
+                  </Link>
+                </div>
+              );
+            })()}
           </div>
+
+          {/* Vocabulary Completion Rates */}
+          <TopicProgressList topicCompletionRates={stats.topicCompletionRates} />
         </div>
 
         {/* Recent Activity */}

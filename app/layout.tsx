@@ -43,7 +43,7 @@ export default function RootLayout({
         <body className="min-h-screen bg-background text-foreground transition-colors duration-300 flex flex-col">
           <Providers>
             <NavbarWrapper />
-            <main className="flex-1">{children}</main>
+            <main className="flex-1 md:px-16 ">{children}</main>
             <FooterWrapper />
           </Providers>
         </body>

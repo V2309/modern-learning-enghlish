@@ -40,6 +40,9 @@ model User {
   vocabProgresses    VocabularyProgress[]
   shadowingVideos    ShadowingVideo[]
   courseAccesses     CourseAccess[]
+  topicProgresses    TopicProgress[]
+  shadowingProgresses ShadowingProgress[]
+  courseReviews      CourseReview[]
 
   @@map("users")
 }
@@ -53,6 +56,7 @@ model Topic {
 
   createdByUser    User?    @relation(fields: [createdByUserId], references: [uid], onDelete: SetNull)
   vocabularies     Vocabulary[]
+  topicProgresses  TopicProgress[]
 
   @@map("topics")
 }
@@ -96,6 +100,9 @@ model Course {
   lessons       Lesson[]
   topics        CourseTopic[]
   accesses      CourseAccess[]
+  reviews       CourseReview[]
+  objectives    String?       @db.Text
+  info          String?       @db.Text
 
   @@map("courses")
 }
@@ -153,6 +160,7 @@ model ShadowingVideo {
   createdAt       DateTime @default(now()) @map("created_at") @db.Timestamp()
 
   createdByUser    User?    @relation(fields: [createdByUserId], references: [uid], onDelete: SetNull)
+  progresses       ShadowingProgress[]
 
   @@map("shadowing_videos")
 }
@@ -181,4 +189,44 @@ model VocabularyProgress {
 
   @@unique([userId, vocabularyId], name: "uniqueUserVocabularyProgress")
   @@map("vocabulary_progress")
+}
+
+model TopicProgress {
+  id          String   @id @db.VarChar(255)
+  userId      String   @map("user_id") @db.VarChar(255)
+  topicId     String   @map("topic_id") @db.VarChar(255)
+  completedAt DateTime @default(now()) @map("completed_at") @db.Timestamp()
+
+  user        User     @relation(fields: [userId], references: [uid], onDelete: Cascade)
+  topic       Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, topicId], name: "uniqueUserTopicProgress")
+  @@map("topic_progress")
+}
+
+model ShadowingProgress {
+  id          String   @id @db.VarChar(255)
+  userId      String   @map("user_id") @db.VarChar(255)
+  videoId     String   @map("video_id") @db.VarChar(255)
+  completedAt DateTime @default(now()) @map("completed_at") @db.Timestamp()
+
+  user        User           @relation(fields: [userId], references: [uid], onDelete: Cascade)
+  video       ShadowingVideo @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, videoId], name: "uniqueUserShadowingProgress")
+  @@map("shadowing_progress")
+}
+
+model CourseReview {
+  id        String   @id @db.VarChar(255)
+  courseId  String   @map("course_id") @db.VarChar(255)
+  userId    String   @map("user_id") @db.VarChar(255)
+  rating    Int
+  comment   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [uid], onDelete: Cascade)
+
+  @@map("course_reviews")
 }

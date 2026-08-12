@@ -28,6 +28,7 @@ interface TopicSidebarProps {
   isFixed?: boolean;
   onOpenAddWord: () => void;
   onClose?: () => void;
+  isAdmin?: boolean;
 }
 
 export const TopicSidebar = ({
@@ -38,9 +39,8 @@ export const TopicSidebar = ({
   isFixed = false,
   onOpenAddWord,
   onClose,
+  isAdmin = false,
 }: TopicSidebarProps) => {
-  const { user } = useUser();
-  const isAdmin = user?.id === 'user_3DRcDBsgk0yYQLjs2JkTgQHsr9v';
   const pathname = usePathname();
 
   // Determine active mode dynamically based on URL if not explicitly provided

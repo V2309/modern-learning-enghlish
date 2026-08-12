@@ -3,8 +3,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { BookOpen, ChevronRight, Search, Plus, X, MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import { BookOpen, ChevronRight, Search, Plus, X, MoreVertical, Pencil, Trash2, Check } from 'lucide-react';
 import { createTopicAction, updateTopicAction, deleteTopicAction } from '@/actions/topic.action';
+import { toggleTopicCompletionAction } from '@/actions/progress.action';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import Pagination from '@/components/Pagination';
 import SortMenuButton from '@/components/SortMenuButton';
@@ -15,18 +16,47 @@ import { toast } from 'react-hot-toast';
 interface VocabularyClientProps {
   initialTopics: any[];
   userId: string;
+  completedTopicIds?: string[];
+  isAdmin?: boolean;
 }
 
 const PAGE_SIZE = 8;
 
-export default function VocabularyClient({ initialTopics, userId }: VocabularyClientProps) {
-  const { user } = useUser();
-  const isAdmin = user?.id === 'user_3DRcDBsgk0yYQLjs2JkTgQHsr9v';
+export default function VocabularyClient({ initialTopics, userId, completedTopicIds = [], isAdmin = false }: VocabularyClientProps) {
   const [topics, setTopics] = useState<any[]>(initialTopics);
+  const [completedIds, setCompletedIds] = useState<string[]>(completedTopicIds);
   const searchQuery = useVocabularyUiStore((state) => state.searchQuery);
   const currentPage = useVocabularyUiStore((state) => state.currentPage);
   const setSearchQuery = useVocabularyUiStore((state) => state.setSearchQuery);
   const setCurrentPage = useVocabularyUiStore((state) => state.setCurrentPage);
+
+  useEffect(() => {
+    setCompletedIds(completedTopicIds);
+  }, [completedTopicIds]);
+
+  const handleToggleTopicCompleted = async (topicId: string, complete: boolean) => {
+    if (!userId) {
+      toast.error("Vui lòng đăng nhập để thực hiện chức năng này.");
+      return;
+    }
+
+    // Optimistic update
+    setCompletedIds((prev) =>
+      complete ? [...prev, topicId] : prev.filter((id) => id !== topicId)
+    );
+
+    const res = await toggleTopicCompletionAction(userId, topicId, complete);
+
+    if (res.success) {
+      toast.success(complete ? "Đã đánh dấu hoàn thành chủ đề!" : "Đã hủy đánh dấu hoàn thành!");
+    } else {
+      // Revert optimistic update
+      setCompletedIds((prev) =>
+        complete ? prev.filter((id) => id !== topicId) : [...prev, topicId]
+      );
+      toast.error("Có lỗi xảy ra: " + (res.error || "Không thể cập nhật"));
+    }
+  };
 
   const [sortKey, setSortKey] = useState<'newest' | 'oldest' | 'az' | 'za'>('newest');
 
@@ -164,7 +194,7 @@ export default function VocabularyClient({ initialTopics, userId }: VocabularyCl
   const paginatedTopics = filteredTopics.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <div>
           <h1 className="text-4xl font-bold text-foreground mb-2">Vocabulary Library</h1>
@@ -209,51 +239,86 @@ export default function VocabularyClient({ initialTopics, userId }: VocabularyCl
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" ref={menuRef}>
-            {paginatedTopics.map((topic: any, i: number) => (
-              <motion.div
-                key={topic.id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.05 }}
-                className="relative"
-              >
-                <Link
-                  href={`/vocabulary/topic/${topic.id}`}
-                  className="block p-8 h-full rounded-3xl bg-card border border-border hover:border-primary/50 transition-all hover:bg-muted/50 group relative overflow-hidden shadow-sm"
+            {paginatedTopics.map((topic: any, i: number) => {
+              const isCompleted = completedIds.includes(topic.id);
+              return (
+                <motion.div
+                  key={topic.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.05 }}
+                  className="relative"
                 >
-                  <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <ChevronRight className="h-6 w-6 text-primary" />
-                  </div>
+                  <Link
+                    href={`/vocabulary/topic/${topic.id}`}
+                    className={`block p-8 h-full rounded-3xl bg-card border transition-all hover:bg-muted/50 group relative overflow-hidden shadow-sm ${
+                      isCompleted
+                        ? "border-emerald-500/20 hover:border-emerald-500/50"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                  >
+                    <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <ChevronRight className={`h-6 w-6 ${isCompleted ? "text-emerald-500" : "text-primary"}`} />
+                    </div>
 
-                  <div className="h-12 w-12 rounded-4xl bg-primary/10 flex items-center justify-center text-primary mb-6">
-                    <BookOpen className="h-6 w-6" />
-                  </div>
+                    <div className={`h-12 w-12 rounded-4xl flex items-center justify-center mb-6 transition-colors ${
+                      isCompleted
+                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                        : "bg-primary/10 text-primary"
+                    }`}>
+                      <BookOpen className="h-6 w-6" />
+                    </div>
 
-                  <h3 className="text-2xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors pr-8">
-                    {topic.name}
-                  </h3>
-                  <p className="text-muted-foreground mb-6 leading-relaxed">{topic.description}</p>
+                    <h3 className={`text-2xl font-bold text-foreground mb-2 transition-colors pr-8 ${
+                      isCompleted ? "group-hover:text-emerald-500" : "group-hover:text-primary"
+                    }`}>
+                      {topic.name}
+                    </h3>
+                    <p className="text-muted-foreground mb-6 leading-relaxed">{topic.description}</p>
 
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm font-medium text-muted-foreground bg-muted px-3 py-1 rounded-full border border-border">
-                      {topic.vocabularies?.length || 0} Words
-                    </span>
-                  </div>
-                </Link>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-medium text-muted-foreground bg-muted px-3 py-1 rounded-full border border-border">
+                        {topic.vocabularies?.length || 0} Words
+                      </span>
+                      {isCompleted && (
+                        <span className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                          <Check className="h-3 w-3 stroke-[3]" />
+                          Hoàn thành
+                        </span>
+                      )}
+                    </div>
+                  </Link>
 
-                {isAdmin && (
-                  <div className="absolute top-4 right-4 z-10">
+                  <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
                     <button
-                      onClick={(e) => {
+                      onClick={async (e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        setOpenMenuId(openMenuId === topic.id ? null : topic.id);
+                        await handleToggleTopicCompleted(topic.id, !isCompleted);
                       }}
-                      className="p-2 rounded-xl bg-card/80 backdrop-blur border border-border hover:bg-muted text-muted-foreground transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
-                      id={`topic-menu-btn-${topic.id}`}
+                      className={`p-2 rounded-xl border transition-all cursor-pointer ${
+                        isCompleted
+                          ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400 opacity-100"
+                          : "bg-card/85 backdrop-blur border-border hover:bg-muted text-muted-foreground/60 opacity-40 hover:opacity-100"
+                      }`}
+                      title={isCompleted ? "Đánh dấu chưa hoàn thành" : "Đánh dấu đã hoàn thành"}
                     >
-                      <MoreVertical className="h-4 w-4" />
+                      <Check className="h-4 w-4 stroke-[3]" />
                     </button>
+
+                    {isAdmin && (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setOpenMenuId(openMenuId === topic.id ? null : topic.id);
+                        }}
+                        className="p-2 rounded-xl bg-card/80 backdrop-blur border border-border hover:bg-muted text-muted-foreground transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 cursor-pointer"
+                        id={`topic-menu-btn-${topic.id}`}
+                      >
+                        <MoreVertical className="h-4 w-4" />
+                      </button>
+                    )}
 
                     <AnimatePresence>
                       {openMenuId === topic.id && (
@@ -261,18 +326,18 @@ export default function VocabularyClient({ initialTopics, userId }: VocabularyCl
                           initial={{ opacity: 0, scale: 0.9, y: -4 }}
                           animate={{ opacity: 1, scale: 1, y: 0 }}
                           exit={{ opacity: 0, scale: 0.9, y: -4 }}
-                          className="absolute right-0 mt-1 w-40 bg-card border border-border rounded-4xl shadow-xl overflow-hidden z-50"
+                          className="absolute right-0 mt-12 w-40 bg-card border border-border rounded-4xl shadow-xl overflow-hidden z-50"
                         >
                           <button
                             onClick={(e) => { e.preventDefault(); openEditModal(topic); }}
-                            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
                           >
                             <Pencil className="h-4 w-4 text-primary" />
                             Sửa chủ đề
                           </button>
                           <button
                             onClick={(e) => { e.preventDefault(); openDeleteModal(topic); }}
-                            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors"
+                            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
                           >
                             <Trash2 className="h-4 w-4" />
                             Xoá chủ đề
@@ -281,9 +346,9 @@ export default function VocabularyClient({ initialTopics, userId }: VocabularyCl
                       )}
                     </AnimatePresence>
                   </div>
-                )}
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
 
           <Pagination

@@ -67,3 +67,43 @@ export async function deleteShadowingVideo(id: string) {
     where: { id }
   });
 }
+
+export async function getShadowingProgress(userId: string, videoId: string) {
+  return await prisma.shadowingProgress.findUnique({
+    where: {
+      uniqueUserShadowingProgress: { userId, videoId }
+    }
+  });
+}
+
+export async function toggleShadowingProgress(userId: string, videoId: string, completed: boolean) {
+  const existing = await prisma.shadowingProgress.findUnique({
+    where: {
+      uniqueUserShadowingProgress: { userId, videoId }
+    }
+  });
+
+  if (completed) {
+    if (!existing) {
+      await prisma.shadowingProgress.create({
+        data: {
+          id: `sp-${Date.now()}`,
+          userId,
+          videoId
+        }
+      });
+    }
+  } else {
+    if (existing) {
+      await prisma.shadowingProgress.delete({
+        where: { id: existing.id }
+      });
+    }
+  }
+}
+
+export async function getUserShadowingProgress(userId: string) {
+  return await prisma.shadowingProgress.findMany({
+    where: { userId }
+  });
+}

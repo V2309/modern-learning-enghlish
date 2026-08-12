@@ -36,11 +36,10 @@ const PAGE_SIZE = 6;
 interface CoursesClientProps {
   initialCourses: any[];
   userAccessCourseIds?: string[];
+  isAdmin?: boolean;
 }
 
-export default function CoursesClient({ initialCourses, userAccessCourseIds = [] }: CoursesClientProps) {
-  const { user } = useUser();
-  const isAdmin = user?.id === 'user_3DRcDBsgk0yYQLjs2JkTgQHsr9v';
+export default function CoursesClient({ initialCourses, userAccessCourseIds = [], isAdmin = false }: CoursesClientProps) {
   const router = useRouter();
   const [courses, setCourses] = useState<any[]>(initialCourses);
   const [accessCourseIds, setAccessCourseIds] = useState<string[]>(userAccessCourseIds);
@@ -244,7 +243,7 @@ export default function CoursesClient({ initialCourses, userAccessCourseIds = []
   };
 
   return (
-    <div className="container mx-auto px-4 py-16 text-center select-none">
+    <div className="container mx-auto px-4 py-8 text-center select-none">
       {/* ── HEADER ── */}
       <div className="space-y-4 max-w-4xl mx-auto mb-12">
         <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-foreground">
@@ -312,6 +311,8 @@ export default function CoursesClient({ initialCourses, userAccessCourseIds = []
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch text-left" ref={menuRef}>
           {paginatedCourses.map((course, i) => {
             const hasOriginalPrice = course.originalPrice && course.originalPrice > course.price;
+            const isFree = !course.accessCode || (course.price ?? 0) === 0;
+            const isAccessible = isFree || accessCourseIds.includes(course.id);
             return (
               <motion.div
                 key={course.id}
@@ -322,11 +323,13 @@ export default function CoursesClient({ initialCourses, userAccessCourseIds = []
               >
                 {/* Image Section */}
                 <div className="aspect-video relative overflow-hidden bg-slate-100 shrink-0">
-                  <img
-                    src={course.thumbnail}
-                    alt={course.title}
-                    className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
-                  />
+                  <Link href={`/courses/${course.id}`}>
+                    <img
+                      src={course.thumbnail}
+                      alt={course.title}
+                      className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500 cursor-pointer"
+                    />
+                  </Link>
                   
                   {/* Rating Badge */}
                   {course.rating && (
@@ -365,7 +368,9 @@ export default function CoursesClient({ initialCourses, userAccessCourseIds = []
                     </div>
 
                     <h3 className="text-base font-extrabold text-slate-850 dark:text-foreground group-hover:text-primary transition-colors line-clamp-1 pr-6">
-                      {course.title}
+                      <Link href={`/courses/${course.id}`} className="hover:text-primary transition-colors">
+                        {course.title}
+                      </Link>
                     </h3>
                     
                     <p className="text-slate-500 dark:text-muted-foreground text-[12px] leading-relaxed line-clamp-2">
@@ -400,9 +405,9 @@ export default function CoursesClient({ initialCourses, userAccessCourseIds = []
                       </span>
                     </div>
 
-                    {accessCourseIds.includes(course.id) ? (
+                    {isAccessible ? (
                       <Link
-                        href={`/courses/${course.id}`}
+                        href={`/my-courses/${course.id}`}
                         className="flex items-center gap-1 px-3.5 py-1.5 text-[10px] font-black bg-primary text-white rounded-lg transition-all cursor-pointer text-center"
                       >
                         <Unlock className="h-3 w-3" />
@@ -414,7 +419,7 @@ export default function CoursesClient({ initialCourses, userAccessCourseIds = []
                         className="flex items-center gap-1 px-3.5 py-1.5 text-[10px] font-black border border-primary text-primary hover:bg-primary hover:text-white rounded-lg transition-all cursor-pointer text-center"
                       >
                         <Lock className="h-3 w-3" />
-                        {(course.price ?? 0) === 0 ? 'Đăng ký miễn phí' : 'Nhập mã'}
+                        Kích hoạt
                       </button>
                     )}
                   </div>

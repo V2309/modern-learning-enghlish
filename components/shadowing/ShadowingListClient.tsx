@@ -20,13 +20,13 @@ const PAGE_SIZE = 6;
 interface ShadowingListClientProps {
   initialShadowings: any[];
   userId: string;
+  isAdmin?: boolean;
+  completedVideoIds?: string[];
 }
 
 export type ShadowingSortKey = 'newest' | 'oldest' | 'az' | 'za';
 
-export default function ShadowingListClient({ initialShadowings, userId }: ShadowingListClientProps) {
-  const { user } = useUser();
-  const isAdmin = user?.id === 'user_3DRcDBsgk0yYQLjs2JkTgQHsr9v';
+export default function ShadowingListClient({ initialShadowings, userId, isAdmin = false, completedVideoIds = [] }: ShadowingListClientProps) {
   const [shadowings, setShadowings] = useState<any[]>(initialShadowings);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -159,7 +159,7 @@ export default function ShadowingListClient({ initialShadowings, userId }: Shado
   ];
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <div>
@@ -199,7 +199,7 @@ export default function ShadowingListClient({ initialShadowings, userId }: Shado
           {isAdmin && (
             <button
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-2 px-6 py-3 rounded-4xl bg-primary text-white font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 cursor-pointer"
+              className="flex items-center gap-2 px-4 py-3 rounded-4xl bg-primary text-white font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 cursor-pointer"
             >
               <Plus className="h-5 w-5" />
               Thêm video mới
@@ -244,10 +244,15 @@ export default function ShadowingListClient({ initialShadowings, userId }: Shado
                   </div>
 
                   {/* Badges */}
-                  <div className="absolute top-4 left-4 flex gap-2">
+                  <div className="absolute top-4 left-4 flex flex-wrap gap-1.5">
                     <span className="text-[10px] font-black uppercase tracking-widest text-white bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full">
                       {yt ? 'YouTube' : 'Direct Video'}
                     </span>
+                    {completedVideoIds.includes(shadowing.id) && (
+                      <span className="text-[10px] font-black uppercase tracking-widest text-white bg-emerald-500 px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
+                        <Check className="h-3 w-3" /> Đã hoàn thành
+                      </span>
+                    )}
                   </div>
                 </div>
 

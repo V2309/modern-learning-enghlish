@@ -9,9 +9,10 @@ import { toast } from 'react-hot-toast';
 interface VocabListPageClientProps {
   userId: string;
   topicId: string;
+  isAdmin?: boolean;
 }
 
-export default function VocabListPageClient({ userId, topicId }: VocabListPageClientProps) {
+export default function VocabListPageClient({ userId, topicId, isAdmin = false }: VocabListPageClientProps) {
   const {
     words,
     masteredIds,
@@ -85,6 +86,7 @@ export default function VocabListPageClient({ userId, topicId }: VocabListPageCl
       onToggleMaster={handleToggleMaster}
       onEdit={handleOpenEditWord}
       onDelete={handleOpenDeleteWord}
+      isAdmin={isAdmin}
     />
   );
 }

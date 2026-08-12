@@ -17,6 +17,7 @@ export default async function CoursesPage() {
     <CoursesClient
       initialCourses={courses}
       userAccessCourseIds={userAccessCourseIds}
+      isAdmin={user?.role === 'admin'}
     />
   );
 }

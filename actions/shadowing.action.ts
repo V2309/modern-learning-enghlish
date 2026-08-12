@@ -1,6 +1,6 @@
 "use server";
 
-import { createShadowingVideo, updateShadowingVideo, deleteShadowingVideo } from "@/services/shadowing.service";
+import { createShadowingVideo, updateShadowingVideo, deleteShadowingVideo, toggleShadowingProgress } from "@/services/shadowing.service";
 import { shadowingSchema, updateShadowingSchema } from "@/schemas/shadowing.schema";
 import { revalidatePath } from "next/cache";
 
@@ -55,6 +55,18 @@ export async function deleteShadowingVideoAction(id: string) {
   try {
     await deleteShadowingVideo(id);
     revalidatePath("/shadowing");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function toggleShadowingProgressAction(userId: string, videoId: string, completed: boolean) {
+  try {
+    await toggleShadowingProgress(userId, videoId, completed);
+    revalidatePath("/shadowing");
+    revalidatePath(`/shadowing/${videoId}`);
+    revalidatePath("/dashboard");
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };

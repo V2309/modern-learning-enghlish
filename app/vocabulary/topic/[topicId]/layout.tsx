@@ -46,6 +46,7 @@ export default async function TopicLayout(props: LayoutProps) {
       userId={user.uid}
       initialWords={words}
       initialMasteredWordIds={initialMasteredWordIds}
+      isAdmin={user.role === 'admin'}
     >
       {props.children}
     </TopicLayoutClient>

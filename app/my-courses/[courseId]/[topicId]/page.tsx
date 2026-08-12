@@ -55,6 +55,7 @@ export default async function MyCourseTopicPage(props: PageProps) {
       userId={user.uid}
       initialCompletedLessonIds={initialCompletedLessonIds}
       basePath={`/my-courses/${courseId}`}
+      isAdmin={user.role === 'admin'}
     />
   );
 }

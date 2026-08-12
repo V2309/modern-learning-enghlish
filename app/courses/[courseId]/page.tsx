@@ -33,14 +33,11 @@ export default async function CourseDetailPage(props: PageProps) {
     );
   }
 
-  // Access guard: free courses always accessible; paid courses need access record
   const isFree = !course.accessCode || (course.price ?? 0) === 0;
-  if (!isFree) {
+  let isUnlocked = isFree;
+  if (!isFree && user) {
     const access = await getCourseAccess(user.uid, courseId);
-    if (!access) {
-      // Redirect back to courses list — the modal will handle the code entry
-      redirect('/courses');
-    }
+    isUnlocked = !!access;
   }
 
   const lessonProgresses = await getLessonProgress(user.uid);
@@ -53,6 +50,7 @@ export default async function CourseDetailPage(props: PageProps) {
       course={course}
       userId={user.uid}
       initialCompletedLessonIds={initialCompletedLessonIds}
+      isUnlocked={isUnlocked}
     />
   );
 }

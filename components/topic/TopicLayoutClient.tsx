@@ -19,6 +19,7 @@ interface TopicLayoutClientProps {
   initialWords: any[];
   initialMasteredWordIds: string[];
   children: React.ReactNode;
+  isAdmin?: boolean;
 }
 
 export default function TopicLayoutClient({
@@ -27,6 +28,7 @@ export default function TopicLayoutClient({
   initialWords,
   initialMasteredWordIds,
   children,
+  isAdmin = false,
 }: TopicLayoutClientProps) {
   const pathname = usePathname();
 
@@ -160,6 +162,7 @@ export default function TopicLayoutClient({
           wordCount={words.length}
           isFixed
           onOpenAddWord={() => setShowAddWordModal(true)}
+          isAdmin={isAdmin}
         />
       )}
 
@@ -379,6 +382,7 @@ export default function TopicLayoutClient({
                   isMobileView
                   onOpenAddWord={() => setShowAddWordModal(true)}
                   onClose={() => setIsMobileSidebarOpen(false)}
+                  isAdmin={isAdmin}
                 />
               </div>
             </motion.div>

@@ -21,6 +21,7 @@ export default async function TopicDetailPage(props: PageProps) {
     <VocabListPageClient
       userId={user.uid}
       topicId={topicId}
+      isAdmin={user.role === 'admin'}
     />
   );
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/services/user.service';
-import { getShadowingVideoById } from '@/services/shadowing.service';
+import { getShadowingVideoById, getShadowingProgress } from '@/services/shadowing.service';
 import {
   ShadowingPlayerProvider,
   ShadowingHeader,
@@ -27,7 +27,11 @@ export default async function ShadowingPlayerPage(props: PageProps) {
     redirect('/auth/sign-in');
   }
 
-  const shadowing = await getShadowingVideoById(id);
+  const [shadowing, progress] = await Promise.all([
+    getShadowingVideoById(id),
+    getShadowingProgress(user.uid, id)
+  ]);
+
   if (!shadowing) {
     return (
       <div className="container mx-auto px-4 py-20 text-center space-y-4">
@@ -43,7 +47,7 @@ export default async function ShadowingPlayerPage(props: PageProps) {
   return (
     <ShadowingPlayerProvider shadowingVideo={shadowing}>
       <div className="container mx-auto px-4 py-8 relative lg:h-[calc(100vh-64px)] lg:overflow-hidden flex flex-col">
-        <ShadowingHeader />
+        <ShadowingHeader userId={user.uid} videoId={shadowing.id} initialCompleted={!!progress} />
         
         <div className="grid lg:grid-cols-12 gap-12 items-start relative flex-1 min-h-0">
           {/* Main content: Video player, controls, description, and mobile transcript */}

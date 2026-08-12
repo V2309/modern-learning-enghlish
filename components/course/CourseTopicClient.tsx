@@ -34,6 +34,7 @@ interface CourseTopicClientProps {
   userId: string;
   initialCompletedLessonIds: string[];
   basePath?: string; // e.g. '/my-courses/[courseId]' or '/courses/[courseId]'
+  isAdmin?: boolean;
 }
 
 export default function CourseTopicClient({
@@ -41,9 +42,8 @@ export default function CourseTopicClient({
   userId,
   initialCompletedLessonIds,
   basePath,
+  isAdmin = false,
 }: CourseTopicClientProps) {
-  const { user } = useUser();
-  const isAdmin = user?.id === 'user_3DRcDBsgk0yYQLjs2JkTgQHsr9v';
   const courseBasePath = basePath ?? `/courses/${topic.courseId}`;
   const {
     completedIds,

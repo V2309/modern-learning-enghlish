@@ -21,7 +21,6 @@ const Navbar = () => {
     { name: 'Courses', path: '/courses', requiresAuth: false },
     { name: 'Shadowing', path: '/shadowing', requiresAuth: true },
     { name: 'Dashboard', path: '/dashboard', requiresAuth: true },
-    { name: 'Progress', path: '/progress', requiresAuth: true },
   ];
 
   const navItems = allNavItems.filter(

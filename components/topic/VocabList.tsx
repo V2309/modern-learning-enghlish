@@ -14,13 +14,12 @@ interface VocabListProps {
   onToggleMaster?: (wordId: string) => void;
   onEdit?: (word: any) => void;
   onDelete?: (word: any) => void;
+  isAdmin?: boolean;
 }
 
 const PAGE_SIZE = 10;
 
-export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit, onDelete }: VocabListProps) => {
-  const { user } = useUser();
-  const isAdmin = user?.id === 'user_3DRcDBsgk0yYQLjs2JkTgQHsr9v';
+export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit, onDelete, isAdmin = false }: VocabListProps) => {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const loaderRef = useRef<HTMLDivElement>(null);
 

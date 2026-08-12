@@ -21,13 +21,14 @@ export async function updateUser(userId: string, data: { name?: string; email?: 
 }
 
 export async function syncUser(data: { uid: string; name: string; email: string }) {
-  const role = data.uid === "user_3DRcDBsgk0yYQLjs2JkTgQHsr9v" ? "admin" : "user";
+  const existing = await prisma.user.findUnique({ where: { uid: data.uid } });
+  const role = existing ? existing.role : "user";
+
   return await prisma.user.upsert({
     where: { uid: data.uid },
     update: {
       name: data.name,
-      email: data.email,
-      role: role as any
+      email: data.email
     },
     create: {
       uid: data.uid,
