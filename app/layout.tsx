@@ -5,6 +5,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { NavbarWrapper } from "@/components/NavbarWrapper";
 import { FooterWrapper } from "@/components/FooterWrapper";
+import Footer from "@/components/home/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,7 +45,8 @@ export default function RootLayout({
           <Providers>
             <NavbarWrapper />
             <main className="flex-1 md:px-16 ">{children}</main>
-            <FooterWrapper />
+         
+            <Footer />
           </Providers>
         </body>
       </html>

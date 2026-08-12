@@ -20,6 +20,7 @@ const Navbar = () => {
     { name: 'Vocabulary', path: '/vocabulary', requiresAuth: true },
     { name: 'Courses', path: '/courses', requiresAuth: false },
     { name: 'Shadowing', path: '/shadowing', requiresAuth: true },
+    { name: 'Dictation', path: '/dictation', requiresAuth: true },
     { name: 'Dashboard', path: '/dashboard', requiresAuth: true },
   ];
 
@@ -32,8 +33,8 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
-      <div className="container mx-auto px-4">
+    <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md px-4 md:px-8">
+      <div className="container mx-auto">
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-xl font-bold text-primary" onClick={handleLinkClick}>
             <span>Linguify</span>

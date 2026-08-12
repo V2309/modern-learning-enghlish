@@ -43,6 +43,8 @@ model User {
   topicProgresses    TopicProgress[]
   shadowingProgresses ShadowingProgress[]
   courseReviews      CourseReview[]
+  dictationAttempts  DictationAttempt[]
+  dictationTopicProgresses DictationTopicProgress[]
 
   @@map("users")
 }
@@ -230,3 +232,68 @@ model CourseReview {
 
   @@map("course_reviews")
 }
+
+model DictationTopic {
+  id          String   @id @default(uuid()) @db.VarChar(255)
+  title       String   @db.VarChar(255)
+  description String?  @db.Text
+  thumbnail   String?  @db.Text
+  level       String   @db.VarChar(50)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp()
+
+  sentences   DictationSentence[]
+  progresses  DictationTopicProgress[]
+
+  @@map("dictation_topics")
+}
+
+model DictationSentence {
+  id          String   @id @default(uuid()) @db.VarChar(255)
+  topicId     String   @map("topic_id") @db.VarChar(255)
+  audioUrl    String   @map("audio_url") @db.Text
+  transcript  String   @db.Text
+  duration    Int      @default(0)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp()
+
+  topic       DictationTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  attempts    DictationAttempt[]
+
+  @@map("dictation_sentences")
+}
+
+model DictationAttempt {
+  id           String   @id @default(uuid()) @db.VarChar(255)
+  userId       String   @map("user_id") @db.VarChar(255)
+  sentenceId   String   @map("sentence_id") @db.VarChar(255)
+  answer       String   @db.Text
+  accuracy     Float
+  correctWords Int      @default(0) @map("correct_words")
+  wrongWords   Int      @default(0) @map("wrong_words")
+  missingWords Int      @default(0) @map("missing_words")
+  extraWords   Int      @default(0) @map("extra_words")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  user         User              @relation(fields: [userId], references: [uid], onDelete: Cascade)
+  sentence     DictationSentence @relation(fields: [sentenceId], references: [id], onDelete: Cascade)
+
+  @@map("dictation_attempts")
+}
+
+model DictationTopicProgress {
+  id          String   @id @default(uuid()) @db.VarChar(255)
+  userId      String   @map("user_id") @db.VarChar(255)
+  topicId     String   @map("topic_id") @db.VarChar(255)
+  completedAt DateTime @default(now()) @map("completed_at") @db.Timestamp()
+
+  user        User           @relation(fields: [userId], references: [uid], onDelete: Cascade)
+  topic       DictationTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, topicId], name: "uniqueUserDictationTopicProgress")
+  @@map("dictation_topic_progress")
+}
+
+
