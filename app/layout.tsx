@@ -4,7 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import { Providers } from "./providers";
 import { NavbarWrapper } from "@/components/NavbarWrapper";
-import { FooterWrapper } from "@/components/FooterWrapper";
+
 import Footer from "@/components/home/Footer";
 
 const geistSans = Geist({
