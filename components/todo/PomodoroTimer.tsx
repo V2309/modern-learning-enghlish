@@ -50,11 +50,14 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
   const [mode, setMode] = useState<Mode>('work');
   const [timeLeft, setTimeLeft] = useState(MODES.work.seconds);
   const [running, setRunning] = useState(false);
-  const [sessionStart, setSessionStart] = useState<number | null>(null); // timestamp
   const [stats, setStats] = useState<PomodoroStats>(initialStats);
   const [collapsed, setCollapsed] = useState(false);
 
+  // Timestamp-based refs — immune to tab throttling
+  const startTimeRef = useRef<number | null>(null);   // wall-clock ms when timer last started
+  const baseSecondsRef = useRef<number>(MODES.work.seconds); // timeLeft at the moment of start
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const completedRef = useRef(false); // guard against double-fire
   const cfg = MODES[mode];
   const total = cfg.seconds;
   const pct = ((total - timeLeft) / total) * 100;
@@ -64,24 +67,58 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
   const CIRC = 2 * Math.PI * R;
   const dash = (pct / 100) * CIRC;
 
-  // ── Timer tick ──────────────────────────────────────────────────────────────
+  // ── Timestamp-based tick ───────────────────────────────────────────────────
+  // This approach calculates remaining time from wall-clock so it stays
+  // accurate even when the browser throttles background tabs.
+  const tick = useCallback(() => {
+    if (!startTimeRef.current) return;
+    const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
+    const remaining = baseSecondsRef.current - elapsed;
+
+    if (remaining <= 0) {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      setTimeLeft(0);
+      if (!completedRef.current) {
+        completedRef.current = true;
+        handleSessionComplete();
+      }
+    } else {
+      setTimeLeft(remaining);
+    }
+  }, []);
+
   useEffect(() => {
     if (running) {
-      intervalRef.current = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            clearInterval(intervalRef.current!);
-            handleSessionComplete();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+      completedRef.current = false;
+      startTimeRef.current = Date.now();
+      baseSecondsRef.current = timeLeft; // resume from current position
+      intervalRef.current = setInterval(tick, 500); // 500ms for responsiveness
     } else {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      // Save remaining time when paused
+      if (startTimeRef.current) {
+        const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
+        baseSecondsRef.current = Math.max(0, baseSecondsRef.current - elapsed);
+        startTimeRef.current = null;
+      }
     }
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [running, mode]);
+  }, [running]);
+
+  // ── Recover from tab visibility change ─────────────────────────────────────
+  useEffect(() => {
+    const onVisible = () => {
+      if (running && startTimeRef.current) {
+        // Force a tick immediately on return to catch up
+        tick();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [running, tick]);
 
   // ── Update document title ───────────────────────────────────────────────────
   useEffect(() => {
@@ -97,6 +134,7 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
 
   const handleSessionComplete = useCallback(async () => {
     setRunning(false);
+    startTimeRef.current = null;
 
     // Play notification sound (Web Audio API)
     try {
@@ -142,22 +180,27 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
 
   const switchMode = (newMode: Mode) => {
     if (intervalRef.current) clearInterval(intervalRef.current);
+    startTimeRef.current = null;
+    completedRef.current = false;
     setRunning(false);
     setMode(newMode);
-    setTimeLeft(MODES[newMode].seconds);
-    setSessionStart(null);
+    const secs = MODES[newMode].seconds;
+    setTimeLeft(secs);
+    baseSecondsRef.current = secs;
   };
 
   const handleStart = () => {
-    if (!running) setSessionStart(Date.now());
     setRunning((r) => !r);
   };
 
   const handleReset = () => {
     if (intervalRef.current) clearInterval(intervalRef.current);
+    startTimeRef.current = null;
+    completedRef.current = false;
     setRunning(false);
-    setTimeLeft(MODES[mode].seconds);
-    setSessionStart(null);
+    const secs = MODES[mode].seconds;
+    setTimeLeft(secs);
+    baseSecondsRef.current = secs;
   };
 
   // ─── Render ───────────────────────────────────────────────────────────────
