@@ -1,7 +1,7 @@
 import React from 'react';
 import { getCurrentUser } from '@/services/user.service';
-import { getDashboardStats, getRecentLearning, getLearningStreak, getDailyActivity } from '@/services/dashboard.service';
-import { BookOpen, CheckCircle, Award, Flame, Calendar, BookOpenCheck, ChevronRight, Video } from 'lucide-react';
+import { getDashboardStats, getRecentLearning, getLearningStreak, getDailyActivity, getTodoDashboardSummary } from '@/services/dashboard.service';
+import { BookOpen, CheckCircle, Award, Flame, Calendar, BookOpenCheck, ChevronRight, Video, ListTodo, CheckSquare } from 'lucide-react';
 import Link from 'next/link';
 import LearningHeatmap from '@/components/dashboard/LearningHeatmap';
 import DashboardCharts from '@/components/dashboard/DashboardCharts';
@@ -19,11 +19,12 @@ export default async function DashboardPage() {
     );
   }
 
-  const [stats, recentActivity, streakData, activityMap] = await Promise.all([
+  const [stats, recentActivity, streakData, activityMap, todoSummary] = await Promise.all([
     getDashboardStats(user.uid),
     getRecentLearning(user.uid),
     getLearningStreak(user.uid),
-    getDailyActivity(user.uid)
+    getDailyActivity(user.uid),
+    getTodoDashboardSummary(user.uid),
   ]);
 
   return (
@@ -230,6 +231,70 @@ export default async function DashboardPage() {
 
         {/* Recent Activity */}
         <div className="lg:col-span-4 space-y-6">
+          {/* ── Todo Widget ── */}
+          <div className="flex items-center justify-between border-b border-border pb-4">
+            <h2 className="text-2xl font-black text-foreground">Todo hôm nay</h2>
+            <Link href="/todo" className="text-xs font-bold text-primary hover:underline flex items-center gap-1">
+              Xem tất cả <ChevronRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+
+          <div className="bg-card border border-border rounded-3xl p-6 space-y-4">
+            {todoSummary.totalTasks === 0 ? (
+              <div className="text-center py-4 space-y-3">
+                <ListTodo className="h-8 w-8 mx-auto text-muted-foreground/40" />
+                <p className="text-sm text-muted-foreground italic">Chưa có task nào.</p>
+                <Link
+                  href="/todo"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary/10 text-primary rounded-xl text-xs font-bold hover:bg-primary/20 transition-all"
+                >
+                  <ListTodo className="h-3.5 w-3.5" />
+                  Tạo todo list
+                </Link>
+              </div>
+            ) : (
+              <>
+                {/* Progress ring + numbers */}
+                <div className="flex items-center gap-4">
+                  <div className="relative h-16 w-16 shrink-0">
+                    <svg className="h-16 w-16 -rotate-90" viewBox="0 0 36 36">
+                      <circle cx="18" cy="18" r="15.9" fill="none" stroke="currentColor" strokeWidth="3" className="text-muted/40" />
+                      <circle
+                        cx="18" cy="18" r="15.9" fill="none"
+                        stroke="currentColor" strokeWidth="3"
+                        strokeDasharray={`${todoSummary.totalTasks > 0 ? Math.round((todoSummary.completedToday / todoSummary.totalTasks) * 100) : 0} ${100 - (todoSummary.totalTasks > 0 ? Math.round((todoSummary.completedToday / todoSummary.totalTasks) * 100) : 0)}`}
+                        strokeLinecap="round"
+                        className="text-primary transition-all duration-500"
+                      />
+                    </svg>
+                    <span className="absolute inset-0 flex items-center justify-center text-[11px] font-black text-primary">
+                      {todoSummary.totalTasks > 0 ? Math.round((todoSummary.completedToday / todoSummary.totalTasks) * 100) : 0}%
+                    </span>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-black text-foreground">Tiến độ hôm nay</p>
+                    <div className="flex items-center gap-1.5 text-xs text-emerald-500 font-bold">
+                      <CheckSquare className="h-3.5 w-3.5" />
+                      {todoSummary.completedToday} task đã hoàn thành
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-semibold">
+                      <ListTodo className="h-3.5 w-3.5" />
+                      {todoSummary.pendingToday} task còn lại
+                    </div>
+                  </div>
+                </div>
+
+                <Link
+                  href="/todo"
+                  className="w-full py-2.5 bg-primary/8 hover:bg-primary/15 border border-primary/20 text-primary rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-2"
+                >
+                  <ListTodo className="h-3.5 w-3.5" />
+                  Mở Todo List
+                </Link>
+              </>
+            )}
+          </div>
+
           <div className="flex items-center justify-between border-b border-border pb-4">
             <h2 className="text-2xl font-black text-foreground">Hoạt động gần đây</h2>
           </div>

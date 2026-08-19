@@ -45,6 +45,8 @@ model User {
   courseReviews      CourseReview[]
   dictationAttempts  DictationAttempt[]
   dictationTopicProgresses DictationTopicProgress[]
+  todoLists          TodoList[]
+  todoCompletions    TodoCompletion[]
 
   @@map("users")
 }
@@ -105,6 +107,7 @@ model Course {
   reviews       CourseReview[]
   objectives    String?       @db.Text
   info          String?       @db.Text
+  todoLists     TodoList[]
 
   @@map("courses")
 }
@@ -296,4 +299,46 @@ model DictationTopicProgress {
   @@map("dictation_topic_progress")
 }
 
+model TodoList {
+  id        String     @id @default(uuid()) @db.VarChar(255)
+  userId    String     @map("user_id") @db.VarChar(255)
+  courseId  String?    @map("course_id") @db.VarChar(255)
+  title     String     @db.VarChar(255)
+  frequency String     @default("daily") @db.VarChar(50)
+  order     Int        @default(0)
+  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt DateTime   @default(now()) @updatedAt @map("updated_at") @db.Timestamp()
 
+  user      User       @relation(fields: [userId], references: [uid], onDelete: Cascade)
+  course    Course?    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  tasks     TodoTask[]
+
+  @@map("todo_lists")
+}
+
+model TodoTask {
+  id         String          @id @default(uuid()) @db.VarChar(255)
+  todoListId String          @map("todo_list_id") @db.VarChar(255)
+  content    String          @db.Text
+  order      Int             @default(0)
+  createdAt  DateTime        @default(now()) @map("created_at") @db.Timestamp()
+
+  todoList    TodoList        @relation(fields: [todoListId], references: [id], onDelete: Cascade)
+  completions TodoCompletion[]
+
+  @@map("todo_tasks")
+}
+
+model TodoCompletion {
+  id          String   @id @default(uuid()) @db.VarChar(255)
+  userId      String   @map("user_id") @db.VarChar(255)
+  taskId      String   @map("task_id") @db.VarChar(255)
+  date        String   @db.VarChar(10)
+  completedAt DateTime @default(now()) @map("completed_at") @db.Timestamp()
+
+  user        User     @relation(fields: [userId], references: [uid], onDelete: Cascade)
+  task        TodoTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, taskId, date], name: "uniqueUserTaskDate")
+  @@map("todo_completions")
+}

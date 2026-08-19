@@ -1,5 +1,8 @@
 import prisma from "@/lib/db";
 import { getCourseCompletion } from "./progress.service";
+import { getTodoDashboardSummary } from "./todo.service";
+
+export { getTodoDashboardSummary };
 
 export async function getDashboardStats(userId: string) {
   const [

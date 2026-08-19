@@ -22,6 +22,7 @@ const Navbar = () => {
     { name: 'Shadowing', path: '/shadowing', requiresAuth: true },
     { name: 'Dictation', path: '/dictation', requiresAuth: true },
     { name: 'Dashboard', path: '/dashboard', requiresAuth: true },
+    { name: 'Todo', path: '/todo', requiresAuth: true },
   ];
 
   const navItems = allNavItems.filter(
