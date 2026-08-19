@@ -2,6 +2,7 @@
 
 import React, { useState, useOptimistic, useTransition } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import PomodoroTimer from '@/components/todo/PomodoroTimer';
 import {
   CheckSquare,
   Square,
@@ -51,16 +52,24 @@ interface TodoList {
 
 type TabId = 'today' | 'weekly' | 'edit';
 
+interface PomodoroStats {
+  todaySessions: number;
+  todayMinutes: number;
+  allTimeSessions: number;
+  allTimeMinutes: number;
+}
+
 interface Props {
   userId: string;
   initialLists: TodoList[];
   initialCompletedIds: string[];
   today: string; // "YYYY-MM-DD"
+  initialPomodoroStats: PomodoroStats;
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function TodoClient({ userId, initialLists, initialCompletedIds, today }: Props) {
+export default function TodoClient({ userId, initialLists, initialCompletedIds, today, initialPomodoroStats }: Props) {
   const [activeTab, setActiveTab] = useState<TabId>('today');
   const [lists, setLists] = useState<TodoList[]>(initialLists);
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set(initialCompletedIds));
@@ -537,6 +546,11 @@ export default function TodoClient({ userId, initialLists, initialCompletedIds, 
         )}
       </div>
 
+      {/* Main grid: Tabs (left) + Pomodoro (right) */}
+      <div className="grid lg:grid-cols-3 gap-8 items-start">
+        {/* Left: Tabs + Content */}
+        <div className="lg:col-span-2 space-y-6">
+
       {/* Tabs */}
       <div className="flex gap-1 p-1 bg-muted/50 rounded-2xl border border-border w-fit">
         {tabs.map((tab) => (
@@ -678,6 +692,13 @@ export default function TodoClient({ userId, initialLists, initialCompletedIds, 
           )}
         </motion.div>
       </AnimatePresence>
+        </div>
+
+        {/* Right: Pomodoro Timer */}
+        <div className="lg:col-span-1">
+          <PomodoroTimer userId={userId} initialStats={initialPomodoroStats} />
+        </div>
+      </div>
     </div>
   );
 }

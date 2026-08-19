@@ -1,6 +1,7 @@
 import React from 'react';
 import { getCurrentUser } from '@/services/user.service';
 import { getTodoLists, getTodoCompletionsForDate } from '@/services/todo.service';
+import { getPomodoroStats } from '@/services/pomodoro.service';
 import TodoClient from '@/components/todo/TodoClient';
 
 export const dynamic = 'force-dynamic';
@@ -22,9 +23,10 @@ export default async function TodoPage() {
 
   const today = new Date().toISOString().split('T')[0];
 
-  const [todoLists, completions] = await Promise.all([
+  const [todoLists, completions, pomodoroStats] = await Promise.all([
     getTodoLists(user.uid),
     getTodoCompletionsForDate(user.uid, today),
+    getPomodoroStats(user.uid),
   ]);
 
   const completedTaskIds = completions.map((c) => c.taskId);
@@ -35,6 +37,8 @@ export default async function TodoPage() {
       initialLists={todoLists as any}
       initialCompletedIds={completedTaskIds}
       today={today}
+      initialPomodoroStats={pomodoroStats}
     />
   );
 }
+

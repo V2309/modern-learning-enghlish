@@ -47,6 +47,7 @@ model User {
   dictationTopicProgresses DictationTopicProgress[]
   todoLists          TodoList[]
   todoCompletions    TodoCompletion[]
+  pomodoroSessions   PomodoroSession[]
 
   @@map("users")
 }
@@ -341,4 +342,16 @@ model TodoCompletion {
 
   @@unique([userId, taskId, date], name: "uniqueUserTaskDate")
   @@map("todo_completions")
+}
+
+model PomodoroSession {
+  id          String   @id @default(uuid()) @db.VarChar(255)
+  userId      String   @map("user_id") @db.VarChar(255)
+  duration    Int      // seconds actually focused
+  type        String   @default("work") @db.VarChar(20) // "work" | "break"
+  completedAt DateTime @default(now()) @map("completed_at") @db.Timestamp()
+
+  user        User     @relation(fields: [userId], references: [uid], onDelete: Cascade)
+
+  @@map("pomodoro_sessions")
 }
