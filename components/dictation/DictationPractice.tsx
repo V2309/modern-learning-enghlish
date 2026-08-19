@@ -46,10 +46,10 @@ export default function DictationPractice({
   const [currentResult, setCurrentResult] = useState<any>(null);
   const [completing, setCompleting] = useState(false);
   const [isTopicCompleted, setIsTopicCompleted] = useState(!!topic.isCompleted);
-  
+
   // Track best score for each sentence in this session to calculate overall average
   const [bestScores, setBestScores] = useState<Record<string, number>>({});
-  
+
   // Reference trigger to programmatically handle player audio triggers if needed
   const [audioKey, setAudioKey] = useState(0);
 
@@ -101,13 +101,13 @@ export default function DictationPractice({
       const res = await submitDictationAnswer(currentSentence.id, userAnswer);
       if (res.success && res.comparison && res.attempt) {
         setCurrentResult(res.comparison);
-        
+
         // Update best score map
         setBestScores((prev) => ({
           ...prev,
           [currentSentence.id]: Math.max(prev[currentSentence.id] || 0, res.attempt!.accuracy),
         }));
-        
+
         setStatus("result");
       } else {
         toast.error(res.error || "Failed to check answer. Please try again.");
@@ -196,8 +196,8 @@ export default function DictationPractice({
   // Calculate stats for completion screen
   const completedSentencesCount = sentences.filter((s) => bestScores[s.id] !== undefined).length;
   const totalAccuracySum = sentences.reduce((sum, s) => sum + (bestScores[s.id] || 0), 0);
-  const averageAccuracy = completedSentencesCount > 0 
-    ? Math.round(totalAccuracySum / completedSentencesCount) 
+  const averageAccuracy = completedSentencesCount > 0
+    ? Math.round(totalAccuracySum / completedSentencesCount)
     : 0;
 
   // Mistakes filter
@@ -309,13 +309,12 @@ export default function DictationPractice({
                 setStatus("practice");
                 setAudioKey((k) => k + 1);
               }}
-              className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs cursor-pointer border transition-all ${
-                isActive
+              className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs cursor-pointer border transition-all ${isActive
                   ? "bg-foreground text-background border-foreground shadow-sm"
                   : hasAttempt
-                  ? "bg-green-500/10 text-green-600 border-green-500/20"
-                  : "bg-card text-foreground border-border hover:bg-muted"
-              }`}
+                    ? "bg-green-500/10 text-green-600 border-green-500/20"
+                    : "bg-card text-foreground border-border hover:bg-muted"
+                }`}
             >
               {idx + 1}
             </button>

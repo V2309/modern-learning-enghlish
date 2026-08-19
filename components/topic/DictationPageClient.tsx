@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { DictationMode } from '@/components/topic/DictationMode';
 import { useTopicDetailStore } from '@/stores/useTopicDetailStore';
+
+const AUTO_NEXT_DELAY = 1500; // ms
 
 export default function DictationPageClient() {
   const router = useRouter();
@@ -28,13 +30,37 @@ export default function DictationPageClient() {
     setIsDictationFinished,
   } = useTopicDetailStore();
 
+  const autoNextTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const speak = (text: string) => {
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'en-US';
     window.speechSynthesis.speak(u);
   };
 
+  const goNext = () => {
+    if (autoNextTimerRef.current) { clearTimeout(autoNextTimerRef.current); autoNextTimerRef.current = null; }
+    if (dictationIndex + 1 < dictationQuestions.length) {
+      const nextIndex = dictationIndex + 1;
+      setDictationIndex(nextIndex);
+      setTypedWord('');
+      setIsDictationChecked(false);
+      setIsDictationCorrect(false);
+      setTimeout(() => speak(dictationQuestions[nextIndex].word), 300);
+    } else {
+      setIsDictationFinished(true);
+    }
+  };
+
+  const handleRetry = () => {
+    if (autoNextTimerRef.current) { clearTimeout(autoNextTimerRef.current); autoNextTimerRef.current = null; }
+    setTypedWord('');
+    setIsDictationChecked(false);
+    setIsDictationCorrect(false);
+  };
+
   const initDictationGame = () => {
+    if (autoNextTimerRef.current) { clearTimeout(autoNextTimerRef.current); autoNextTimerRef.current = null; }
     if (words.length === 0) return;
     const subset = [...words].sort(() => 0.5 - Math.random());
     setDictationQuestions(subset);
@@ -47,13 +73,13 @@ export default function DictationPageClient() {
     setTimeout(() => speak(subset[0].word), 400);
   };
 
-  // Initialize dictation game on mount
   useEffect(() => {
-    if (words.length > 0) {
-      initDictationGame();
-    }
+    if (words.length > 0) initDictationGame();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [words]);
+
+  // Cleanup on unmount
+  useEffect(() => () => { if (autoNextTimerRef.current) clearTimeout(autoNextTimerRef.current); }, []);
 
   return (
     <DictationMode
@@ -64,26 +90,21 @@ export default function DictationPageClient() {
       isDictationCorrect={isDictationCorrect}
       dictationScore={dictationScore}
       isDictationFinished={isDictationFinished}
+      autoNextDelay={AUTO_NEXT_DELAY}
       onTypedWordChange={setTypedWord}
       onCheck={() => {
         if (!typedWord.trim()) return;
         const correct = typedWord.trim().toLowerCase() === dictationQuestions[dictationIndex].word.trim().toLowerCase();
         setIsDictationCorrect(correct);
         setIsDictationChecked(true);
-        if (correct) setDictationScore((p) => p + 1);
-      }}
-      onNext={() => {
-        if (dictationIndex + 1 < dictationQuestions.length) {
-          const nextIndex = dictationIndex + 1;
-          setDictationIndex(nextIndex);
-          setTypedWord('');
-          setIsDictationChecked(false);
-          setIsDictationCorrect(false);
-          setTimeout(() => speak(dictationQuestions[nextIndex].word), 300);
-        } else {
-          setIsDictationFinished(true);
+        if (correct) {
+          setDictationScore((p) => p + 1);
+          // Auto-next after delay
+          autoNextTimerRef.current = setTimeout(goNext, AUTO_NEXT_DELAY);
         }
       }}
+      onNext={goNext}
+      onRetry={handleRetry}
       onRestart={initDictationGame}
       onBackToList={() => router.push(`/vocabulary/topic/${topicId}`)}
       speak={speak}
