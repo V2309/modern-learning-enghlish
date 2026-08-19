@@ -191,6 +191,7 @@ export const DictationMode = ({
         <AnimatePresence>
           {showMeaning && (
             <motion.div
+              key="meaning"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
@@ -203,6 +204,7 @@ export const DictationMode = ({
           )}
           {showAnswer && (
             <motion.div
+              key="answer"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
