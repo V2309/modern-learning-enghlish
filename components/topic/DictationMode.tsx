@@ -14,7 +14,7 @@ interface DictationModeProps {
   isDictationCorrect: boolean;
   dictationScore: number;
   isDictationFinished: boolean;
-  autoNextDelay: number; // ms
+  autoNextDelay: number;
   onTypedWordChange: (val: string) => void;
   onCheck: () => void;
   onNext: () => void;
@@ -43,26 +43,22 @@ export const DictationMode = ({
 }: DictationModeProps) => {
   const [showMeaning, setShowMeaning] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
-  // Countdown for auto-next: 0–100 (percentage remaining)
   const [countdownPct, setCountdownPct] = useState(0);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Reset per-question state when question changes
   useEffect(() => {
     setShowMeaning(false);
     setShowAnswer(false);
     setCountdownPct(0);
     if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
-    // Focus input on new question
     setTimeout(() => inputRef.current?.focus(), 80);
   }, [dictationIndex, dictationQuestions]);
 
-  // Start countdown when correct answer submitted
   useEffect(() => {
     if (isDictationChecked && isDictationCorrect) {
       setCountdownPct(100);
-      const step = 100 / (autoNextDelay / 100); // decrement per 100ms tick
+      const step = 100 / (autoNextDelay / 100);
       countdownRef.current = setInterval(() => {
         setCountdownPct((prev) => {
           const next = prev - step;
@@ -80,257 +76,237 @@ export const DictationMode = ({
     return () => { if (countdownRef.current) clearInterval(countdownRef.current); };
   }, [isDictationChecked, isDictationCorrect, autoNextDelay]);
 
-  // Focus input when retry
   const handleRetry = () => {
     setShowAnswer(false);
     onRetry();
     setTimeout(() => inputRef.current?.focus(), 80);
   };
 
+  // ── Finished screen ───────────────────────────────────────────────────────
   if (isDictationFinished) {
     return (
       <motion.div
-        key="dictation-mode"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        className="max-w-md mx-auto bg-card border border-border p-8 rounded-3xl shadow-sm"
+        className="max-w-2xl mx-auto bg-card border border-border p-7 rounded-3xl shadow-sm text-center space-y-5"
       >
-        <div className="text-center py-6 space-y-6">
-          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto text-primary">
-            <Trophy className="h-8 w-8 animate-bounce" />
+        <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto text-primary">
+          <Trophy className="h-7 w-7 animate-bounce" />
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold text-foreground">Hoàn thành!</h2>
+          <p className="text-muted-foreground text-sm mt-1">Điểm số nghe chính tả:</p>
+          <div className="text-4xl font-extrabold text-primary mt-2">
+            {dictationScore} / {dictationQuestions.length}
           </div>
-          <div className="space-y-1">
-            <h2 className="text-2xl font-bold text-foreground">Đã đạt chứng nhận kiểm tra!</h2>
-            <p className="text-muted-foreground text-sm">Điểm số nghe chính tả của bạn:</p>
-            <div className="text-5xl font-extrabold text-primary pt-2">
-              {dictationScore} / {dictationQuestions.length}
-            </div>
-          </div>
-          <div className="pt-4 flex gap-4">
-            <button
-              onClick={onRestart}
-              className="flex-1 py-3 border border-border hover:bg-muted text-foreground text-xs font-bold rounded-4xl"
-            >
-              Học lại dictation
-            </button>
-            <button
-              onClick={onBackToList}
-              className="flex-1 py-3 bg-primary text-white hover:bg-primary/95 text-xs font-bold rounded-4xl"
-            >
-              Quay lại danh sách
-            </button>
-          </div>
+        </div>
+        <div className="flex gap-3 pt-2">
+          <button onClick={onRestart} className="flex-1 py-3 border border-border hover:bg-muted text-foreground text-sm font-bold rounded-2xl transition-all">
+            Học lại
+          </button>
+          <button onClick={onBackToList} className="flex-1 py-3 bg-primary text-white hover:bg-primary/95 text-sm font-bold rounded-2xl transition-all">
+            Quay lại
+          </button>
         </div>
       </motion.div>
     );
   }
 
   if (dictationQuestions.length === 0) {
-    return (
-      <p className="text-muted-foreground text-center italic">Không tìm thấy từ vựng hợp lệ.</p>
-    );
+    return <p className="text-muted-foreground text-center italic">Không tìm thấy từ vựng hợp lệ.</p>;
   }
 
   const currentWord = dictationQuestions[dictationIndex];
 
+  // ── Practice screen ───────────────────────────────────────────────────────
   return (
     <motion.div
       key="dictation-mode"
-      initial={{ opacity: 0, scale: 0.95 }}
+      initial={{ opacity: 0, scale: 0.97 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="max-w-md mx-auto bg-card border border-border p-8 rounded-3xl shadow-sm space-y-6"
+      exit={{ opacity: 0, scale: 0.97 }}
+      className="max-w-2xl mx-auto w-full"
     >
-      {/* Progress header */}
-      <div className="flex justify-between items-center text-xs text-muted-foreground font-bold tracking-wider uppercase">
-        <span>Từ vựng {dictationIndex + 1} / {dictationQuestions.length}</span>
-        <span>Điểm: {dictationScore}</span>
-      </div>
-      <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
-        <div
-          className="h-full bg-primary transition-all"
-          style={{ width: `${((dictationIndex + 1) / dictationQuestions.length) * 100}%` }}
-        />
-      </div>
+      <div className="bg-card border border-border rounded-3xl shadow-sm overflow-hidden flex flex-col">
 
-      {/* Sound + toggles */}
-      <div className="p-8 bg-muted/40 border border-border rounded-3xl flex flex-col items-center justify-center gap-4">
-        <button
-          onClick={() => speak(currentWord.word)}
-          className="h-20 w-20 rounded-full bg-primary text-white flex items-center justify-center hover:scale-105 transition-all shadow-lg shadow-primary/30 cursor-pointer"
-        >
-          <Volume2 className="h-10 w-10" />
-        </button>
-
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setShowMeaning((prev) => !prev)}
-            className="text-xs font-bold text-primary hover:underline cursor-pointer flex items-center gap-1"
-          >
-            {showMeaning ? <EyeOff size={12} /> : <Eye size={12} />}
-            {showMeaning ? 'Ẩn nghĩa' : 'Hiện nghĩa'}
-          </button>
-
-          {/* Hiện đáp án — always visible */}
-          <span className="text-muted-foreground/40">·</span>
-          <button
-            type="button"
-            onClick={() => setShowAnswer((prev) => !prev)}
-            className={cn(
-              'text-xs font-bold cursor-pointer flex items-center gap-1 transition-colors',
-              showAnswer ? 'text-amber-600 hover:text-amber-700' : 'text-muted-foreground hover:text-foreground'
-            )}
-          >
-            {showAnswer ? <EyeOff size={12} /> : <Eye size={12} />}
-            {showAnswer ? 'Ẩn đáp án' : 'Hiện đáp án'}
-          </button>
+        {/* ── Progress bar ───────────────────────────────────────── */}
+        <div className="px-5 pt-4 pb-0 space-y-1.5">
+          <div className="flex justify-between items-center text-[10px] text-muted-foreground font-bold tracking-widest uppercase">
+            <span>{dictationIndex + 1} / {dictationQuestions.length}</span>
+            <span>Điểm: {dictationScore}</span>
+          </div>
+          <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-full bg-primary transition-all duration-300"
+              style={{ width: `${((dictationIndex + 1) / dictationQuestions.length) * 100}%` }}
+            />
+          </div>
         </div>
 
-        <AnimatePresence>
-          {showMeaning && (
-            <motion.div
-              key="meaning"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="overflow-hidden w-full"
-            >
-              <div className="text-center text-sm font-semibold text-foreground bg-background/80 border border-border rounded-3xl px-4 py-3">
-                {currentWord.meaning}
-              </div>
-            </motion.div>
-          )}
-          {showAnswer && (
-            <motion.div
-              key="answer"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="overflow-hidden w-full"
-            >
-              <div className="text-center text-sm font-bold text-amber-700 bg-amber-500/10 border border-amber-500/20 rounded-3xl px-4 py-3 tracking-wide">
-                📖 {currentWord.word}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <span className="text-xs text-muted-foreground font-bold uppercase tracking-wider">
-          Đang nghe phát âm (Bản xứ)
-        </span>
-      </div>
-
-      {/* Input */}
-      <div className="space-y-2">
-        <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest pl-1">
-          Nhập từ tiếng Anh bạn nghe được
-        </label>
-        <input
-          ref={inputRef}
-          type="text"
-          disabled={isDictationChecked}
-          value={typedWord}
-          onChange={(e) => onTypedWordChange(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !isDictationChecked && typedWord.trim()) {
-              onCheck();
-            }
-          }}
-          className={cn(
-            'w-full bg-muted border rounded-4xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-base font-semibold',
-            isDictationChecked
-              ? isDictationCorrect
-                ? 'border-green-500 text-green-700 bg-green-500/5 focus:ring-transparent'
-                : 'border-red-500 text-red-700 bg-red-500/5 focus:ring-transparent'
-              : 'border-border text-foreground'
-          )}
-          placeholder="Nhập từ..."
-          autoFocus
-        />
-      </div>
-
-      {/* Feedback */}
-      <AnimatePresence>
-        {isDictationChecked && (
-          <motion.div
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            className={cn(
-              'p-4 rounded-3xl text-center space-y-1 border text-sm font-semibold',
-              isDictationCorrect
-                ? 'bg-green-500/10 border-green-500/20 text-green-700'
-                : 'bg-red-500/10 border-red-500/20 text-red-700'
-            )}
-          >
-            <div>{isDictationCorrect ? '✅ Đúng rồi! Cực tốt.' : '❌ Chưa chính xác nhé!'}</div>
-            {!isDictationCorrect && (
-              <div className="text-xs text-muted-foreground font-medium pt-1">
-                Đáp án chính xác:{' '}
-                <span className="text-foreground font-bold">{currentWord.word}</span>
-              </div>
-            )}
-            <div className="text-xs text-muted-foreground pt-1 italic font-medium">
-              Nghĩa là: {currentWord.meaning}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Controls */}
-      <div className="pt-4 border-t border-border flex justify-between items-center gap-3">
-        <button
-          onClick={() => speak(currentWord.word)}
-          className="text-xs font-bold text-primary hover:underline flex items-center gap-1 shrink-0"
-        >
-          <Volume2 size={12} /> Nghe lại
-        </button>
-
-        {!isDictationChecked ? (
-          /* CHECK button */
+        {/* ── Sound area ─────────────────────────────────────────── */}
+        <div className="px-5 py-4 flex items-center gap-4 bg-muted/30 mx-4 mt-3 rounded-2xl border border-border/60">
+          {/* Small speaker button */}
           <button
-            onClick={onCheck}
-            disabled={!typedWord.trim()}
-            className="px-6 py-3 bg-primary text-white font-bold rounded-4xl text-xs hover:bg-primary/95 disabled:opacity-50 transition-all"
+            onClick={() => speak(currentWord.word)}
+            className="h-14 w-14 rounded-2xl bg-primary text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-md shadow-primary/25 cursor-pointer shrink-0"
+            title="Nghe phát âm"
           >
-            Kiểm tra kết quả
+            <Volume2 className="h-6 w-6" />
           </button>
-        ) : isDictationCorrect ? (
-          /* CORRECT → countdown + manual skip */
-          <div className="flex items-center gap-3">
-            {/* Countdown ring */}
-            <div className="relative h-8 w-8 shrink-0" title={`Tự động sang câu tiếp theo sau ${autoNextDelay / 1000}s`}>
-              <svg className="h-8 w-8 -rotate-90" viewBox="0 0 36 36">
-                <circle cx="18" cy="18" r="15.9" fill="none" stroke="currentColor" strokeWidth="3" className="text-green-500/20" />
-                <circle
-                  cx="18" cy="18" r="15.9"
-                  fill="none" stroke="currentColor" strokeWidth="3"
-                  strokeDasharray={`${countdownPct} ${100 - countdownPct}`}
-                  strokeLinecap="round"
-                  className="text-green-500 transition-none"
-                />
-              </svg>
+
+          {/* Toggles + hints */}
+          <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                type="button"
+                onClick={() => setShowMeaning((v) => !v)}
+                className="text-xs font-bold text-primary hover:underline cursor-pointer flex items-center gap-1"
+              >
+                {showMeaning ? <EyeOff size={12} /> : <Eye size={12} />}
+                {showMeaning ? 'Ẩn nghĩa' : 'Hiện nghĩa'}
+              </button>
+              <span className="text-muted-foreground/40 text-xs">·</span>
+              <button
+                type="button"
+                onClick={() => setShowAnswer((v) => !v)}
+                className={cn(
+                  'text-xs font-bold cursor-pointer flex items-center gap-1 transition-colors',
+                  showAnswer ? 'text-amber-600' : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                {showAnswer ? <EyeOff size={12} /> : <Eye size={12} />}
+                {showAnswer ? 'Ẩn đáp án' : 'Hiện đáp án'}
+              </button>
             </div>
-            <button
-              onClick={onNext}
-              className="px-5 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-4xl text-xs transition-all flex items-center gap-1.5"
-            >
-              {dictationIndex + 1 < dictationQuestions.length ? 'Tiếp theo' : 'Xem điểm số'}
-              <ChevronRight className="h-3.5 w-3.5" />
-            </button>
+
+            <AnimatePresence>
+              {showMeaning && (
+                <motion.p
+                  key="meaning"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="overflow-hidden text-xs font-semibold text-foreground leading-tight"
+                >
+                  {currentWord.meaning}
+                </motion.p>
+              )}
+              {showAnswer && (
+                <motion.p
+                  key="answer"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="overflow-hidden text-xs font-bold text-amber-600 tracking-wide"
+                >
+                  📖 {currentWord.word}
+                </motion.p>
+              )}
+            </AnimatePresence>
           </div>
-        ) : (
-          /* WRONG → Thử lại */
+        </div>
+
+        {/* ── Input ──────────────────────────────────────────────── */}
+        <div className="px-5 pt-3 pb-1">
+          <input
+            ref={inputRef}
+            type="text"
+            disabled={isDictationChecked}
+            value={typedWord}
+            onChange={(e) => onTypedWordChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !isDictationChecked && typedWord.trim()) onCheck();
+            }}
+            className={cn(
+              'w-full bg-muted border rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-base font-semibold placeholder:text-muted-foreground/50',
+              isDictationChecked
+                ? isDictationCorrect
+                  ? 'border-green-500 text-green-700 bg-green-500/5'
+                  : 'border-red-500 text-red-700 bg-red-500/5'
+                : 'border-border text-foreground'
+            )}
+            placeholder="Nhập từ bạn nghe được..."
+            autoFocus
+          />
+        </div>
+
+        {/* ── Feedback ───────────────────────────────────────────── */}
+        <div className="px-5 min-h-[44px]">
+          <AnimatePresence>
+            {isDictationChecked && (
+              <motion.div
+                key="feedback"
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className={cn(
+                  'py-2 px-3 rounded-xl text-xs font-semibold flex flex-col gap-0.5',
+                  isDictationCorrect
+                    ? 'bg-green-500/10 text-green-700'
+                    : 'bg-red-500/10 text-red-700'
+                )}
+              >
+                <span>{isDictationCorrect ? '✅ Đúng rồi! Cực tốt.' : '❌ Chưa chính xác nhé!'}</span>
+                {!isDictationCorrect && (
+                  <span className="text-foreground/70 font-medium">
+                    Đáp án: <strong className="text-foreground">{currentWord.word}</strong>
+                    {' '}— {currentWord.meaning}
+                  </span>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* ── Controls ───────────────────────────────────────────── */}
+        <div className="px-5 py-4 border-t border-border/60 flex justify-between items-center gap-3">
           <button
-            onClick={handleRetry}
-            className="px-5 py-3 border border-red-400/40 bg-red-500/8 hover:bg-red-500/15 text-red-600 font-bold rounded-4xl text-xs transition-all flex items-center gap-1.5"
+            onClick={() => speak(currentWord.word)}
+            className="text-[11px] font-bold text-primary hover:underline flex items-center gap-1 shrink-0"
           >
-            <RefreshCw size={12} />
-            Nhập lại
+            <Volume2 size={11} /> Nghe lại
           </button>
-        )}
+
+          {!isDictationChecked ? (
+            <button
+              onClick={onCheck}
+              disabled={!typedWord.trim()}
+              className="px-5 py-2.5 bg-primary text-white font-bold rounded-2xl text-sm hover:bg-primary/95 disabled:opacity-40 transition-all"
+            >
+              Kiểm tra
+            </button>
+          ) : isDictationCorrect ? (
+            <div className="flex items-center gap-2">
+              {/* Mini countdown ring */}
+              <div className="relative h-6 w-6 shrink-0" title="Tự động tiếp theo...">
+                <svg className="h-6 w-6 -rotate-90" viewBox="0 0 36 36">
+                  <circle cx="18" cy="18" r="15.9" fill="none" stroke="currentColor" strokeWidth="4" className="text-green-500/20" />
+                  <circle
+                    cx="18" cy="18" r="15.9" fill="none" stroke="currentColor" strokeWidth="4"
+                    strokeDasharray={`${countdownPct} ${100 - countdownPct}`}
+                    strokeLinecap="round"
+                    className="text-green-500"
+                  />
+                </svg>
+              </div>
+              <button
+                onClick={onNext}
+                className="px-5 py-2.5 bg-green-500 hover:bg-green-600 text-white font-bold rounded-2xl text-sm transition-all flex items-center gap-1"
+              >
+                {dictationIndex + 1 < dictationQuestions.length ? 'Tiếp theo' : 'Xem kết quả'}
+                <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleRetry}
+              className="px-5 py-2.5 border border-red-400/40 bg-red-500/8 hover:bg-red-500/15 text-red-600 font-bold rounded-2xl text-sm transition-all flex items-center gap-1.5"
+            >
+              <RefreshCw size={11} />
+              Nhập lại
+            </button>
+          )}
+        </div>
       </div>
     </motion.div>
   );
