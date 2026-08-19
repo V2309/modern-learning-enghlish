@@ -44,20 +44,87 @@ function formatMinutes(mins: number) {
   return m > 0 ? `${h}g ${m}p` : `${h} giờ`;
 }
 
+// ─── localStorage helpers ────────────────────────────────────────────────────
+
+const LS_KEY = 'linguify_pomodoro';
+
+interface SavedState {
+  mode: Mode;
+  running: boolean;
+  startTime: number | null;   // wall-clock ms
+  baseSeconds: number;        // seconds at start/pause
+}
+
+function loadState(): SavedState {
+  if (typeof window === 'undefined') return { mode: 'work', running: false, startTime: null, baseSeconds: MODES.work.seconds };
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return { mode: 'work', running: false, startTime: null, baseSeconds: MODES.work.seconds };
+    return JSON.parse(raw) as SavedState;
+  } catch {
+    return { mode: 'work', running: false, startTime: null, baseSeconds: MODES.work.seconds };
+  }
+}
+
+function saveState(s: SavedState) {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(s)); } catch {}
+}
+
+function clearState() {
+  try { localStorage.removeItem(LS_KEY); } catch {}
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function PomodoroTimer({ userId, initialStats }: Props) {
-  const [mode, setMode] = useState<Mode>('work');
-  const [timeLeft, setTimeLeft] = useState(MODES.work.seconds);
-  const [running, setRunning] = useState(false);
+  // ── Restore from localStorage on first render ──
+  const saved = React.useMemo(() => loadState(), []);
+
+  const [mode, setMode] = useState<Mode>(saved.mode);
+  const [running, setRunning] = useState(false); // always start paused; we'll resume below
   const [stats, setStats] = useState<PomodoroStats>(initialStats);
   const [collapsed, setCollapsed] = useState(false);
 
   // Timestamp-based refs — immune to tab throttling
-  const startTimeRef = useRef<number | null>(null);   // wall-clock ms when timer last started
-  const baseSecondsRef = useRef<number>(MODES.work.seconds); // timeLeft at the moment of start
+  const startTimeRef = useRef<number | null>(null);
+  const baseSecondsRef = useRef<number>(saved.baseSeconds);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const completedRef = useRef(false); // guard against double-fire
+  const completedRef = useRef(false);
+
+  // Compute initial timeLeft accounting for time elapsed during reload
+  const getInitialTimeLeft = () => {
+    if (saved.running && saved.startTime) {
+      const elapsed = Math.floor((Date.now() - saved.startTime) / 1000);
+      const remaining = Math.max(0, saved.baseSeconds - elapsed);
+      return remaining;
+    }
+    return saved.baseSeconds;
+  };
+  const [timeLeft, setTimeLeft] = useState(() => getInitialTimeLeft());
+
+  // Auto-resume if was running before reload
+  const didMountRef = useRef(false);
+  useEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      if (saved.running && saved.startTime) {
+        const elapsed = Math.floor((Date.now() - saved.startTime) / 1000);
+        const remaining = Math.max(0, saved.baseSeconds - elapsed);
+        if (remaining > 0) {
+          // Restore refs with elapsed already accounted for
+          startTimeRef.current = Date.now();
+          baseSecondsRef.current = remaining;
+          setTimeLeft(remaining);
+          setRunning(true);
+        } else {
+          // Session completed while away — treat as just expired
+          clearState();
+          setTimeLeft(MODES[saved.mode].seconds);
+          baseSecondsRef.current = MODES[saved.mode].seconds;
+        }
+      }
+    }
+  }, []);
   const cfg = MODES[mode];
   const total = cfg.seconds;
   const pct = ((total - timeLeft) / total) * 100;
@@ -66,6 +133,16 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
   const R = 54;
   const CIRC = 2 * Math.PI * R;
   const dash = (pct / 100) * CIRC;
+
+  // ── Persist state to localStorage ─────────────────────────────────────────
+  useEffect(() => {
+    if (!didMountRef.current) return;
+    if (running && startTimeRef.current) {
+      saveState({ mode, running: true, startTime: startTimeRef.current, baseSeconds: baseSecondsRef.current });
+    } else if (!running) {
+      saveState({ mode, running: false, startTime: null, baseSeconds: baseSecondsRef.current });
+    }
+  }, [running, mode, timeLeft]);
 
   // ── Timestamp-based tick ───────────────────────────────────────────────────
   // This approach calculates remaining time from wall-clock so it stays
@@ -135,6 +212,7 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
   const handleSessionComplete = useCallback(async () => {
     setRunning(false);
     startTimeRef.current = null;
+    clearState(); // clear localStorage when session ends
 
     // Play notification sound (Web Audio API)
     try {
@@ -187,6 +265,7 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
     const secs = MODES[newMode].seconds;
     setTimeLeft(secs);
     baseSecondsRef.current = secs;
+    saveState({ mode: newMode, running: false, startTime: null, baseSeconds: secs });
   };
 
   const handleStart = () => {
@@ -201,6 +280,7 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
     const secs = MODES[mode].seconds;
     setTimeLeft(secs);
     baseSecondsRef.current = secs;
+    saveState({ mode, running: false, startTime: null, baseSeconds: secs });
   };
 
   // ─── Render ───────────────────────────────────────────────────────────────
