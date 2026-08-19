@@ -31,6 +31,7 @@ export default function DictationPageClient() {
   } = useTopicDetailStore();
 
   const autoNextTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hasFailedRef = useRef(false); // true if user got current word wrong on first try
 
   const speak = (text: string) => {
     const u = new SpeechSynthesisUtterance(text);
@@ -40,6 +41,7 @@ export default function DictationPageClient() {
 
   const goNext = () => {
     if (autoNextTimerRef.current) { clearTimeout(autoNextTimerRef.current); autoNextTimerRef.current = null; }
+    hasFailedRef.current = false; // reset for next word
     if (dictationIndex + 1 < dictationQuestions.length) {
       const nextIndex = dictationIndex + 1;
       setDictationIndex(nextIndex);
@@ -54,6 +56,7 @@ export default function DictationPageClient() {
 
   const handleRetry = () => {
     if (autoNextTimerRef.current) { clearTimeout(autoNextTimerRef.current); autoNextTimerRef.current = null; }
+    hasFailedRef.current = true; // mark: first attempt was wrong
     setTypedWord('');
     setIsDictationChecked(false);
     setIsDictationCorrect(false);
@@ -61,6 +64,7 @@ export default function DictationPageClient() {
 
   const initDictationGame = () => {
     if (autoNextTimerRef.current) { clearTimeout(autoNextTimerRef.current); autoNextTimerRef.current = null; }
+    hasFailedRef.current = false;
     if (words.length === 0) return;
     const subset = [...words].sort(() => 0.5 - Math.random());
     setDictationQuestions(subset);
@@ -98,8 +102,10 @@ export default function DictationPageClient() {
         setIsDictationCorrect(correct);
         setIsDictationChecked(true);
         if (correct) {
-          setDictationScore((p) => p + 1);
-          // Auto-next after delay
+          // Only score if first attempt was correct (no retry)
+          if (!hasFailedRef.current) {
+            setDictationScore((p) => p + 1);
+          }
           autoNextTimerRef.current = setTimeout(goNext, AUTO_NEXT_DELAY);
         }
       }}
