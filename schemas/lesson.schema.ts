@@ -7,6 +7,7 @@ export const lessonSchema = z.object({
   duration: z.string().min(1, "Duration is required"),
   videoUrl: z.string().url("Invalid video URL"),
   description: z.string().optional(),
+  practiceContent: z.string().optional(),
 });
 
 export const updateLessonSchema = lessonSchema.partial();

@@ -33,8 +33,9 @@ export default async function MyCourseTopicPage(props: PageProps) {
     );
   }
 
+  const topicData = topic as any;
   // Access guard
-  const course = topic.course as any;
+  const course = topicData.course as any;
   const isFree = !course.accessCode || (course.price ?? 0) === 0;
   if (!isFree) {
     const access = await getCourseAccess(user.uid, courseId);
@@ -44,9 +45,17 @@ export default async function MyCourseTopicPage(props: PageProps) {
   }
 
   const lessonProgresses = await getLessonProgress(user.uid);
-  const topicLessonIds = new Set(topic.lessons.map((l) => l.id));
+  const courseLessons = [
+    ...(topicData.lessons || []),
+    ...(course.topics ? course.topics.flatMap((t: any) => t.lessons || []) : []),
+    ...(course.lessons || [])
+  ];
+  const allCourseLessonIds = new Set(courseLessons.map((l: any) => l.id));
   const initialCompletedLessonIds = lessonProgresses
-    .filter((lp) => topicLessonIds.has(lp.lessonId))
+    .filter((lp) => allCourseLessonIds.has(lp.lessonId) || lp.lesson?.courseId === courseId)
+    .map((lp) => lp.lessonId);
+  const initialCompletedPracticeIds = lessonProgresses
+    .filter((lp) => (allCourseLessonIds.has(lp.lessonId) || lp.lesson?.courseId === courseId) && (lp as any).practiceCompleted)
     .map((lp) => lp.lessonId);
 
   return (
@@ -54,6 +63,7 @@ export default async function MyCourseTopicPage(props: PageProps) {
       topic={topic}
       userId={user.uid}
       initialCompletedLessonIds={initialCompletedLessonIds}
+      initialCompletedPracticeIds={initialCompletedPracticeIds}
       basePath={`/my-courses/${courseId}`}
       isAdmin={user.role === 'admin'}
     />

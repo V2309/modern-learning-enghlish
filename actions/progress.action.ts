@@ -1,6 +1,6 @@
 "use server";
 
-import { completeLesson, masterVocabulary, toggleTopicCompletion } from "@/services/progress.service";
+import { completeLesson, completeLessonPractice, masterVocabulary, toggleTopicCompletion } from "@/services/progress.service";
 import { completeLessonSchema, masterVocabularySchema } from "@/schemas/progress.schema";
 import { revalidatePath } from "next/cache";
 
@@ -12,6 +12,22 @@ export async function completeLessonAction(userId: string, lessonId: string, cou
     }
 
     await completeLesson(userId, lessonId);
+    revalidatePath(`/courses/${courseId}`);
+    revalidatePath("/progress");
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function completeLessonPracticeAction(userId: string, lessonId: string, courseId: string) {
+  try {
+    if (!userId || !lessonId) {
+      return { success: false, error: "Missing parameters" };
+    }
+
+    await completeLessonPractice(userId, lessonId);
     revalidatePath(`/courses/${courseId}`);
     revalidatePath("/progress");
     revalidatePath("/dashboard");

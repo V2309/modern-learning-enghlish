@@ -20,6 +20,7 @@ export async function createLesson(data: {
   duration: string;
   videoUrl: string;
   description?: string;
+  practiceContent?: string;
 }) {
   const id = `lesson-${Date.now()}`;
   return await prisma.lesson.create({
@@ -30,17 +31,20 @@ export async function createLesson(data: {
       title: data.title,
       duration: data.duration,
       videoUrl: data.videoUrl,
-      description: data.description
+      description: data.description,
+      practiceContent: data.practiceContent
     }
   });
 }
 
 export async function updateLesson(lessonId: string, data: {
   courseId?: string;
+  topicId?: string;
   title?: string;
   duration?: string;
   videoUrl?: string;
   description?: string;
+  practiceContent?: string;
 }) {
   return await prisma.lesson.update({
     where: { id: lessonId },

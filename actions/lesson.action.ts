@@ -11,6 +11,7 @@ export async function createLessonAction(data: {
   duration: string;
   videoUrl: string;
   description?: string;
+  practiceContent?: string;
 }) {
   try {
     const validation = lessonSchema.safeParse(data);
@@ -36,6 +37,7 @@ export async function updateLessonAction(lessonId: string, courseId: string, dat
   duration?: string;
   videoUrl?: string;
   description?: string;
+  practiceContent?: string;
 }, topicId?: string) {
   try {
     const validation = updateLessonSchema.safeParse(data);

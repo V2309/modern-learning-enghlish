@@ -184,9 +184,41 @@ export async function getCourseTopicById(topicId: string) {
   return await prisma.courseTopic.findUnique({
     where: { id: topicId },
     include: {
-      course: true,
+      course: {
+        include: {
+          topics: {
+            orderBy: { createdAt: "asc" },
+            include: {
+              lessons: {
+                orderBy: { createdAt: "asc" },
+                include: {
+                  questions: {
+                    include: { options: true },
+                    orderBy: { orderIndex: "asc" }
+                  }
+                }
+              }
+            }
+          },
+          lessons: {
+            orderBy: { createdAt: "asc" },
+            include: {
+              questions: {
+                include: { options: true },
+                orderBy: { orderIndex: "asc" }
+              }
+            }
+          }
+        }
+      },
       lessons: {
-        orderBy: { createdAt: "asc" }
+        orderBy: { createdAt: "asc" },
+        include: {
+          questions: {
+            include: { options: true },
+            orderBy: { orderIndex: "asc" }
+          }
+        }
       }
     }
   });

@@ -131,6 +131,7 @@ model CourseTopic {
   courseId    String   @map("course_id") @db.VarChar(255)
   title       String   @db.VarChar(255)
   description String?  @db.Text
+  order       Int      @default(0)
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp()
 
   course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
@@ -140,20 +141,54 @@ model CourseTopic {
 }
 
 model Lesson {
-  id          String   @id @db.VarChar(255)
-  courseId    String   @map("course_id") @db.VarChar(255)
-  topicId     String?  @map("topic_id") @db.VarChar(255)
-  title       String   @db.VarChar(255)
-  duration    String   @db.VarChar(20)
-  videoUrl    String   @map("video_url") @db.Text
-  description String?  @db.Text
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp()
+  id              String   @id @db.VarChar(255)
+  courseId        String   @map("course_id") @db.VarChar(255)
+  topicId         String?  @map("topic_id") @db.VarChar(255)
+  title           String   @db.VarChar(255)
+  duration        String   @db.VarChar(20)
+  videoUrl        String   @map("video_url") @db.Text
+  description     String?  @db.Text
+  practiceContent String?  @map("practice_content") @db.Text
+  order           Int      @default(0)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamp()
 
   course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseTopic CourseTopic? @relation(fields: [topicId], references: [id], onDelete: Cascade)
   progresses  LessonProgress[]
+  questions   Question[]
 
   @@map("lessons")
+}
+
+model Question {
+  id           String   @id @default(uuid()) @db.VarChar(255)
+  lessonId     String   @map("lesson_id") @db.VarChar(255)
+  content      String   @db.Text
+  explanation  String?  @db.Text
+  questionType String   @default("multiple_choice") @map("question_type") @db.VarChar(50)
+  difficulty   String?  @default("medium") @db.VarChar(50)
+  category     String?  @db.VarChar(100)
+  orderIndex   Int      @default(0) @map("order_index")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp()
+
+  lesson       Lesson           @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  options      QuestionOption[]
+
+  @@map("questions")
+}
+
+model QuestionOption {
+  id         String   @id @default(uuid()) @db.VarChar(255)
+  questionId String   @map("question_id") @db.VarChar(255)
+  key        String   @db.VarChar(10)
+  content    String   @db.Text
+  isCorrect  Boolean  @default(false) @map("is_correct")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("question_options")
 }
 
 model ShadowingVideo {
@@ -172,10 +207,12 @@ model ShadowingVideo {
 }
 
 model LessonProgress {
-  id          String   @id @db.VarChar(255)
-  userId      String   @map("user_id") @db.VarChar(255)
-  lessonId    String   @map("lesson_id") @db.VarChar(255)
-  completedAt DateTime @default(now()) @map("completed_at") @db.Timestamp()
+  id                String   @id @db.VarChar(255)
+  userId            String   @map("user_id") @db.VarChar(255)
+  lessonId          String   @map("lesson_id") @db.VarChar(255)
+  videoCompleted    Boolean  @default(true) @map("video_completed")
+  practiceCompleted Boolean  @default(false) @map("practice_completed")
+  completedAt       DateTime @default(now()) @map("completed_at") @db.Timestamp()
 
   user        User     @relation(fields: [userId], references: [uid], onDelete: Cascade)
   lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)

@@ -631,18 +631,6 @@ export const CustomVideoPlayer = forwardRef<CustomVideoPlayerRef, CustomVideoPla
             </div>
           </div>
         </div>
-
-        {/* Explain Mechanism Note Card (Under Video Player) */}
-        <div className="mt-1 bg-[#161616] border border-white/5 rounded-lg p-3 text-xs text-neutral-400 leading-relaxed shadow-sm">
-          <div className="font-semibold text-neutral-300 flex items-center gap-1.5 mb-1">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#1ea3e0]" />
-            Cơ chế Custom Video Player (YouTube IFrame API)
-          </div>
-          Ẩn hoàn toàn bảng điều khiển gốc của YouTube bằng tham số <code className="px-1 py-0.5 rounded bg-white/5 font-mono text-[#1ea3e0]">controls=0</code>, 
-          đồng thời sử dụng <code className="px-1 py-0.5 rounded bg-white/5 font-mono text-[#1ea3e0]">YouTube IFrame Player API</code> để vẽ lớp điều khiển custom đè lên trên. 
-          Lớp phủ video sử dụng thuộc tính <code className="px-1 py-0.5 rounded bg-white/5 font-mono text-[#1ea3e0]">pointer-events: none</code> đối với iframe để điều phối 
-          hoàn toàn các sự kiện click, kéo thả, cuộn và thay đổi trạng thái mượt mà mà không bị ảnh hưởng bởi trình phát gốc.
-        </div>
       </div>
     );
   }

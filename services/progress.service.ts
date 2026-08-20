@@ -17,7 +17,37 @@ export async function completeLesson(userId: string, lessonId: string) {
       data: {
         id,
         userId,
-        lessonId
+        lessonId,
+        videoCompleted: true,
+        practiceCompleted: false
+      }
+    });
+  }
+}
+
+export async function completeLessonPractice(userId: string, lessonId: string) {
+  const existing = await prisma.lessonProgress.findUnique({
+    where: {
+      uniqueUserLessonProgress: { userId, lessonId }
+    }
+  });
+
+  if (existing) {
+    return await prisma.lessonProgress.update({
+      where: { id: existing.id },
+      data: {
+        practiceCompleted: true
+      }
+    });
+  } else {
+    const id = `lp-${Date.now()}`;
+    return await prisma.lessonProgress.create({
+      data: {
+        id,
+        userId,
+        lessonId,
+        videoCompleted: false,
+        practiceCompleted: true
       }
     });
   }
