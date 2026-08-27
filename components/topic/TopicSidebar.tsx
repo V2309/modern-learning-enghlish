@@ -2,23 +2,39 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, CheckCircle2, Plus } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  BookOpen,
+  Layers,
+  HelpCircle,
+  Gamepad2,
+  Headphones,
+  Languages,
+  Sparkles,
+} from 'lucide-react';
 import { VocabularyTopic } from '@/data/mockData';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
 
 type StudyMode = 'list' | 'flashcards' | 'quiz' | 'match' | 'dictation' | 'translate' | 'sentence-practice';
 
-const sidebarItems = [
-  { mode: 'list' as StudyMode, label: 'Danh sách từ', group: 'Từ vựng' },
-  { mode: 'flashcards' as StudyMode, label: 'Flashcards', group: 'Từ vựng' },
-  { mode: 'quiz' as StudyMode, label: 'Trắc nghiệm từ vựng', group: 'Luyện tập' },
-  { mode: 'match' as StudyMode, label: 'Trò chơi tìm cặp', group: 'Luyện tập' },
-  { mode: 'dictation' as StudyMode, label: 'Nghe chính tả', group: 'Luyện tập' },
-  { mode: 'translate' as StudyMode, label: 'Dịch nghĩa & Điền từ', group: 'Luyện tập' },
-  { mode: 'sentence-practice' as StudyMode, label: 'Đặt câu với AI', group: 'Luyện tập' },
-] as const;
+interface SidebarItem {
+  mode: StudyMode;
+  label: string;
+  group: 'Học tập' | 'Luyện tập';
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+const sidebarItems: SidebarItem[] = [
+  { mode: 'list', label: 'Danh sách từ', group: 'Học tập', icon: BookOpen },
+  { mode: 'flashcards', label: 'Flashcards', group: 'Học tập', icon: Layers },
+  { mode: 'quiz', label: 'Trắc nghiệm từ vựng', group: 'Luyện tập', icon: HelpCircle },
+  { mode: 'match', label: 'Trò chơi tìm cặp', group: 'Luyện tập', icon: Gamepad2 },
+  { mode: 'dictation', label: 'Nghe chính tả', group: 'Luyện tập', icon: Headphones },
+  { mode: 'translate', label: 'Dịch nghĩa & Điền từ', group: 'Luyện tập', icon: Languages },
+  { mode: 'sentence-practice', label: 'Đặt câu với AI', group: 'Luyện tập', icon: Sparkles },
+];
 
 interface TopicSidebarProps {
   topic: VocabularyTopic;
@@ -26,7 +42,7 @@ interface TopicSidebarProps {
   activeMode?: StudyMode;
   isMobileView?: boolean;
   isFixed?: boolean;
-  onOpenAddWord: () => void;
+  onOpenAddWord?: () => void;
   onClose?: () => void;
   isAdmin?: boolean;
 }
@@ -37,9 +53,7 @@ export const TopicSidebar = ({
   activeMode: propActiveMode,
   isMobileView = false,
   isFixed = false,
-  onOpenAddWord,
   onClose,
-  isAdmin = false,
 }: TopicSidebarProps) => {
   const pathname = usePathname();
 
@@ -54,17 +68,67 @@ export const TopicSidebar = ({
     else if (pathname.includes('/sentence-practice')) activeMode = 'sentence-practice';
   }
 
-  // Common inner layout
+  const studyGroup = sidebarItems.filter((i) => i.group === 'Học tập');
+  const practiceGroup = sidebarItems.filter((i) => i.group === 'Luyện tập');
+
+  const renderNavGroup = (title: string, items: SidebarItem[]) => (
+    <div className="space-y-1.5">
+      <span className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-widest px-2.5 block">
+        {title}
+      </span>
+      <nav className="space-y-0.5">
+        {items.map((item) => {
+          const isActive = activeMode === item.mode;
+          const Icon = item.icon;
+          const linkHref = item.mode === 'list'
+            ? `/vocabulary/topic/${topic.id}`
+            : `/vocabulary/topic/${topic.id}/${item.mode}`;
+
+          return (
+            <Link
+              key={item.mode}
+              href={linkHref}
+              onClick={() => onClose?.()}
+              className={cn(
+                'w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all text-left text-xs font-medium border group',
+                isActive
+                  ? 'bg-primary/10 border-primary/20 text-primary font-bold shadow-xs'
+                  : 'bg-transparent border-transparent text-muted-foreground hover:bg-muted/70 hover:text-foreground'
+              )}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className={cn(
+                  'p-1 rounded-lg transition-colors shrink-0',
+                  isActive ? 'bg-primary/15 text-primary' : 'bg-muted/50 text-muted-foreground group-hover:text-foreground group-hover:bg-muted'
+                )}>
+                  <Icon className="h-3.5 w-3.5" />
+                </div>
+                <span className="truncate">{item.label}</span>
+              </div>
+              {isActive && (
+                <div className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+              )}
+            </Link>
+          );
+        })}
+      </nav>
+    </div>
+  );
+
   const innerContent = (
     <div className="flex flex-col h-full justify-between">
-      <div className="space-y-6">
+      <div className="space-y-5">
         {/* Topic Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-border">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <Link href="/vocabulary" className="p-1.5 rounded-4xl hover:bg-muted text-muted-foreground transition-all shrink-0">
-              <ChevronLeft className="h-4.5 w-4.5" />
+        <div className="flex items-center justify-between pb-3.5 border-b border-border/70">
+          <div className="flex items-center gap-2 min-w-0">
+            <Link
+              href="/vocabulary"
+              className="p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-all shrink-0"
+              title="Quay lại danh sách chủ đề"
+            >
+              <ChevronLeft className="h-4 w-4" />
             </Link>
-            <h2 className="text-sm font-extrabold text-foreground tracking-tight line-clamp-1 min-w-0" title={topic.name}>
+            <h2 className="text-sm font-bold text-foreground tracking-tight truncate" title={topic.name}>
               {topic.name}
             </h2>
           </div>
@@ -75,84 +139,33 @@ export const TopicSidebar = ({
 
         {/* Navigation list */}
         <div className="space-y-4">
-          <div>
-            <span className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest pl-2 block mb-2">Chế độ học</span>
-            <nav className="space-y-1">
-              {sidebarItems.map((item) => {
-                const isActive = activeMode === item.mode;
-                const linkHref = item.mode === 'list'
-                  ? `/vocabulary/topic/${topic.id}`
-                  : `/vocabulary/topic/${topic.id}/${item.mode}`;
-
-                return (
-                  <Link
-                    key={item.mode}
-                    href={linkHref}
-                    onClick={() => {
-                      onClose?.();
-                    }}
-                    className={cn(
-                      'w-full flex items-center justify-between px-3 py-2.5 rounded-4xl transition-all text-left font-semibold text-xs border',
-                      isActive
-                        ? 'bg-primary/10 border-primary/20 text-primary font-bold shadow-xs'
-                        : 'bg-transparent border-transparent text-muted-foreground hover:bg-muted hover:text-foreground'
-                    )}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <CheckCircle2
-                        className={cn(
-                          'h-4 w-4 transition-colors',
-                          isActive ? 'text-primary fill-primary/10' : 'text-muted-foreground/30'
-                        )}
-                      />
-                      <span className="line-clamp-1">{item.label}</span>
-                    </div>
-                    {isActive && <ChevronRight className="h-3.5 w-3.5 text-primary" />}
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
+          {renderNavGroup('Học tập', studyGroup)}
+          {renderNavGroup('Luyện tập', practiceGroup)}
         </div>
       </div>
 
-      <div className="space-y-3 pt-6 border-t border-border">
-        {/* Back to Library */}
+      {/* Footer link */}
+      <div className="pt-3 border-t border-border/70">
         <Link
           href="/vocabulary"
           onClick={() => onClose?.()}
-          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-4xl text-muted-foreground hover:bg-muted hover:text-foreground text-xs font-semibold transition-all"
+          className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-muted-foreground hover:bg-muted/70 hover:text-foreground text-xs font-medium transition-all"
         >
-          <ChevronLeft className="h-4 w-4" />
-          Quay lại thư viện
+          <ChevronLeft className="h-3.5 w-3.5" />
+          <span>Quay lại thư viện</span>
         </Link>
-
-        {/* Add Word CTA (only show on list view) */}
-        {activeMode === 'list' && isAdmin && (
-          <button
-            onClick={() => {
-              onOpenAddWord();
-              onClose?.();
-            }}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-4xl bg-primary text-white font-bold hover:bg-primary/95 transition-all shadow-md shadow-primary/15 text-xs cursor-pointer"
-          >
-            <Plus className="h-4 w-4" />
-            Thêm từ vựng mới
-          </button>
-        )}
       </div>
     </div>
   );
 
   if (isFixed) {
     return (
-      <aside className="fixed top-16 left-0 bottom-0 w-72 bg-card border-r border-border shadow-xs z-30 p-6 hidden lg:block select-none">
+      <aside className="fixed top-16 left-0 bottom-0 w-72 bg-card border-r border-border shadow-xs z-30 p-4.5 hidden lg:block select-none">
         {innerContent}
       </aside>
     );
   }
 
-  // Mobile View or card/drawer view
   return (
     <div className="h-full flex flex-col justify-between">
       {innerContent}
@@ -162,3 +175,4 @@ export const TopicSidebar = ({
 
 export { sidebarItems };
 export type { StudyMode };
+

@@ -2,9 +2,8 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Volume2, Sparkles, HelpCircle, CheckCircle2, Pencil, Trash2, Loader2 } from 'lucide-react';
+import { Volume2, Sparkles, HelpCircle, CheckCircle2, Pencil, Trash2, Loader2, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useUser } from '@clerk/nextjs';
 import { Vocabulary } from '@/data/mockData';
 
 interface VocabListProps {
@@ -59,20 +58,32 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
-      className="space-y-6"
+      className="space-y-5"
     >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-3xl bg-muted/30 border border-border/40">
+      {/* Header & Actions Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-card border border-border shadow-xs">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Học từ vựng theo chủ đề</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">Danh sách từ vựng</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
             Nhấp vào biểu tượng Loa để nghe phát âm giọng bản xứ rõ ràng.
           </p>
         </div>
-        {words.length > 0 && (
-          <span className="text-xs font-semibold text-muted-foreground bg-muted px-3 py-1.5 rounded-full border border-border/40 shrink-0">
-            {Math.min(visibleCount, words.length)}/{words.length} từ
-          </span>
-        )}
+        <div className="flex items-center gap-2.5 shrink-0">
+          {words.length > 0 && (
+            <span className="text-xs font-semibold text-muted-foreground bg-muted px-3 py-1.5 rounded-full border border-border/70">
+              {Math.min(visibleCount, words.length)} / {words.length} từ
+            </span>
+          )}
+          {isAdmin && (
+            <button
+              onClick={onOpenAddModal}
+              className="flex items-center gap-1.5 px-4 py-2 bg-primary text-white text-xs font-bold rounded-full hover:bg-primary/95 transition-all shadow-sm shadow-primary/20 cursor-pointer"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Thêm từ vựng</span>
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="space-y-6">

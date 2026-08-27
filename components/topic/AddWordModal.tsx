@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus } from 'lucide-react';
+import { X, Plus, ChevronDown, Sparkles, BookOpen, Trash2 } from 'lucide-react';
 import { Vocabulary } from '@/data/mockData';
 
 interface NewWordState {
@@ -47,121 +47,142 @@ export const AddWordModal = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-background/90 backdrop-blur-sm"
+            className="absolute inset-0 bg-background/80 backdrop-blur-sm"
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative w-full max-w-xl max-h-[85vh] bg-card border border-border rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden"
+            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+            transition={{ duration: 0.2 }}
+            className="relative w-full max-w-lg max-h-[90vh] bg-card border border-border/80 rounded-2xl shadow-2xl flex flex-col overflow-hidden"
           >
             {/* Header */}
-            <div className="p-8 border-b border-border flex items-center justify-between shrink-0">
-              <div>
-                <h2 className="text-2xl font-bold text-foreground">Add New Word</h2>
-                <p className="text-muted-foreground text-sm font-medium">
-                  Bổ sung từ vựng mới vào chủ đề {topicName}.
-                </p>
+            <div className="px-5 py-4 border-b border-border/70 flex items-center justify-between bg-muted/20 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                  <BookOpen className="h-4 w-4" />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-foreground tracking-tight">Thêm từ vựng mới</h2>
+                  <p className="text-xs text-muted-foreground">
+                    Chủ đề: <span className="font-semibold text-foreground">{topicName}</span>
+                  </p>
+                </div>
               </div>
-              <button onClick={onClose} className="p-2 rounded-4xl hover:bg-muted text-muted-foreground transition-all">
-                <X />
+              <button
+                onClick={onClose}
+                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+                title="Đóng"
+              >
+                <X className="h-4 w-4" />
               </button>
             </div>
 
             {/* Body */}
-            <div className="p-8 space-y-6 overflow-y-auto flex-1">
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-muted-foreground uppercase tracking-widest pl-1">
-                  English Word
+            <div className="p-5 space-y-4 overflow-y-auto flex-1">
+              {/* English Word */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-foreground flex items-center justify-between">
+                  <span>Từ tiếng Anh (Word) <span className="text-rose-500">*</span></span>
                 </label>
                 <input
                   type="text"
                   value={newWord.word}
                   onChange={(e) => onWordChange('word', e.target.value)}
-                  className="w-full bg-muted border border-border rounded-4xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all"
+                  className="w-full bg-muted/40 border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium"
                   placeholder="e.g. Resilience"
+                  autoFocus
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-muted-foreground uppercase tracking-widest pl-1">
-                    Meaning (VN)
+              {/* Grid: Meaning & Part of Speech */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-foreground">
+                    Nghĩa tiếng Việt <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={newWord.meaning}
                     onChange={(e) => onWordChange('meaning', e.target.value)}
-                    className="w-full bg-muted border border-border rounded-4xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all"
+                    className="w-full bg-muted/40 border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                     placeholder="e.g. Sự kiên cường"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-muted-foreground uppercase tracking-widest pl-1">
-                    Part of Speech
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-foreground">
+                    Loại từ (Part of Speech)
                   </label>
-                  <select
-                    value={newWord.partOfSpeech}
-                    onChange={(e) => onWordChange('partOfSpeech', e.target.value)}
-                    className="w-full bg-muted border border-border rounded-4xl px-5 py-[11px] text-foreground focus:outline-none focus:border-primary transition-all appearance-none"
-                  >
-                    <option value="Noun">Noun</option>
-                    <option value="Verb">Verb</option>
-                    <option value="Adjective">Adjective</option>
-                    <option value="Adverb">Adverb</option>
-                    <option value="Phrase">Phrase</option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      value={newWord.partOfSpeech}
+                      onChange={(e) => onWordChange('partOfSpeech', e.target.value)}
+                      className="w-full bg-muted/40 border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all appearance-none cursor-pointer pr-9"
+                    >
+                      <option value="Noun">Noun (Danh từ)</option>
+                      <option value="Verb">Verb (Động từ)</option>
+                      <option value="Adjective">Adjective (Tính từ)</option>
+                      <option value="Adverb">Adverb (Trạng từ)</option>
+                      <option value="Phrase">Phrase (Cụm từ)</option>
+                    </select>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-muted-foreground uppercase tracking-widest pl-1">
-                  Definition (EN)
+              {/* Definition */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-foreground">
+                  Định nghĩa tiếng Anh (Definition - Không bắt buộc)
                 </label>
                 <input
                   type="text"
                   value={newWord.definition}
                   onChange={(e) => onWordChange('definition', e.target.value)}
-                  className="w-full bg-muted border border-border rounded-4xl px-5 py-3 text-foreground focus:outline-none focus:border-primary transition-all"
-                  placeholder="e.g. the ability to recover quickly from difficulties"
+                  className="w-full bg-muted/40 border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                  placeholder="e.g. the capacity to recover quickly from difficulties"
                 />
               </div>
 
-              {/* Examples */}
-              <div className="space-y-3 pt-4 border-t border-border">
+              {/* Example Sentences */}
+              <div className="space-y-2.5 pt-2 border-t border-border/60">
                 <div className="flex items-center justify-between">
-                  <label className="text-sm font-bold text-muted-foreground uppercase tracking-widest pl-1">
-                    Example Sentences (Ví dụ)
+                  <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                    <span>Câu ví dụ mẫu</span>
+                    <span className="text-[11px] text-muted-foreground font-normal">({newWordExamples.length})</span>
                   </label>
                   <button
                     type="button"
                     onClick={onAddExample}
-                    className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all rounded-4xl font-bold text-xs cursor-pointer"
+                    className="flex items-center gap-1 px-2.5 py-1 bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all rounded-lg font-bold text-xs cursor-pointer"
                   >
-                    <Plus className="h-3.5 w-3.5" />
+                    <Plus className="h-3 w-3" />
                     Thêm ví dụ
                   </button>
                 </div>
-                <div className="space-y-2.5">
+
+                <div className="space-y-2">
                   {newWordExamples.map((ex, idx) => (
                     <div key={idx} className="flex gap-2 items-center">
-                      <span className="text-xs font-bold text-muted-foreground w-12 text-center select-none">
-                        Ví dụ {idx + 1}
+                      <span className="text-[11px] font-bold text-muted-foreground px-2 py-1 rounded-md bg-muted/60 shrink-0 select-none">
+                        #{idx + 1}
                       </span>
                       <input
                         type="text"
                         value={ex}
                         onChange={(e) => onUpdateExample(idx, e.target.value)}
-                        className="flex-1 bg-muted border border-border rounded-4xl px-4 py-2 text-sm text-foreground focus:outline-none focus:border-primary transition-all"
-                        placeholder="e.g. He showed great resilience during the crisis."
+                        className="flex-1 bg-muted/40 border border-border rounded-xl px-3 py-2 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                        placeholder="e.g. She showed great resilience during difficult times."
                       />
                       {newWordExamples.length > 1 && (
                         <button
                           type="button"
                           onClick={() => onRemoveExample(idx)}
-                          className="p-1.5 rounded-4xl hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors shrink-0 cursor-pointer"
+                          className="p-1.5 rounded-lg hover:bg-rose-500/10 text-muted-foreground hover:text-rose-500 transition-colors shrink-0 cursor-pointer"
+                          title="Xóa ví dụ"
                         >
-                          <X className="h-4 w-4" />
+                          <Trash2 className="h-3.5 w-3.5" />
                         </button>
                       )}
                     </div>
@@ -171,14 +192,22 @@ export const AddWordModal = ({
             </div>
 
             {/* Footer */}
-            <div className="p-8 bg-muted/50 border-t border-border shrink-0">
+            <div className="px-5 py-3.5 bg-muted/20 border-t border-border/70 flex items-center justify-end gap-2.5 shrink-0">
               <button
-                onClick={onSave}
-                disabled={!newWord.word || !newWord.meaning}
-                className="w-full py-4 bg-primary disabled:opacity-50 disabled:grayscale text-white rounded-4xl font-bold hover:bg-primary/95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 rounded-xl border border-border hover:bg-muted text-xs font-semibold text-muted-foreground hover:text-foreground transition-all cursor-pointer"
               >
-                <Plus className="h-5 w-5" />
-                Save Word
+                Hủy bỏ
+              </button>
+              <button
+                type="button"
+                onClick={onSave}
+                disabled={!newWord.word.trim() || !newWord.meaning.trim()}
+                className="px-5 py-2 bg-primary disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold hover:bg-primary/95 transition-all flex items-center gap-1.5 shadow-sm shadow-primary/20 cursor-pointer"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Lưu từ vựng</span>
               </button>
             </div>
           </motion.div>
@@ -187,3 +216,4 @@ export const AddWordModal = ({
     </AnimatePresence>
   );
 };
+

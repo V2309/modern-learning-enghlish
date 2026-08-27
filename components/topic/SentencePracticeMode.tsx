@@ -271,311 +271,332 @@ export const SentencePracticeMode: React.FC<SentencePracticeModeProps> = ({ word
   const progressPercent = Math.round(((currentIndex + 1) / shuffledWords.length) * 100);
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-3">
       {/* Top Header & Progress */}
-      <div className="p-6 rounded-3xl bg-card border border-border shadow-sm space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-4xl bg-primary/10 text-primary">
-              <Sparkles className="h-5 w-5" />
-            </div>
-            <div>
-              <h2 className="text-lg font-black text-foreground tracking-tight">
-                Luyện tập đặt câu với AI
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                Tự viết câu tiếng Anh và nhận đánh giá phản hồi tức thì từ Gemini AI
-              </p>
-            </div>
+      <div className="px-4 py-2.5 rounded-2xl bg-card border border-border shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 rounded-xl bg-primary/10 text-primary">
+            <Sparkles className="h-4 w-4" />
           </div>
+          <div>
+            <h2 className="text-sm font-bold text-foreground tracking-tight">
+              Luyện tập đặt câu với AI
+            </h2>
+            <p className="text-[11px] text-muted-foreground">
+              Viết câu tiếng Anh và nhận đánh giá từ Gemini AI
+            </p>
+          </div>
+        </div>
 
-          <span className="text-xs font-black text-primary bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
-            Từ {currentIndex + 1} / {shuffledWords.length}
+        <div className="flex items-center gap-3">
+          <div className="w-32 sm:w-44 bg-muted rounded-full h-1.5 overflow-hidden border border-border">
+            <motion.div
+              className="bg-primary h-full rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${progressPercent}%` }}
+              transition={{ duration: 0.3 }}
+            />
+          </div>
+          <span className="text-xs font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20 whitespace-nowrap">
+            {currentIndex + 1} / {shuffledWords.length}
           </span>
         </div>
-
-        {/* Progress Bar */}
-        <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden border border-border">
-          <motion.div
-            className="bg-primary h-full rounded-full"
-            initial={{ width: 0 }}
-            animate={{ width: `${progressPercent}%` }}
-            transition={{ duration: 0.3 }}
-          />
-        </div>
       </div>
 
-      {/* Target Word Card */}
-      <div className="p-8 rounded-[2.5rem] bg-gradient-to-br from-primary/10 via-card to-card border border-primary/20 shadow-md space-y-4 relative overflow-hidden">
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <h3 className="text-3xl md:text-4xl font-black text-foreground tracking-tight">
-                {currentWord.word}
-              </h3>
-              <button
-                onClick={() => handleSpeak(currentWord.word)}
-                className="p-2.5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-all active:scale-95 cursor-pointer"
-                title="Phát âm từ này"
-              >
-                <Volume2 className="h-5 w-5" />
-              </button>
-            </div>
+      {/* 2-Column Main Layout: Left = Word + Input, Right = AI Feedback */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5 items-start">
+        {/* Left Column: Target Word & Input */}
+        <div className="space-y-3">
+          {/* Target Word Card */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-primary/10 via-card to-card border border-primary/20 shadow-sm space-y-3 relative overflow-hidden">
+            <div className="flex items-start justify-between gap-2">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2.5">
+                  <h3 className="text-3xl font-black text-foreground tracking-tight">
+                    {currentWord.word}
+                  </h3>
+                  <button
+                    onClick={() => handleSpeak(currentWord.word)}
+                    className="p-2 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-all active:scale-95 cursor-pointer"
+                    title="Phát âm từ này"
+                  >
+                    <Volume2 className="h-4 w-4" />
+                  </button>
+                </div>
 
-            <div className="flex items-center gap-2 pt-1">
-              {currentWord.partOfSpeech && (
-                <span className="px-2.5 py-0.5 rounded-full bg-primary/20 text-primary font-bold text-xs uppercase border border-primary/30">
-                  {currentWord.partOfSpeech}
-                </span>
-              )}
-              {currentWord.pronunciation && (
-                <span className="text-sm font-mono text-muted-foreground">
-                  {currentWord.pronunciation}
-                </span>
-              )}
-            </div>
-          </div>
-
-          <div className="text-right space-y-1">
-            <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">Nghĩa từ vựng</span>
-            <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400 block">
-              {currentWord.meaning}
-            </span>
-          </div>
-        </div>
-
-        {/* Toggle Hint */}
-        {currentWord.example && (
-          <div className="pt-2 border-t border-border/60">
-            <button
-              onClick={() => setShowHint(!showHint)}
-              className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
-            >
-              <Lightbulb className="h-3.5 w-3.5" />
-              {showHint ? 'Ẩn ví dụ tham khảo' : 'Xem câu ví dụ mẫu'}
-            </button>
-
-            {showHint && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                className="mt-2 p-3 rounded-3xl bg-muted/60 border border-border text-xs space-y-1"
-              >
-                <p className="font-semibold text-foreground italic">&quot;{currentWord.example}&quot;</p>
-              </motion.div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Sentence Input Area */}
-      <div className="p-6 md:p-8 rounded-[2.5rem] bg-card border border-border shadow-sm space-y-4">
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-bold text-foreground flex items-center gap-2">
-            <span>Viết câu của bạn bằng tiếng Anh:</span>
-            <span className="text-xs text-muted-foreground font-normal">
-              (Chứa từ <strong className="text-primary">&quot;{currentWord.word}&quot;</strong>)
-            </span>
-          </label>
-          {userSentence && (
-            <button
-              onClick={() => {
-                setUserSentence('');
-                setEvaluation(null);
-                setErrorMsg(null);
-              }}
-              className="text-xs text-muted-foreground hover:text-foreground font-semibold"
-            >
-              Xóa câu
-            </button>
-          )}
-        </div>
-
-        <div className="relative">
-          <textarea
-            value={userSentence}
-            onChange={(e) => {
-              setUserSentence(e.target.value);
-              if (errorMsg) setErrorMsg(null);
-            }}
-            placeholder={`Ví dụ: ${currentWord.example ? currentWord.example : `Write a complete sentence containing "${currentWord.word}"...`}`}
-            rows={3}
-            className="w-full p-4 rounded-4xl bg-muted/30 border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 text-foreground text-base placeholder:text-muted-foreground/60 resize-none outline-none transition-all"
-          />
-        </div>
-
-        {errorMsg && (
-          <div className="p-3 rounded-3xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-medium flex items-center gap-2">
-            <AlertCircle className="h-4 w-4 shrink-0" />
-            <span>{errorMsg}</span>
-          </div>
-        )}
-
-        <div className="flex items-center justify-between pt-2">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handlePrevWord}
-              disabled={currentIndex === 0 || isEvaluating}
-              className="px-4 py-2.5 rounded-4xl border border-border text-muted-foreground hover:text-foreground hover:bg-muted text-xs font-bold disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1.5 cursor-pointer"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Từ trước
-            </button>
-          </div>
-
-          <button
-            onClick={handleSubmit}
-            disabled={isEvaluating || !userSentence.trim()}
-            className="px-6 py-3 rounded-4xl bg-primary text-white text-sm font-bold hover:bg-primary/95 transition-all shadow-md shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
-          >
-            {isEvaluating ? (
-              <>
-                <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>AI đang phân tích câu...</span>
-              </>
-            ) : (
-              <>
-                <Send className="h-4 w-4" />
-                <span>Nộp câu & Nhận xét AI</span>
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* AI Evaluation Result Card */}
-      <AnimatePresence>
-        {evaluation && (
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
-            className="p-6 md:p-8 rounded-[2.5rem] bg-card border border-border shadow-lg space-y-6"
-          >
-            {/* Badge Score & Status */}
-            <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-border">
-              <div className="flex items-center gap-3">
-                <div
-                  className={cn(
-                    'p-3 rounded-4xl border flex items-center justify-center',
-                    evaluation.isCorrect
-                      ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-                      : 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+                <div className="flex items-center gap-2 pt-0.5">
+                  {currentWord.partOfSpeech && (
+                    <span className="px-2 py-0.5 rounded-full bg-primary/20 text-primary font-bold text-xs uppercase border border-primary/30">
+                      {currentWord.partOfSpeech}
+                    </span>
                   )}
-                >
-                  {evaluation.isCorrect ? (
-                    <CheckCircle2 className="h-6 w-6" />
-                  ) : (
-                    <AlertCircle className="h-6 w-6" />
+                  {currentWord.pronunciation && (
+                    <span className="text-xs font-mono text-muted-foreground">
+                      {currentWord.pronunciation}
+                    </span>
                   )}
                 </div>
-                <div>
-                  <h4 className="text-lg font-black text-foreground">
-                    {evaluation.isCorrect ? 'Sử dụng từ chính xác!' : 'Cần điều chỉnh thêm'}
-                  </h4>
-                  <p className="text-xs text-muted-foreground">
-                    {evaluation.targetWordUsed
-                      ? `Đã chứa từ chìa khóa "${currentWord.word}"`
-                      : `Chưa dùng đúng từ chìa khóa "${currentWord.word}"`}
+              </div>
+
+              <div className="text-right space-y-0.5 shrink-0">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">Nghĩa</span>
+                <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400 block">
+                  {currentWord.meaning}
+                </span>
+              </div>
+            </div>
+
+            {/* Toggle Hint */}
+            {currentWord.example && (
+              <div className="pt-2 border-t border-border/60">
+                <button
+                  onClick={() => setShowHint(!showHint)}
+                  className="text-xs font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <Lightbulb className="h-3.5 w-3.5" />
+                  {showHint ? 'Ẩn câu ví dụ' : 'Xem câu ví dụ mẫu'}
+                </button>
+
+                {showHint && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    className="mt-2 p-2.5 rounded-xl bg-muted/60 border border-border text-xs space-y-0.5"
+                  >
+                    <p className="font-semibold text-foreground italic">&quot;{currentWord.example}&quot;</p>
+                  </motion.div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Sentence Input Area */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-card border border-border shadow-sm space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                <span>Viết câu tiếng Anh của bạn:</span>
+                <span className="text-[11px] text-muted-foreground font-normal">
+                  (Chứa từ <strong className="text-primary">&quot;{currentWord.word}&quot;</strong>)
+                </span>
+              </label>
+              {userSentence && (
+                <button
+                  onClick={() => {
+                    setUserSentence('');
+                    setEvaluation(null);
+                    setErrorMsg(null);
+                  }}
+                  className="text-xs text-muted-foreground hover:text-foreground font-semibold cursor-pointer"
+                >
+                  Xóa câu
+                </button>
+              )}
+            </div>
+
+            <div className="relative">
+              <textarea
+                value={userSentence}
+                onChange={(e) => {
+                  setUserSentence(e.target.value);
+                  if (errorMsg) setErrorMsg(null);
+                }}
+                placeholder={`Ví dụ: ${currentWord.example ? currentWord.example : `Write a sentence containing "${currentWord.word}"...`}`}
+                rows={3}
+                className="w-full p-3 rounded-xl bg-muted/30 border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 text-foreground text-base placeholder:text-muted-foreground/60 resize-none outline-none transition-all"
+              />
+            </div>
+
+            {errorMsg && (
+              <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-medium flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between pt-1">
+              <button
+                onClick={handlePrevWord}
+                disabled={currentIndex === 0 || isEvaluating}
+                className="px-3.5 py-2 rounded-full border border-border text-muted-foreground hover:text-foreground hover:bg-muted text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 cursor-pointer"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+                Từ trước
+              </button>
+
+              <button
+                onClick={handleSubmit}
+                disabled={isEvaluating || !userSentence.trim()}
+                className="px-5 py-2.5 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary/95 transition-all shadow-md shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
+              >
+                {isEvaluating ? (
+                  <>
+                    <div className="h-3.5 w-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>AI đang phân tích...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-3.5 w-3.5" />
+                    <span>Nộp câu & Nhận xét AI</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: AI Feedback or Empty Placeholder */}
+        <div className="w-full">
+          <AnimatePresence mode="wait">
+            {evaluation ? (
+              <motion.div
+                key="evaluation-result"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="p-4 sm:p-5 rounded-2xl bg-card border border-border shadow-md space-y-3.5"
+              >
+                {/* Badge Score & Status */}
+                <div className="flex items-center justify-between gap-3 pb-3 border-b border-border">
+                  <div className="flex items-center gap-2.5">
+                    <div
+                      className={cn(
+                        'p-2 rounded-xl border flex items-center justify-center',
+                        evaluation.isCorrect
+                          ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                          : 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+                      )}
+                    >
+                      {evaluation.isCorrect ? (
+                        <CheckCircle2 className="h-5 w-5" />
+                      ) : (
+                        <AlertCircle className="h-5 w-5" />
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="text-base font-bold text-foreground">
+                        {evaluation.isCorrect ? 'Sử dụng từ chính xác!' : 'Cần điều chỉnh thêm'}
+                      </h4>
+                      <p className="text-[11px] text-muted-foreground">
+                        {evaluation.targetWordUsed
+                          ? `Đã chứa từ chìa khóa "${currentWord.word}"`
+                          : `Chưa dùng đúng từ chìa khóa "${currentWord.word}"`}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="text-right shrink-0">
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase block">Thang điểm</span>
+                    <span
+                      className={cn(
+                        'text-2xl font-black',
+                        evaluation.score >= 80
+                          ? 'text-emerald-500'
+                          : evaluation.score >= 60
+                          ? 'text-amber-500'
+                          : 'text-rose-500'
+                      )}
+                    >
+                      {evaluation.score} / 100
+                    </span>
+                  </div>
+                </div>
+
+                {/* AI Feedback */}
+                <div className="space-y-1.5">
+                  <h5 className="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5" />
+                    Nhận xét chi tiết từ AI
+                  </h5>
+                  <p className="text-sm text-foreground/90 leading-relaxed bg-muted/40 p-3 rounded-xl border border-border">
+                    {evaluation.feedback}
                   </p>
                 </div>
-              </div>
 
-              <div className="flex items-center gap-2">
-                <div className="text-right">
-                  <span className="text-[10px] font-bold text-muted-foreground uppercase block">Thang điểm</span>
-                  <span
-                    className={cn(
-                      'text-2xl font-black',
-                      evaluation.score >= 80
-                        ? 'text-emerald-500'
-                        : evaluation.score >= 60
-                        ? 'text-amber-500'
-                        : 'text-rose-500'
-                    )}
-                  >
-                    {evaluation.score} / 100
-                  </span>
+                {/* Grammar Errors / Notes */}
+                {evaluation.grammarErrors && evaluation.grammarErrors.length > 0 && (
+                  <div className="space-y-1.5">
+                    <h5 className="text-xs font-bold text-rose-500 uppercase tracking-wider flex items-center gap-1.5">
+                      <AlertCircle className="h-3.5 w-3.5" />
+                      Lưu ý ngữ pháp / dùng từ
+                    </h5>
+                    <ul className="space-y-1 pl-1">
+                      {evaluation.grammarErrors.map((err, i) => (
+                        <li key={i} className="text-xs text-rose-600 dark:text-rose-400 flex items-start gap-1.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-rose-500 mt-1.5 shrink-0" />
+                          <span>{err}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Suggested Sentence */}
+                <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <h5 className="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-1">
+                      <Lightbulb className="h-3.5 w-3.5" />
+                      Gợi ý viết câu tự nhiên hơn
+                    </h5>
+                    <button
+                      onClick={() => handleSpeak(evaluation.suggestedSentence)}
+                      className="p-1 rounded-lg hover:bg-primary/10 text-primary text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                    >
+                      <Volume2 className="h-3.5 w-3.5" />
+                      Nghe
+                    </button>
+                  </div>
+
+                  <p className="text-sm font-extrabold text-foreground italic">
+                    &quot;{evaluation.suggestedSentence}&quot;
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Nghĩa: {evaluation.suggestedSentenceMeaning}
+                  </p>
                 </div>
-              </div>
-            </div>
 
-            {/* AI Feedback */}
-            <div className="space-y-2">
-              <h5 className="text-xs font-extrabold text-primary uppercase tracking-wider flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5" />
-                Nhận xét chi tiết từ AI
-              </h5>
-              <p className="text-sm text-foreground/90 leading-relaxed bg-muted/40 p-4 rounded-3xl border border-border">
-                {evaluation.feedback}
-              </p>
-            </div>
+                {/* Action Bar */}
+                <div className="flex items-center justify-between pt-1">
+                  <button
+                    onClick={() => {
+                      setEvaluation(null);
+                    }}
+                    className="text-xs font-semibold text-muted-foreground hover:text-foreground flex items-center gap-1 cursor-pointer"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" />
+                    Thử câu khác
+                  </button>
 
-            {/* Grammar Errors / Notes */}
-            {evaluation.grammarErrors && evaluation.grammarErrors.length > 0 && (
-              <div className="space-y-2">
-                <h5 className="text-xs font-extrabold text-rose-500 uppercase tracking-wider flex items-center gap-1.5">
-                  <AlertCircle className="h-3.5 w-3.5" />
-                  Điểm cần lưu ý về ngữ pháp / cách dùng từ
-                </h5>
-                <ul className="space-y-1.5 pl-2">
-                  {evaluation.grammarErrors.map((err, i) => (
-                    <li key={i} className="text-sm text-rose-600 dark:text-rose-400 flex items-start gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-rose-500 mt-1.5 shrink-0" />
-                      <span>{err}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                  <button
+                    onClick={handleNextWord}
+                    className="px-5 py-2 rounded-full bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <span>{currentIndex < shuffledWords.length - 1 ? 'Từ tiếp theo' : 'Xem tổng kết'}</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="placeholder"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="p-6 rounded-2xl bg-card/60 border border-dashed border-border/80 flex flex-col items-center justify-center text-center text-muted-foreground min-h-[320px] space-y-2.5"
+              >
+                <div className="p-3 rounded-2xl bg-primary/5 border border-primary/10 text-primary">
+                  <Sparkles className="h-6 w-6" />
+                </div>
+                <h4 className="text-sm font-bold text-foreground">
+                  Phản hồi từ AI sẽ xuất hiện ở đây
+                </h4>
+                <p className="text-xs text-muted-foreground max-w-xs leading-relaxed">
+                  Hãy viết một câu tiếng Anh hoàn chỉnh chứa từ khóa và nhấn <strong>&quot;Nộp câu &amp; Nhận xét AI&quot;</strong> để nhận điểm số cùng gợi ý chi tiết.
+                </p>
+              </motion.div>
             )}
-
-            {/* Suggested Sentence */}
-            <div className="p-4 rounded-3xl bg-primary/5 border border-primary/20 space-y-2">
-              <div className="flex items-center justify-between">
-                <h5 className="text-xs font-extrabold text-primary uppercase tracking-wider flex items-center gap-1.5">
-                  <Lightbulb className="h-3.5 w-3.5" />
-                  Gợi ý viết câu tự nhiên hơn
-                </h5>
-                <button
-                  onClick={() => handleSpeak(evaluation.suggestedSentence)}
-                  className="p-1 rounded-lg hover:bg-primary/10 text-primary text-xs font-bold flex items-center gap-1 cursor-pointer"
-                >
-                  <Volume2 className="h-3.5 w-3.5" />
-                  Nghe câu gợi ý
-                </button>
-              </div>
-
-              <p className="text-base font-extrabold text-foreground italic">
-                &quot;{evaluation.suggestedSentence}&quot;
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Nghĩa: {evaluation.suggestedSentenceMeaning}
-              </p>
-            </div>
-
-            {/* Action Bar */}
-            <div className="flex items-center justify-between pt-2">
-              <button
-                onClick={() => {
-                  setEvaluation(null);
-                }}
-                className="text-xs font-bold text-muted-foreground hover:text-foreground flex items-center gap-1 cursor-pointer"
-              >
-                <RotateCcw className="h-3.5 w-3.5" />
-                Đặt câu khác cho từ này
-              </button>
-
-              <button
-                onClick={handleNextWord}
-                className="px-6 py-3 rounded-4xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700 transition-all shadow-md flex items-center gap-2 cursor-pointer"
-              >
-                <span>{currentIndex < shuffledWords.length - 1 ? 'Từ tiếp theo' : 'Xem tổng kết bài học'}</span>
-                <ArrowRight className="h-4 w-4" />
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </AnimatePresence>
+        </div>
+      </div>
     </div>
   );
 };

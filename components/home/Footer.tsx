@@ -13,7 +13,7 @@ export default function Footer() {
   if (isTopicPage || isAuthPage) return null;
 
   return (
-    <footer className="w-full py-4 bg-[#0a192f] text-white/70 border-t border-slate-800 mt-20 text-xs shrink-0 select-none">
+    <footer className="w-full py-4 bg-[#0a192f] text-white/70 border-t border-slate-800 mt-4 text-xs shrink-0 select-none">
       <div className="container mx-auto px-4 md:px-8 space-y-4">
         {/* Top layout */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-8 pb-8 border-b border-slate-800">

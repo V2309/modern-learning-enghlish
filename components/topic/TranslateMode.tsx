@@ -42,22 +42,23 @@ export const TranslateMode = ({
   onBackToList,
 }: TranslateModeProps) => {
   return (
-    <motion.div
-      key="translate-mode"
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="max-w-md mx-auto bg-card border border-border p-8 rounded-3xl shadow-sm space-y-6"
-    >
-      {!isTranslateFinished ? (
-        translateQuestions.length > 0 ? (
-          <div className="space-y-6">
-            {/* Header */}
-            <div className="flex justify-between items-center text-xs text-muted-foreground font-bold tracking-wider uppercase">
-              <span>Câu hỏi {translateIndex + 1} / {translateQuestions.length}</span>
-              <span>Điểm số: {translateScore}</span>
-            </div>
-            <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
+    <div className="h-full flex flex-col justify-center py-2">
+      <motion.div
+        key="translate-mode"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="max-w-md mx-auto w-full bg-card border border-border p-5 rounded-2xl shadow-sm space-y-4"
+      >
+        {!isTranslateFinished ? (
+          translateQuestions.length > 0 ? (
+            <div className="space-y-4">
+              {/* Header */}
+              <div className="flex justify-between items-center text-xs text-muted-foreground font-bold tracking-wider uppercase">
+                <span>Câu hỏi {translateIndex + 1} / {translateQuestions.length}</span>
+                <span className="text-primary font-bold">Điểm số: {translateScore}</span>
+              </div>
+              <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
               <div
                 className="h-full bg-primary transition-all"
                 style={{ width: `${((translateIndex + 1) / translateQuestions.length) * 100}%` }}
@@ -191,5 +192,6 @@ export const TranslateMode = ({
         </div>
       )}
     </motion.div>
+    </div>
   );
 };

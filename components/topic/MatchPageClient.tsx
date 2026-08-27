@@ -66,24 +66,25 @@ export default function MatchPageClient() {
       return;
     }
     if (selectedMatch.wordId === clickedCard.wordId && selectedMatch.type !== clickedCard.type) {
-      setMatchingCards((prev) => prev.map((c) => (c.wordId === clickedCard.wordId ? { ...c, isMatched: true, isSelected: false } : c)));
-      setSelectedMatch(null);
-      setTimeout(() => {
-        setMatchingCards((prev) => {
-          const nextCards = prev.filter((c) => c.wordId !== clickedCard.wordId);
-          if (nextCards.length === 0) {
+      const matchWordId = clickedCard.wordId;
+      setMatchingCards((prev) => {
+        const next = prev.map((c) => (c.wordId === matchWordId ? { ...c, isMatched: true, isSelected: false } : c));
+        const allDone = next.every((c) => c.isMatched);
+        if (allDone) {
+          setTimeout(() => {
             setIsMatchFinished(true);
             if (matchIntervalRef.current) window.clearInterval(matchIntervalRef.current);
-          }
-          return nextCards;
-        });
-      }, 1000);
+          }, 600);
+        }
+        return next;
+      });
+      setSelectedMatch(null);
     } else {
       const fId = selectedMatch.id;
       const sId = clickedCard.id;
       setMatchingCards((prev) => prev.map((c) => ((c.id === fId || c.id === sId) ? { ...c, isFailed: true, isSelected: false } : c)));
       setSelectedMatch(null);
-      setTimeout(() => setMatchingCards((prev) => prev.map((c) => ((c.id === fId || c.id === sId) ? { ...c, isFailed: false } : c))), 850);
+      setTimeout(() => setMatchingCards((prev) => prev.map((c) => ((c.id === fId || c.id === sId) ? { ...c, isFailed: false } : c))), 800);
     }
   };
 

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Volume2, Languages, RefreshCw, Sparkles } from 'lucide-react';
+import { Volume2, Languages, RefreshCw, Sparkles, Quote } from 'lucide-react';
 import { Vocabulary } from '@/data/mockData';
 
 export const Flashcard = ({
@@ -18,80 +18,113 @@ export const Flashcard = ({
 }) => {
   return (
     <div
-      className="relative w-full h-[380px] cursor-pointer group"
+      className="relative w-full h-[390px] cursor-pointer group select-none"
       onClick={onFlip}
     >
       <AnimatePresence mode="wait">
         {!isFlipped ? (
+          /* ── Front: Word ── */
           <motion.div
             key="front"
             initial={{ opacity: 0, rotateY: 180 }}
             animate={{ opacity: 1, rotateY: 0 }}
             exit={{ opacity: 0, rotateY: -180 }}
             transition={{ duration: 0.3 }}
-            className="absolute inset-0 w-full h-full p-10 rounded-[2.5rem] bg-card border border-border shadow-2xl flex flex-col items-center justify-center space-y-6 text-foreground backface-hidden"
+            className="absolute inset-0 w-full h-full p-6 sm:p-8 rounded-3xl bg-card border border-border shadow-xl flex flex-col items-center justify-center space-y-4 text-foreground backface-hidden overflow-hidden"
           >
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32" />
-            <span className="px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-bold uppercase tracking-wider border border-primary/20">
-              {word.partOfSpeech}
-            </span>
-            <h1 className="text-6xl md:text-7xl font-bold tracking-tight text-center text-foreground">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
+
+            {word.partOfSpeech && (
+              <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider border border-primary/20">
+                {word.partOfSpeech}
+              </span>
+            )}
+
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-center text-foreground px-4">
               {word.word}
             </h1>
-            <div className="flex items-center gap-4 text-muted-foreground text-sm font-medium mt-4">
-              <Sparkles className="h-4 w-4" />
-              Click to Reveal Meaning
+
+            {word.pronunciation && (
+              <span className="font-mono text-sm sm:text-base text-muted-foreground">
+                {word.pronunciation}
+              </span>
+            )}
+
+            <div className="flex items-center gap-2 text-muted-foreground/70 text-xs font-medium pt-3">
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
+              <span>Nhấn để lật xem nghĩa &amp; ví dụ</span>
             </div>
           </motion.div>
         ) : (
+          /* ── Back: Meaning + Pronunciation + Example ── */
           <motion.div
             key="back"
             initial={{ opacity: 0, rotateY: -180 }}
             animate={{ opacity: 1, rotateY: 0 }}
             exit={{ opacity: 0, rotateY: 180 }}
             transition={{ duration: 0.3 }}
-            className="absolute inset-0 w-full h-full p-10 rounded-[2.5rem] bg-card border border-border shadow-2xl flex flex-col items-center justify-center space-y-8 relative text-foreground backface-hidden"
+            className="absolute inset-0 w-full h-full p-6 rounded-3xl bg-card border border-border shadow-xl flex flex-col justify-between text-foreground backface-hidden overflow-hidden"
           >
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -ml-32 -mb-32" />
-            <div className="absolute top-6 right-6 flex items-center gap-2 text-primary/60 text-xs font-bold uppercase tracking-widest">
-              <RefreshCw className="h-3 w-3" />
-              Click to Hide
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -ml-32 -mb-32 pointer-events-none" />
+
+            {/* Top Bar on Card Back */}
+            <div className="flex items-center justify-between shrink-0">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20">
+                {word.partOfSpeech || 'Từ vựng'}
+              </span>
+              <div className="flex items-center gap-1 text-muted-foreground/70 text-[11px] font-semibold">
+                <RefreshCw className="h-3 w-3" />
+                <span>Nhấn để lật lại</span>
+              </div>
             </div>
-            <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold text-primary mb-1">Meaning</h2>
-              <p className="text-3xl font-medium text-foreground">{word.meaning}</p>
+
+            {/* Center: Meaning & Pronunciation */}
+            <div className="text-center space-y-2 py-1 my-auto">
+              <p className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
+                {word.meaning}
+              </p>
+
               {(word as any).definition && (
-                <p className="text-base italic text-muted-foreground">= {(word as any).definition}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground italic max-w-md mx-auto line-clamp-2">
+                  {(word as any).definition}
+                </p>
               )}
-            </div>
-            <div className="flex flex-col items-center gap-3">
-              <div className="flex items-center gap-2 px-4 py-2 rounded-4xl bg-muted border border-border text-muted-foreground">
-                <Languages className="h-5 w-5 text-primary" />
-                <span className="font-mono text-xl tracking-wide">
+
+              {/* Pronunciation & Audio Pill */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-muted/60 border border-border">
+                <Languages className="h-3.5 w-3.5 text-primary shrink-0" />
+                <span className="font-mono text-xs sm:text-sm tracking-wide text-foreground">
                   {word.pronunciation || '/.../'}
                 </span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    speak(word.word);
+                  }}
+                  className="p-1 rounded-full bg-primary/10 hover:bg-primary text-primary hover:text-white transition-all active:scale-95 cursor-pointer shrink-0 ml-0.5"
+                  title="Phát âm"
+                >
+                  <Volume2 className="h-3.5 w-3.5" />
+                </button>
               </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  speak(word.word);
-                }}
-                className="h-12 w-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all group cursor-pointer"
-              >
-                <Volume2 className="h-6 w-6 group-hover:scale-110 transition-transform" />
-              </button>
             </div>
-            <div className="w-full space-y-2 text-center pt-4 border-t border-border/60 max-h-[140px] overflow-y-auto pr-1">
-              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Example Usage</h4>
-              {(word.examples && word.examples.length > 0 ? word.examples : [word.example]).map((ex, exIdx) => (
-                <p key={exIdx} className="text-sm italic leading-relaxed px-4 text-muted-foreground">
-                  "{ex}"
+
+            {/* Bottom: Example Box (fully visible & fitted) */}
+            {(word.examples && word.examples.length > 0 ? word.examples : [word.example]).some(Boolean) && (
+              <div className="p-3 rounded-2xl bg-muted/40 border border-border/80 text-center space-y-1 shrink-0">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block">
+                  Ví dụ câu mẫu
+                </span>
+                <p className="text-xs sm:text-sm italic font-medium leading-snug text-foreground/90 px-2 line-clamp-3">
+                  &quot;{(word.examples && word.examples.length > 0 ? word.examples[0] : word.example)}&quot;
                 </p>
-              ))}
-            </div>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
     </div>
   );
 };
+

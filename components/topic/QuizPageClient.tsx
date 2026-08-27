@@ -55,6 +55,49 @@ export default function QuizPageClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [words]);
 
+  const autoNextTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  const clearAutoNextTimer = () => {
+    if (autoNextTimerRef.current) {
+      clearTimeout(autoNextTimerRef.current);
+      autoNextTimerRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => clearAutoNextTimer();
+  }, []);
+
+  const handleNext = () => {
+    clearAutoNextTimer();
+    if (currentQuizIndex + 1 < quizQuestions.length) {
+      setCurrentQuizIndex((p) => p + 1);
+      setSelectedQuizAnswer(null);
+      setIsQuizAnswered(false);
+    } else {
+      setIsQuizFinished(true);
+    }
+  };
+
+  const handleCheckAnswer = () => {
+    if (!selectedQuizAnswer || !quizQuestions[currentQuizIndex]) return;
+    setIsQuizAnswered(true);
+    const isCorrect = selectedQuizAnswer === quizQuestions[currentQuizIndex].correct;
+    if (isCorrect) {
+      setQuizScore((p) => p + 1);
+      playCorrectSound();
+      clearAutoNextTimer();
+      autoNextTimerRef.current = setTimeout(() => {
+        handleNext();
+      }, 1300); // Auto advance after 1.3 seconds
+    }
+  };
+
+  const handleRestart = () => {
+    clearAutoNextTimer();
+    initQuizGame();
+  };
+
   return (
     <QuizMode
       quizQuestions={quizQuestions}
@@ -64,25 +107,13 @@ export default function QuizPageClient() {
       quizScore={quizScore}
       isQuizFinished={isQuizFinished}
       onSelectAnswer={setSelectedQuizAnswer}
-      onCheckAnswer={() => {
-        if (!selectedQuizAnswer) return;
-        setIsQuizAnswered(true);
-        if (selectedQuizAnswer === quizQuestions[currentQuizIndex].correct) {
-          setQuizScore((p) => p + 1);
-          playCorrectSound();
-        }
+      onCheckAnswer={handleCheckAnswer}
+      onNext={handleNext}
+      onRestart={handleRestart}
+      onBackToList={() => {
+        clearAutoNextTimer();
+        router.push(`/vocabulary/topic/${topicId}`);
       }}
-      onNext={() => {
-        if (currentQuizIndex + 1 < quizQuestions.length) {
-          setCurrentQuizIndex((p) => p + 1);
-          setSelectedQuizAnswer(null);
-          setIsQuizAnswered(false);
-        } else {
-          setIsQuizFinished(true);
-        }
-      }}
-      onRestart={initQuizGame}
-      onBackToList={() => router.push(`/vocabulary/topic/${topicId}`)}
     />
   );
 }

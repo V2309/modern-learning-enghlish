@@ -3,19 +3,38 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { PlayCircle, Clock, BookOpen, Search, Plus, MoreVertical, Pencil, Trash2, ArrowUpDown, Check, Video, Info } from 'lucide-react';
+import {
+  Play,
+  PlayCircle,
+  Clock,
+  BookOpen,
+  Search,
+  Plus,
+  MoreVertical,
+  Pencil,
+  Trash2,
+  Check,
+  Video,
+  Sparkles,
+  ArrowRight,
+  X,
+  CheckCircle2,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AddShadowingModal } from '@/components/shadowing/AddShadowingModal';
 import { EditShadowingModal } from '@/components/shadowing/EditShadowingModal';
-import { createShadowingVideoAction, updateShadowingVideoAction, deleteShadowingVideoAction } from '@/actions/shadowing.action';
+import {
+  createShadowingVideoAction,
+  updateShadowingVideoAction,
+  deleteShadowingVideoAction,
+} from '@/actions/shadowing.action';
 import { parseYouTubeUrl } from '@/components/course/AddLessonModal';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import Pagination from '@/components/Pagination';
 import SortMenuButton from '@/components/SortMenuButton';
-import { useUser } from '@clerk/nextjs';
 import { toast } from 'react-hot-toast';
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 9;
 
 interface ShadowingListClientProps {
   initialShadowings: any[];
@@ -26,26 +45,30 @@ interface ShadowingListClientProps {
 
 export type ShadowingSortKey = 'newest' | 'oldest' | 'az' | 'za';
 
-export default function ShadowingListClient({ initialShadowings, userId, isAdmin = false, completedVideoIds = [] }: ShadowingListClientProps) {
+export default function ShadowingListClient({
+  initialShadowings,
+  userId,
+  isAdmin = false,
+  completedVideoIds = [],
+}: ShadowingListClientProps) {
   const [shadowings, setShadowings] = useState<any[]>(initialShadowings);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [sortKey, setSortKey] = useState<ShadowingSortKey>('newest');
-  
+
   // Modals state
   const [showAddModal, setShowAddModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  
+
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingShadowing, setEditingShadowing] = useState<any | null>(null);
   const [editForm, setEditForm] = useState({ title: '', videoUrl: '', description: '', transcript: '' });
-  
+
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingShadowing, setDeletingShadowing] = useState<any | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  
+
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Close menus on click outside
@@ -86,7 +109,7 @@ export default function ShadowingListClient({ initialShadowings, userId, isAdmin
       description: form.description,
       videoUrl: form.videoUrl,
       transcript: form.transcript,
-      createdByUserId: userId
+      createdByUserId: userId,
     });
     setIsSaving(false);
 
@@ -159,35 +182,55 @@ export default function ShadowingListClient({ initialShadowings, userId, isAdmin
   ];
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold text-foreground">Shadowing Videos</h1>
-            <span className="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
-              {shadowings.length} bài luyện
+    <div className=" px-4 py-8 space-y-8">
+      {/* ── Header: Asymmetric Hero / Action Row ── */}
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b border-border/70">
+        <div className="space-y-2 max-w-2xl">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider border border-primary/20">
+              Luyện phát âm &amp; Ngữ điệu
             </span>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+              <span>{shadowings.length} bài học</span>
+              <span>•</span>
+              <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                {completedVideoIds.length} đã xong
+              </span>
+            </div>
           </div>
-          <p className="text-muted-foreground text-lg">
-            Luyện phát âm chuẩn Mỹ & tốc độ nói tiếng Anh thông qua phim ảnh, tin tức thực tế.
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
+            Luyện nói Shadowing
+          </h1>
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+            Luyện phản xạ, phát âm chuẩn Mỹ và ngữ điệu tự nhiên qua video thực tế kèm phụ đề song ngữ đồng bộ theo từng giây.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="relative group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-all" />
+        {/* Search, Sort & Action Controls */}
+        <div className="flex flex-wrap items-center gap-3 shrink-0">
+          <div className="relative">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
             <input
               type="text"
-              placeholder="Tìm bài học shadowing..."
+              placeholder="Tìm bài học..."
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
                 setCurrentPage(1);
               }}
-              className="pl-12 pr-6 py-3 w-full md:w-80 bg-muted border border-border rounded-4xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground"
+              className="pl-9.5 pr-8 py-2 w-56 sm:w-64 bg-card border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-xs font-medium text-foreground placeholder:text-muted-foreground/70 shadow-2xs"
             />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
+
           <SortMenuButton
             options={SORT_OPTIONS}
             value={sortKey}
@@ -196,86 +239,102 @@ export default function ShadowingListClient({ initialShadowings, userId, isAdmin
               setCurrentPage(1);
             }}
           />
+
           {isAdmin && (
             <button
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-2 px-4 py-3 rounded-4xl bg-primary text-white font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 cursor-pointer"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary/95 transition-all shadow-sm shadow-primary/20 cursor-pointer"
             >
-              <Plus className="h-5 w-5" />
-              Thêm video mới
+              <Plus className="h-4 w-4" />
+              <span>Thêm video mới</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* Grid */}
+      {/* ── Video Grid (3 Columns) ── */}
       {paginated.length > 0 ? (
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {paginated.map((shadowing) => {
             const yt = parseYouTubeUrl(shadowing.videoUrl);
-            const isCreatedByMe = shadowing.createdByUserId === userId;
+            const isCompleted = completedVideoIds.includes(shadowing.id);
             const isMenuOpen = openMenuId === shadowing.id;
 
             return (
               <motion.div
                 key={shadowing.id}
-                layout
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="group relative flex flex-col bg-card border border-border rounded-3xl overflow-hidden shadow-sm hover:shadow-md hover:border-primary/50 transition-all hover:bg-muted/50 duration-300"
+                transition={{ duration: 0.2 }}
+                className="group relative flex flex-col bg-card border border-border/80 rounded-2xl overflow-hidden shadow-xs hover:shadow-lg hover:border-primary/40 transition-all duration-300"
               >
-                {/* Image / Thumbnail Container */}
-                <div className="aspect-video relative overflow-hidden bg-black shrink-0">
+                {/* ── Video Thumbnail with Overlay ── */}
+                <Link
+                  href={`/shadowing/${shadowing.id}`}
+                  className="aspect-video relative overflow-hidden bg-zinc-950 block shrink-0 cursor-pointer"
+                >
                   {yt ? (
                     <img
                       src={`https://img.youtube.com/vi/${yt.videoId}/hqdefault.jpg`}
                       alt={shadowing.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
                     />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-primary/10 to-indigo-500/10 flex items-center justify-center">
-                      <Video className="h-12 w-12 text-primary/40" />
+                      <Video className="h-10 w-10 text-primary/40" />
                     </div>
                   )}
 
-                  {/* Play badge */}
-                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <PlayCircle className="h-16 w-16 text-white drop-shadow-lg" />
-                  </div>
+                  {/* Gradient Scrim */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/30 group-hover:from-black/60 transition-all duration-300" />
 
-                  {/* Badges */}
-                  <div className="absolute top-4 left-4 flex flex-wrap gap-1.5">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-white bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full">
-                      {yt ? 'YouTube' : 'Direct Video'}
+                  {/* Badges Top Row */}
+                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-white/95 bg-black/50 backdrop-blur-md px-2.5 py-1 rounded-md flex items-center gap-1 border border-white/10">
+                      {yt ? <Play className="h-3 w-3 text-rose-400 fill-rose-400" /> : <Video className="h-3 w-3 text-sky-400" />}
+                      <span>{yt ? 'YouTube' : 'Video'}</span>
                     </span>
-                    {completedVideoIds.includes(shadowing.id) && (
-                      <span className="text-[10px] font-black uppercase tracking-widest text-white bg-emerald-500 px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
-                        <Check className="h-3 w-3" /> Đã hoàn thành
+
+                    {isCompleted && (
+                      <span className="text-[10px] font-bold text-white bg-emerald-500/90 backdrop-blur-md px-2.5 py-1 rounded-md flex items-center gap-1 shadow-sm border border-emerald-400/30">
+                        <Check className="h-3 w-3" />
+                        <span>Đã xong</span>
                       </span>
                     )}
                   </div>
-                </div>
 
-                {/* Content */}
-                <div className="p-8 flex-1 flex flex-col justify-between space-y-6">
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-4">
+                  {/* Center Play Button Overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full bg-primary/90 text-white flex items-center justify-center shadow-lg shadow-primary/30 group-hover:scale-110 group-hover:bg-primary transition-all duration-300">
+                      <Play className="h-5 w-5 fill-white translate-x-0.5" />
+                    </div>
+                  </div>
+                </Link>
+
+                {/* ── Card Content ── */}
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-start justify-between gap-2">
                       <Link
                         href={`/shadowing/${shadowing.id}`}
-                        className="text-xl font-bold text-foreground line-clamp-2 hover:text-primary transition-colors underline decoration-transparent group-hover:decoration-primary/30 group-hover:underline-offset-4"
+                        className="text-base font-bold text-foreground line-clamp-2 hover:text-primary transition-colors leading-snug group-hover:text-primary"
+                        title={shadowing.title}
                       >
                         {shadowing.title}
                       </Link>
 
-                      {/* Admin action button */}
+                      {/* Admin 3-Dots Menu */}
                       {isAdmin && (
                         <div className="relative shrink-0" ref={openMenuId === shadowing.id ? menuRef : null}>
                           <button
+                            type="button"
                             onClick={(e) => {
+                              e.preventDefault();
                               e.stopPropagation();
                               setOpenMenuId(isMenuOpen ? null : shadowing.id);
                             }}
-                            className="p-1.5 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+                            className="p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+                            title="Tùy chọn"
                           >
                             <MoreVertical className="h-4 w-4" />
                           </button>
@@ -286,19 +345,19 @@ export default function ShadowingListClient({ initialShadowings, userId, isAdmin
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.95 }}
-                                className="absolute right-0 mt-1 w-36 bg-card border border-border rounded-xl shadow-xl z-10 overflow-hidden"
+                                className="absolute right-0 mt-1 w-36 bg-card border border-border rounded-xl shadow-xl z-20 overflow-hidden"
                               >
-                                <div className="p-1.5 space-y-1">
+                                <div className="p-1 space-y-0.5">
                                   <button
                                     onClick={() => openEdit(shadowing)}
-                                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors cursor-pointer"
+                                    className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors cursor-pointer"
                                   >
                                     <Pencil className="h-3.5 w-3.5" />
                                     Chỉnh sửa
                                   </button>
                                   <button
                                     onClick={() => openDelete(shadowing)}
-                                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-red-500 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
+                                    className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-rose-500 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
                                   >
                                     <Trash2 className="h-3.5 w-3.5" />
                                     Xoá video
@@ -312,20 +371,26 @@ export default function ShadowingListClient({ initialShadowings, userId, isAdmin
                     </div>
 
                     {shadowing.description ? (
-                      <p className="text-muted-foreground text-xs leading-relaxed line-clamp-3">
+                      <p className="text-muted-foreground text-xs leading-relaxed line-clamp-2">
                         {shadowing.description}
                       </p>
                     ) : (
-                      <p className="text-muted-foreground/40 text-xs italic">Không có mô tả cho bài học này.</p>
+                      <p className="text-muted-foreground/50 text-xs italic">Không có mô tả bổ sung.</p>
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between pt-4 border-t border-border/60 text-[10px] font-bold text-muted-foreground">
-                    <div className="flex items-center gap-1.5">
-                      <BookOpen className="h-3.5 w-3.5 text-primary" />
-                      <span>{shadowing.createdByUser?.name || 'Học viên'}</span>
-                    </div>
-                    <span>{new Date(shadowing.createdAt).toLocaleDateString('vi-VN')}</span>
+                  {/* Card Bottom Meta & Action */}
+                  <div className="pt-3 border-t border-border/70 flex items-center justify-between text-xs">
+                    <span className="text-[11px] text-muted-foreground">
+                      {new Date(shadowing.createdAt).toLocaleDateString('vi-VN')}
+                    </span>
+                    <Link
+                      href={`/shadowing/${shadowing.id}`}
+                      className="inline-flex items-center gap-1 text-xs font-bold text-primary group-hover:translate-x-0.5 transition-transform"
+                    >
+                      <span>Luyện ngay</span>
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
                   </div>
                 </div>
               </motion.div>
@@ -333,20 +398,33 @@ export default function ShadowingListClient({ initialShadowings, userId, isAdmin
           })}
         </div>
       ) : (
-        <div className="bg-card border border-border/80 p-16 rounded-4xl text-center space-y-4">
-          <div className="h-16 w-16 bg-primary/10 rounded-3xl flex items-center justify-center text-primary mx-auto">
-            <Video className="h-8 w-8" />
+        /* Empty State */
+        <div className="bg-card border border-border/80 p-12 sm:p-16 rounded-2xl text-center space-y-3.5 max-w-md mx-auto">
+          <div className="h-12 w-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mx-auto">
+            <Video className="h-6 w-6" />
           </div>
-          <h3 className="text-xl font-bold text-foreground">Không tìm thấy bài luyện Shadowing</h3>
-          <p className="text-muted-foreground text-sm max-w-sm mx-auto">
-            Hãy thử tìm bằng từ khóa khác hoặc nhấp vào "Thêm video mới" để tạo bài luyện nói đầu tiên!
-          </p>
+          <div className="space-y-1">
+            <h3 className="text-base font-bold text-foreground">Không tìm thấy bài luyện Shadowing</h3>
+            <p className="text-xs text-muted-foreground">
+              {searchQuery
+                ? `Không có kết quả nào khớp với "${searchQuery}". Hãy thử từ khóa khác!`
+                : 'Chưa có bài luyện nào. Nhấn "+ Thêm video mới" để bắt đầu!'}
+            </p>
+          </div>
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="text-xs font-bold text-primary hover:underline"
+            >
+              Xóa bộ lọc tìm kiếm
+            </button>
+          )}
         </div>
       )}
 
-      {/* Pagination */}
+      {/* ── Pagination ── */}
       {totalPages > 1 && (
-        <div className="mt-12 flex justify-center w-full">
+        <div className="pt-4 flex justify-center w-full">
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -357,7 +435,7 @@ export default function ShadowingListClient({ initialShadowings, userId, isAdmin
         </div>
       )}
 
-      {/* Add Modal */}
+      {/* ── Add Modal ── */}
       <AddShadowingModal
         show={showAddModal}
         isSaving={isSaving}
@@ -365,7 +443,7 @@ export default function ShadowingListClient({ initialShadowings, userId, isAdmin
         onSave={handleCreateShadowing}
       />
 
-      {/* Edit Modal */}
+      {/* ── Edit Modal ── */}
       <EditShadowingModal
         show={showEditModal}
         form={editForm}
@@ -378,10 +456,10 @@ export default function ShadowingListClient({ initialShadowings, userId, isAdmin
         onChange={(field, val) => setEditForm((p) => ({ ...p, [field]: val }))}
       />
 
-      {/* Delete Modal */}
+      {/* ── Delete Modal ── */}
       <ConfirmDeleteModal
         show={showDeleteModal}
-        title={`Xoá video Shadowing "${deletingShadowing?.title}"?`}
+        title={`Xoá video "${deletingShadowing?.title}"?`}
         description="Dữ liệu và tiến trình bài shadowing này sẽ bị xoá vĩnh viễn khỏi hệ thống."
         isLoading={isDeleting}
         onConfirm={handleDeleteShadowing}
@@ -393,3 +471,4 @@ export default function ShadowingListClient({ initialShadowings, userId, isAdmin
     </div>
   );
 }
+

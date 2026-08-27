@@ -160,7 +160,7 @@ export const DictationMode = ({
               <button
                 type="button"
                 onClick={() => setShowMeaning((v) => !v)}
-                className="text-xs font-bold text-primary hover:underline cursor-pointer flex items-center gap-1"
+                className="text-sm font-bold text-primary hover:underline cursor-pointer flex items-center gap-1"
               >
                 {showMeaning ? <EyeOff size={12} /> : <Eye size={12} />}
                 {showMeaning ? 'Ẩn nghĩa' : 'Hiện nghĩa'}
@@ -170,7 +170,7 @@ export const DictationMode = ({
                 type="button"
                 onClick={() => setShowAnswer((v) => !v)}
                 className={cn(
-                  'text-xs font-bold cursor-pointer flex items-center gap-1 transition-colors',
+                  'text-sm font-bold cursor-pointer flex items-center gap-1 transition-colors',
                   showAnswer ? 'text-amber-600' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
@@ -186,7 +186,7 @@ export const DictationMode = ({
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden text-xs font-semibold text-foreground leading-tight"
+                  className="overflow-hidden text-sm font-semibold text-foreground leading-tight"
                 >
                   {currentWord.meaning}
                 </motion.p>
@@ -197,7 +197,7 @@ export const DictationMode = ({
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden text-xs font-bold text-amber-600 tracking-wide"
+                  className="overflow-hidden text-sm font-bold text-amber-600 tracking-wide"
                 >
                   📖 {currentWord.word}
                 </motion.p>

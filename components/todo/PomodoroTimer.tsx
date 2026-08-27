@@ -90,6 +90,8 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const completedRef = useRef(false);
   const hydratedRef = useRef(false); // prevent persisting before restore
+  const modeRef = useRef<Mode>(mode);
+  modeRef.current = mode;
 
   // ── Restore from localStorage AFTER hydration (useEffect = client-only) ────
   useEffect(() => {
@@ -105,6 +107,7 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
       if (remaining > 0) {
         // Session was running while page was reloaded — resume
         setMode(saved.mode);
+        modeRef.current = saved.mode;
         baseSecondsRef.current = remaining;
         startTimeRef.current = Date.now();
         setTimeLeft(remaining);
@@ -113,16 +116,19 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
         // Session expired while page was closed — reset
         clearState();
         setMode(saved.mode);
+        modeRef.current = saved.mode;
         setTimeLeft(MODES[saved.mode].seconds);
         baseSecondsRef.current = MODES[saved.mode].seconds;
       }
     } else if (!saved.running && saved.baseSeconds !== MODES[saved.mode].seconds) {
       // Was paused mid-session — restore paused state
       setMode(saved.mode);
+      modeRef.current = saved.mode;
       baseSecondsRef.current = saved.baseSeconds;
       setTimeLeft(saved.baseSeconds);
     } else if (saved.mode !== 'work') {
       setMode(saved.mode);
+      modeRef.current = saved.mode;
       setTimeLeft(MODES[saved.mode].seconds);
       baseSecondsRef.current = MODES[saved.mode].seconds;
     }
@@ -147,6 +153,9 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
   const CIRC = 2 * Math.PI * R;
   const dash = (pct / 100) * CIRC;
 
+  // ── Forward declaration ref for tick to always call latest handler ────────
+  const sessionCompleteRef = useRef<() => void>(() => {});
+
   // ── Timestamp-based tick ─────────────────────────────────────────────────
   const tick = useCallback(() => {
     if (!startTimeRef.current) return;
@@ -158,12 +167,12 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
       setTimeLeft(0);
       if (!completedRef.current) {
         completedRef.current = true;
-        handleSessionComplete();
+        sessionCompleteRef.current();
       }
     } else {
       setTimeLeft(remaining);
     }
-  }, []); // eslint-disable-line
+  }, []);
 
   useEffect(() => {
     if (running) {
@@ -206,10 +215,25 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
 
   // ── Handlers ─────────────────────────────────────────────────────────────
 
+  const switchMode = useCallback((newMode: Mode) => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    startTimeRef.current = null;
+    completedRef.current = false;
+    setRunning(false);
+    setMode(newMode);
+    modeRef.current = newMode;
+    const secs = MODES[newMode].seconds;
+    setTimeLeft(secs);
+    baseSecondsRef.current = secs;
+    saveState({ mode: newMode, running: false, startTime: null, baseSeconds: secs });
+  }, []);
+
   const handleSessionComplete = useCallback(async () => {
     setRunning(false);
     startTimeRef.current = null;
     clearState();
+
+    const currentMode = modeRef.current;
 
     try {
       const ctx = new AudioContext();
@@ -227,7 +251,7 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
       osc.stop(ctx.currentTime + 0.5);
     } catch (_) {}
 
-    if (mode === 'work') {
+    if (currentMode === 'work') {
       const duration = MODES.work.seconds;
       const res = await savePomodoroSessionAction(userId, duration, 'work');
       if (res.success) {
@@ -238,27 +262,18 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
           allTimeSessions: prev.allTimeSessions + 1,
           allTimeMinutes: prev.allTimeMinutes + addedMins,
         }));
-        toast.success('🍅 Hoàn thành 1 Pomodoro! Hãy nghỉ ngơi nhé.');
+        toast.success('🍅 Hoàn thành 1 phiên tập trung (25 phút)! Hãy nghỉ ngơi nhé.');
       }
+      switchMode('short');
     } else {
-      toast.success('☕ Hết giờ nghỉ! Sẵn sàng tập trung chưa?');
+      const duration = MODES[currentMode].seconds;
+      await savePomodoroSessionAction(userId, duration, 'break');
+      toast.success('☕ Hết giờ nghỉ ngơi! Sẵn sàng cho phiên tập trung mới nhé.');
+      switchMode('work');
     }
+  }, [userId, switchMode]);
 
-    if (mode === 'work') switchMode('short');
-    else switchMode('work');
-  }, [mode, userId]); // eslint-disable-line
-
-  const switchMode = (newMode: Mode) => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    startTimeRef.current = null;
-    completedRef.current = false;
-    setRunning(false);
-    setMode(newMode);
-    const secs = MODES[newMode].seconds;
-    setTimeLeft(secs);
-    baseSecondsRef.current = secs;
-    saveState({ mode: newMode, running: false, startTime: null, baseSeconds: secs });
-  };
+  sessionCompleteRef.current = handleSessionComplete;
 
   const handleStart = () => setRunning((r) => !r);
 
