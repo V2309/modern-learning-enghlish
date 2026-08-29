@@ -7,7 +7,6 @@ import { Vocabulary } from '@/data/mockData';
 import { Flashcard } from './Flashcard';
 import { submitSrsReviewAction } from '@/actions/srs.action';
 import { SrsRating } from '@/services/srs.service';
-import { toast } from 'react-hot-toast';
 
 interface FlashcardModeProps {
   words: (Vocabulary & { mastered?: boolean })[];
@@ -25,20 +24,14 @@ export const FlashcardMode = ({
   onSetMasterStatus,
 }: FlashcardModeProps) => {
   const [isFlipped, setIsFlipped] = useState(false);
-  const [shuffledWords, setShuffledWords] = useState(() => [...words]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Sync when words list changes
-  useEffect(() => {
-    setShuffledWords([...words]);
-  }, [words]);
 
   // Reset flip state when card changes
   useEffect(() => {
     setIsFlipped(false);
   }, [flashcardIndex]);
 
-  const currentWord = shuffledWords[flashcardIndex];
+  const currentWord = words[flashcardIndex];
 
   const handleSrsRate = async (rating: SrsRating) => {
     if (!currentWord || isSubmitting) return;
@@ -54,21 +47,14 @@ export const FlashcardMode = ({
 
     try {
       await submitSrsReviewAction(currentWord.id, rating);
-      const labels: Record<SrsRating, string> = {
-        again: '🔴 Ôn lại sau 10 phút',
-        hard: '🟠 Ôn lại sau 1 ngày',
-        good: '🔵 Ôn lại sau 3 ngày',
-        easy: '🟢 Ôn lại sau 7 ngày',
-      };
-      toast.success(labels[rating], { duration: 1500, position: 'bottom-center' });
     } catch (e) {
       console.error(e);
     } finally {
       setIsSubmitting(false);
     }
 
-    // Auto advance to next card
-    if (flashcardIndex < shuffledWords.length - 1) {
+    // Advance to next card in the fixed topic list
+    if (flashcardIndex < words.length - 1) {
       setFlashcardIndex((prev) => prev + 1);
     }
   };
@@ -83,7 +69,7 @@ export const FlashcardMode = ({
         setFlashcardIndex((prev) => Math.max(0, prev - 1));
       } else if (e.code === 'ArrowRight') {
         e.preventDefault();
-        setFlashcardIndex((prev) => Math.min(shuffledWords.length - 1, prev + 1));
+        setFlashcardIndex((prev) => Math.min(words.length - 1, prev + 1));
       } else if (e.key === '1') {
         e.preventDefault();
         handleSrsRate('again');
@@ -101,9 +87,9 @@ export const FlashcardMode = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [shuffledWords, flashcardIndex]);
+  }, [words, flashcardIndex]);
 
-  if (shuffledWords.length === 0) {
+  if (words.length === 0) {
     return (
       <p className="text-center text-muted-foreground italic">
         Chưa có từ vựng nào để luyện flashcard.
@@ -122,13 +108,13 @@ export const FlashcardMode = ({
       >
         <div className="text-center space-y-1">
           <p className="text-xs font-semibold text-muted-foreground">
-            Thẻ {flashcardIndex + 1} / {shuffledWords.length}
+            Thẻ {flashcardIndex + 1} / {words.length}
           </p>
 
           <div className="w-40 h-1.5 bg-muted rounded-full mx-auto overflow-hidden">
             <div
               className="h-full bg-brand transition-all duration-300"
-              style={{ width: `${((flashcardIndex + 1) / shuffledWords.length) * 100}%` }}
+              style={{ width: `${((flashcardIndex + 1) / words.length) * 100}%` }}
             />
           </div>
         </div>
@@ -141,7 +127,7 @@ export const FlashcardMode = ({
             onDragEnd={(e, info) => {
               const swipeThreshold = 60;
               if (info.offset.x < -swipeThreshold) {
-                if (flashcardIndex < shuffledWords.length - 1) {
+                if (flashcardIndex < words.length - 1) {
                   setFlashcardIndex((prev) => prev + 1);
                 }
               } else if (info.offset.x > swipeThreshold) {
@@ -180,8 +166,8 @@ export const FlashcardMode = ({
             </button>
 
             <button
-              onClick={() => setFlashcardIndex((prev) => Math.min(shuffledWords.length - 1, prev + 1))}
-              disabled={flashcardIndex === shuffledWords.length - 1}
+              onClick={() => setFlashcardIndex((prev) => Math.min(words.length - 1, prev + 1))}
+              disabled={flashcardIndex === words.length - 1}
               title="Thẻ tiếp theo (→)"
               className="p-2.5 rounded-full bg-muted border border-border text-foreground hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-xs cursor-pointer"
             >
