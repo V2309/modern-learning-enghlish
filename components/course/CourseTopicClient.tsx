@@ -357,7 +357,7 @@ export default function CourseTopicClient({
         className={cn(
           'rounded-2xl border transition-all overflow-hidden',
           isCurrentLesson
-            ? 'border-primary/50 bg-primary/5 shadow-sm ring-1 ring-primary/20'
+            ? 'border-brand/40 bg-brand/5 shadow-xs ring-1 ring-brand/20'
             : 'border-border/60 bg-card/70 hover:border-border hover:bg-card'
         )}
       >
@@ -377,7 +377,7 @@ export default function CourseTopicClient({
           }}
           className={cn(
             'w-full flex items-center justify-between p-3.5 text-left cursor-pointer transition-colors select-none group',
-            isCurrentLesson ? 'bg-primary/10' : 'hover:bg-muted/40'
+            isCurrentLesson ? 'bg-brand/10' : 'hover:bg-muted/40'
           )}
         >
           <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -387,7 +387,7 @@ export default function CourseTopicClient({
                 isLessonCompleted
                   ? 'bg-emerald-500 text-white shadow-xs'
                   : isCurrentLesson
-                  ? 'bg-primary text-white shadow-xs'
+                  ? 'bg-primary text-primary-foreground shadow-xs'
                   : 'bg-muted text-muted-foreground group-hover:bg-muted-foreground/20'
               )}
             >
@@ -398,14 +398,14 @@ export default function CourseTopicClient({
               <h4
                 className={cn(
                   'font-bold text-xs md:text-sm truncate transition-colors',
-                  isCurrentLesson ? 'text-primary font-black' : 'text-foreground'
+                  isCurrentLesson ? 'text-brand font-black' : 'text-foreground'
                 )}
               >
                 {formatLessonName(lesson.title, lessonIdx)}
               </h4>
               <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-semibold mt-0.5">
                 <span className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
+                  <Clock className="h-3 w-3 text-brand" />
                   {lesson.duration || '10:00'}
                 </span>
                 <span>•</span>
@@ -414,7 +414,7 @@ export default function CourseTopicClient({
                     isLessonCompleted
                       ? 'text-emerald-600 dark:text-emerald-400 font-bold'
                       : isCurrentLesson
-                      ? 'text-primary font-bold'
+                      ? 'text-brand font-bold'
                       : ''
                   )}
                 >
@@ -537,49 +537,49 @@ export default function CourseTopicClient({
   const renderSidebarContent = () => (
     <div className="space-y-6">
       {/* Course Navigation Header */}
-      <div className="p-6 md:p-7 rounded-[2.5rem] bg-card border border-border space-y-6 shadow-sm">
+      <div className="p-5 md:p-6 rounded-3xl bg-card border border-border/80 space-y-5 shadow-xs">
         {/* Topic Title and Topic Section Indicator */}
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black text-primary uppercase tracking-wider bg-primary/10 px-2.5 py-1 rounded-lg">
+            <span className="text-[10px] font-black text-brand uppercase tracking-wider bg-brand/10 px-2.5 py-1 rounded-md border border-brand/20">
               Phần {partNumber}
             </span>
-            <span className="text-xs font-black text-muted-foreground bg-muted px-2.5 py-1 rounded-full">
+            <span className="text-xs font-bold text-muted-foreground bg-muted px-2.5 py-0.5 rounded-md border border-border/40">
               {totalTopicLessons} bài học
             </span>
           </div>
-          <h3 className="text-base md:text-lg font-black text-foreground flex items-center gap-2 pt-1">
-            <BookOpen className="h-5 w-5 text-primary shrink-0" />
+          <h3 className="text-sm md:text-base font-bold text-foreground flex items-center gap-2 pt-1">
+            <BookOpen className="h-4 w-4 text-brand shrink-0" />
             <span className="truncate">{topic.title}</span>
           </h3>
         </div>
 
         {/* Topic Progress Bar Widget */}
-        <div className="p-4 md:p-5 rounded-2xl bg-muted/30 border border-border space-y-3">
+        <div className="p-4 rounded-2xl bg-brand/5 border border-brand/20 space-y-2.5">
           <div className="flex items-center justify-between">
-            <h4 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
-              <CheckCircle2 className="h-4 w-4 text-primary" />
-              Course Progress
+            <h4 className="text-xs font-bold text-brand uppercase tracking-wider flex items-center gap-1.5">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              Tiến Độ Phần Học
             </h4>
-            <span className="text-xs font-bold text-primary">{topicProgressPercent}%</span>
+            <span className="text-xs font-black text-brand">{topicProgressPercent}%</span>
           </div>
 
-          <div className="h-2.5 w-full bg-muted rounded-full overflow-hidden p-0.5">
+          <div className="h-2 w-full bg-brand/15 rounded-full overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${topicProgressPercent}%` }}
               transition={{ duration: 0.8, ease: 'easeOut' }}
-              className="h-full bg-gradient-to-r from-primary to-emerald-500 rounded-full"
+              className="h-full bg-brand rounded-full"
             />
           </div>
 
           <div className="flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
             <span>
-              <strong className="text-foreground font-black">{completedTopicLessons}</strong> / {totalTopicLessons} lessons completed
+              <strong className="text-foreground font-black">{completedTopicLessons}</strong> / {totalTopicLessons} bài đã học
             </span>
             {completedTopicLessons === totalTopicLessons && totalTopicLessons > 0 && (
               <span className="text-emerald-600 dark:text-emerald-400 font-extrabold flex items-center gap-1">
-                <CheckCircle2 className="h-3.5 w-3.5" /> Completed
+                <CheckCircle2 className="h-3.5 w-3.5" /> Hoàn thành
               </span>
             )}
           </div>
@@ -632,12 +632,12 @@ export default function CourseTopicClient({
   );
 
   return (
-    <div className="container mx-auto px-4 py-6 md:py-8 relative">
+    <div className="w-full relative">
       {/* ── Top Header Navigation ── */}
       <div className="flex items-center justify-between mb-6">
         <Link
           href={courseBasePath}
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors group"
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-brand transition-colors group"
         >
           <ChevronLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
           <span className="text-xs md:text-sm font-semibold truncate max-w-[220px] sm:max-w-md">
@@ -651,7 +651,7 @@ export default function CourseTopicClient({
             onClick={() => setIsMobileDrawerOpen(true)}
             className="lg:hidden flex items-center gap-2 px-3.5 py-2 border border-border bg-card rounded-xl text-xs font-bold text-foreground hover:bg-muted transition-all shadow-xs cursor-pointer"
           >
-            <BookOpen className="h-4 w-4 text-primary" />
+            <BookOpen className="h-4 w-4 text-brand" />
             <span>Bài học ({completedTopicLessons}/{totalTopicLessons})</span>
           </button>
 
@@ -660,7 +660,7 @@ export default function CourseTopicClient({
             onClick={() => setIsDesktopSidebarOpen(!isDesktopSidebarOpen)}
             className="hidden lg:flex items-center gap-2 px-4 py-2 border border-border bg-card rounded-xl text-xs font-bold text-foreground hover:bg-muted transition-all shadow-xs cursor-pointer"
           >
-            <Menu className="h-4 w-4 text-primary" />
+            <Menu className="h-4 w-4 text-brand" />
             <span>{isDesktopSidebarOpen ? 'Cinema View (Ẩn mục lục)' : 'Hiện mục lục'}</span>
           </button>
         </div>

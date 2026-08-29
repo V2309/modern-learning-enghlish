@@ -6,14 +6,11 @@ import { usePathname } from 'next/navigation';
 export function MainLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  // Full-bleed routes that manage their own section backgrounds or full-height sidebars
+  // Full-bleed routes that manage their own full-screen layouts or custom sidebar viewports
   const isFullBleed =
     pathname === '/' ||
     pathname?.startsWith('/vocabulary/topic/') ||
-    pathname?.startsWith('/my-courses/') ||
-    pathname?.startsWith('/auth') ||
-    pathname?.startsWith('/dictation/') ||
-    pathname?.startsWith('/shadowing/');
+    pathname?.startsWith('/auth');
 
   if (isFullBleed) {
     return <main className="flex-1 w-full">{children}</main>;

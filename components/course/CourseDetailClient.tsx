@@ -457,20 +457,20 @@ export default function CourseDetailClient({
           </div>
         </div>
       ) : (
-        /* Render original layout for /my-courses/[id] */
+        /* Render upgraded syllabus layout for /my-courses/[id] */
         <div className="space-y-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-extrabold text-foreground flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-primary" />
-              Nội dung khóa học
+          <div className="flex items-center justify-between border-b border-border/60 pb-3 mb-4">
+            <h2 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-brand" />
+              <span>Chương Trình & Nội Dung Khóa Học</span>
             </h2>
-            <span className="text-xs font-bold text-muted-foreground bg-muted px-3 py-1.5 rounded-full">
-              {totalLessons} bài · {topics.length} chủ đề
+            <span className="text-xs font-bold text-brand bg-brand/10 border border-brand/20 px-3 py-1 rounded-full">
+              {totalLessons} bài giảng · {topics.length} chủ đề
             </span>
           </div>
 
           {hasTopics && (
-            <div className="space-y-4">
+            <div className="space-y-3.5">
               {topics.map((topic, idx) => {
                 const prog = getTopicProgress(topic);
                 const isComplete = prog.total > 0 && prog.completed === prog.total;
@@ -479,35 +479,48 @@ export default function CourseDetailClient({
                     key={topic.id}
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.05 }}
+                    transition={{ delay: idx * 0.04 }}
                   >
                     <Link
                       href={`${courseBasePath}/${topic.id}`}
-                      className="group flex items-center gap-5 p-5 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-md hover:shadow-primary/5 transition-all"
+                      className="group flex items-center gap-4 sm:gap-5 p-4 sm:p-5 rounded-3xl bg-card border border-border/80 hover:border-brand/40 shadow-xs hover:shadow-xl transition-all duration-300"
                     >
                       <div
                         className={cn(
-                          'h-12 w-12 shrink-0 rounded-xl flex items-center justify-center font-black text-base shadow-sm transition-colors',
+                          'h-11 w-11 sm:h-12 sm:w-12 shrink-0 rounded-2xl flex items-center justify-center font-black text-sm sm:text-base transition-all',
                           isComplete
-                            ? 'bg-emerald-500/15 text-emerald-500'
-                            : 'bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white'
+                            ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                            : 'bg-brand/10 text-brand border border-brand/20 group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary shadow-xs'
                         )}
                       >
-                        {isComplete ? <CheckCircle2 className="h-6 w-6" /> : idx + 1}
+                        {isComplete ? <CheckCircle2 className="h-5 w-5 sm:h-6 sm:w-6" /> : String(idx + 1).padStart(2, '0')}
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-extrabold text-foreground group-hover:text-primary transition-colors text-base truncate">
+                        <h3 className="font-bold text-foreground group-hover:text-brand transition-colors text-sm sm:text-base truncate">
                           {topic.title}
                         </h3>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1 font-semibold">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1 font-medium">
                           <span>{topic.lessons?.length || 0} bài giảng</span>
                           <span>•</span>
-                          <span>Đã học {prog.completed}/{prog.total}</span>
+                          <span className={cn(isComplete ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-muted-foreground')}>
+                            Đã học {prog.completed}/{prog.total} bài
+                          </span>
                         </div>
                       </div>
 
-                      <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all shrink-0" />
+                      <div className="flex items-center gap-3 shrink-0">
+                        {isComplete ? (
+                          <span className="hidden sm:inline-block text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-md">
+                            Hoàn thành
+                          </span>
+                        ) : (
+                          <span className="hidden sm:inline-block text-[10px] font-bold text-muted-foreground group-hover:text-brand transition-colors">
+                            Vào học
+                          </span>
+                        )}
+                        <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-brand group-hover:translate-x-1 transition-all" />
+                      </div>
                     </Link>
                   </motion.div>
                 );
@@ -516,26 +529,26 @@ export default function CourseDetailClient({
           )}
 
           {generalLessons.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="font-black text-foreground text-sm uppercase tracking-wider mb-2">Bài giảng chung</h3>
+            <div className="space-y-3 pt-4">
+              <h3 className="font-bold text-foreground text-xs uppercase tracking-wider mb-2">Bài giảng chung</h3>
               {generalLessons.map((lesson) => {
                 const done = completedIds.has(lesson.id);
                 return (
                   <motion.div
                     key={lesson.id}
-                    className="flex items-center justify-between p-4 bg-card border border-border rounded-2xl"
+                    className="flex items-center justify-between p-4 bg-card border border-border/80 rounded-2xl shadow-xs"
                   >
                     <div className="flex items-center gap-3">
-                      <div className={cn("p-2 rounded-lg", done ? "bg-emerald-500/15 text-emerald-500" : "bg-primary/10 text-primary")}>
+                      <div className={cn("p-2 rounded-xl border", done ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-brand/10 text-brand border-brand/20")}>
                         <PlayCircle className="h-4 w-4" />
                       </div>
                       <div>
-                        <p className="font-bold text-sm text-foreground">{lesson.title}</p>
+                        <p className="font-bold text-xs sm:text-sm text-foreground">{lesson.title}</p>
                         <span className="text-[10px] text-muted-foreground block mt-0.5">{lesson.duration}</span>
                       </div>
                     </div>
                     {done && (
-                      <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">
+                      <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md">
                         Hoàn thành
                       </span>
                     )}
@@ -546,8 +559,8 @@ export default function CourseDetailClient({
           )}
 
           {!hasTopics && generalLessons.length === 0 && (
-            <div className="text-center py-20 rounded-3xl border border-border bg-card text-muted-foreground">
-              <BookOpen className="h-12 w-12 mx-auto mb-3 opacity-30" />
+            <div className="text-center py-16 rounded-3xl border border-border/80 bg-card text-muted-foreground text-xs sm:text-sm">
+              <BookOpen className="h-10 w-10 mx-auto mb-2 text-brand opacity-40" />
               <p className="font-bold">Chưa có nội dung trong khóa học này.</p>
             </div>
           )}
