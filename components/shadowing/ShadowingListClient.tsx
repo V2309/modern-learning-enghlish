@@ -182,35 +182,28 @@ export default function ShadowingListClient({
   ];
 
   return (
-    <div className=" px-4 py-8 space-y-8">
-      {/* ── Header: Asymmetric Hero / Action Row ── */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b border-border/70">
-        <div className="space-y-2 max-w-2xl">
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider border border-primary/20">
-              Luyện phát âm &amp; Ngữ điệu
+    <div className="w-full space-y-8">
+      {/* ── Page Header ── */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-border/60">
+        <div className="space-y-2 max-w-xl">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-brand bg-brand/10 px-3 py-1 rounded-full border border-brand/20">
+              <Sparkles className="h-3 w-3" />
+              Luyện Nói Nhại Giọng Chuẩn Bản Xứ
             </span>
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
-              <span>{shadowings.length} bài học</span>
-              <span>•</span>
-              <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
-                <CheckCircle2 className="h-3.5 w-3.5" />
-                {completedVideoIds.length} đã xong
-              </span>
-            </div>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
-            Luyện nói Shadowing
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
+            Luyện Nói <span className="text-brand">Shadowing</span>
           </h1>
-          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
             Luyện phản xạ, phát âm chuẩn Mỹ và ngữ điệu tự nhiên qua video thực tế kèm phụ đề song ngữ đồng bộ theo từng giây.
           </p>
         </div>
 
         {/* Search, Sort & Action Controls */}
         <div className="flex flex-wrap items-center gap-3 shrink-0">
-          <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <div className="relative group">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-brand transition-colors pointer-events-none" />
             <input
               type="text"
               placeholder="Tìm bài học..."
@@ -219,7 +212,7 @@ export default function ShadowingListClient({
                 setSearchQuery(e.target.value);
                 setCurrentPage(1);
               }}
-              className="pl-9.5 pr-8 py-2 w-56 sm:w-64 bg-card border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-xs font-medium text-foreground placeholder:text-muted-foreground/70 shadow-2xs"
+              className="pl-9.5 pr-8 py-2 w-52 sm:w-60 bg-muted/60 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all text-xs font-medium text-foreground placeholder:text-muted-foreground shadow-2xs"
             />
             {searchQuery && (
               <button
@@ -243,7 +236,7 @@ export default function ShadowingListClient({
           {isAdmin && (
             <button
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary/95 transition-all shadow-sm shadow-primary/20 cursor-pointer"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-all shadow-md shadow-black/10 cursor-pointer"
             >
               <Plus className="h-4 w-4" />
               <span>Thêm video mới</span>
@@ -266,7 +259,7 @@ export default function ShadowingListClient({
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2 }}
-                className="group relative flex flex-col bg-card border border-border/80 rounded-2xl overflow-hidden shadow-xs hover:shadow-lg hover:border-primary/40 transition-all duration-300"
+                className="group relative flex flex-col bg-card border border-border/80 rounded-3xl overflow-hidden shadow-xs hover:shadow-xl hover:border-brand/40 transition-all duration-300"
               >
                 {/* ── Video Thumbnail with Overlay ── */}
                 <Link
@@ -277,11 +270,11 @@ export default function ShadowingListClient({
                     <img
                       src={`https://img.youtube.com/vi/${yt.videoId}/hqdefault.jpg`}
                       alt={shadowing.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
+                      className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500 opacity-90 group-hover:opacity-100"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-primary/10 to-indigo-500/10 flex items-center justify-center">
-                      <Video className="h-10 w-10 text-primary/40" />
+                    <div className="w-full h-full bg-muted flex items-center justify-center">
+                      <Video className="h-10 w-10 text-muted-foreground" />
                     </div>
                   )}
 
@@ -291,7 +284,7 @@ export default function ShadowingListClient({
                   {/* Badges Top Row */}
                   <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-white/95 bg-black/50 backdrop-blur-md px-2.5 py-1 rounded-md flex items-center gap-1 border border-white/10">
-                      {yt ? <Play className="h-3 w-3 text-rose-400 fill-rose-400" /> : <Video className="h-3 w-3 text-sky-400" />}
+                      {yt ? <Play className="h-3 w-3 text-brand fill-brand" /> : <Video className="h-3 w-3 text-sky-400" />}
                       <span>{yt ? 'YouTube' : 'Video'}</span>
                     </span>
 
@@ -305,19 +298,19 @@ export default function ShadowingListClient({
 
                   {/* Center Play Button Overlay */}
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-full bg-primary/90 text-white flex items-center justify-center shadow-lg shadow-primary/30 group-hover:scale-110 group-hover:bg-primary transition-all duration-300">
-                      <Play className="h-5 w-5 fill-white translate-x-0.5" />
+                    <div className="w-12 h-12 rounded-full bg-primary/90 text-primary-foreground flex items-center justify-center shadow-lg shadow-black/30 group-hover:scale-110 group-hover:bg-primary transition-all duration-300">
+                      <Play className="h-5 w-5 fill-current translate-x-0.5" />
                     </div>
                   </div>
                 </Link>
 
                 {/* ── Card Content ── */}
-                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4">
                   <div className="space-y-2">
                     <div className="flex items-start justify-between gap-2">
                       <Link
                         href={`/shadowing/${shadowing.id}`}
-                        className="text-base font-bold text-foreground line-clamp-2 hover:text-primary transition-colors leading-snug group-hover:text-primary"
+                        className="text-base font-bold text-foreground line-clamp-2 hover:text-brand transition-colors leading-snug group-hover:text-brand"
                         title={shadowing.title}
                       >
                         {shadowing.title}
@@ -380,13 +373,13 @@ export default function ShadowingListClient({
                   </div>
 
                   {/* Card Bottom Meta & Action */}
-                  <div className="pt-3 border-t border-border/70 flex items-center justify-between text-xs">
+                  <div className="pt-3.5 border-t border-border/60 flex items-center justify-between text-xs">
                     <span className="text-[11px] text-muted-foreground">
                       {new Date(shadowing.createdAt).toLocaleDateString('vi-VN')}
                     </span>
                     <Link
                       href={`/shadowing/${shadowing.id}`}
-                      className="inline-flex items-center gap-1 text-xs font-bold text-primary group-hover:translate-x-0.5 transition-transform"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-brand group-hover:translate-x-0.5 transition-transform"
                     >
                       <span>Luyện ngay</span>
                       <ArrowRight className="h-3.5 w-3.5" />

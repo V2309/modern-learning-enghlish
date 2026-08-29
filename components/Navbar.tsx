@@ -37,8 +37,9 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md px-4 md:px-8">
       <div className="container mx-auto">
         <div className="flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-xl font-bold text-primary" onClick={handleLinkClick}>
+          <Link href="/" className="flex items-center gap-1 text-xl font-black text-foreground tracking-tight" onClick={handleLinkClick}>
             <span>Linguify</span>
+            <span className="text-brand text-2xl leading-none">.</span>
           </Link>
           
           <div className="flex items-center gap-4">
@@ -49,8 +50,8 @@ const Navbar = () => {
                   key={item.path}
                   href={item.path}
                   className={cn(
-                    "text-sm font-medium transition-colors hover:text-primary",
-                    pathname === item.path ? "text-primary" : "text-muted-foreground"
+                    "text-sm font-medium transition-colors hover:text-foreground",
+                    pathname === item.path ? "text-brand font-bold" : "text-muted-foreground"
                   )}
                 >
                   {item.name}
@@ -60,8 +61,8 @@ const Navbar = () => {
                 <Link
                   href="/my-courses"
                   className={cn(
-                    "text-sm font-medium transition-colors hover:text-primary",
-                    pathname === '/my-courses' ? "text-primary" : "text-muted-foreground"
+                    "text-sm font-medium transition-colors hover:text-foreground",
+                    pathname === '/my-courses' ? "text-brand font-bold" : "text-muted-foreground"
                   )}
                 >
                   My Courses
@@ -93,7 +94,7 @@ const Navbar = () => {
               ) : (
                 <Link
                   href="/auth/sign-in"
-                  className="px-4 py-2 text-xs font-bold text-white bg-primary rounded-xl hover:bg-primary/90 transition-all"
+                  className="px-4 py-2 text-xs font-bold text-primary-foreground bg-primary rounded-xl hover:bg-primary/90 transition-all"
                 >
                   Đăng nhập
                 </Link>
@@ -171,9 +172,8 @@ const Navbar = () => {
                   <Link
                     href="/auth/sign-in"
                     onClick={handleLinkClick}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-white bg-primary text-sm font-bold hover:bg-primary/90 transition-all text-center shadow-lg shadow-primary/20"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-primary-foreground bg-primary text-sm font-bold hover:bg-primary/90 transition-all text-center shadow-lg shadow-primary/20"
                   >
-                    
                     Đăng nhập
                   </Link>
                 )}

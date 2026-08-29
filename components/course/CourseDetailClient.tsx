@@ -118,67 +118,67 @@ export default function CourseDetailClient({
     : toeic1Curriculum;
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="w-full">
       {/* ── Back navigation ── */}
       <Link
         href={backPath}
-        className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors group mb-10"
+        className="inline-flex items-center gap-2 text-muted-foreground hover:text-brand transition-colors group mb-6"
       >
         <ChevronLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
-        <span className="text-sm font-semibold">{backPath === '/my-courses' ? 'My Courses' : 'Tất cả khóa học'}</span>
+        <span className="text-xs sm:text-sm font-semibold">{backPath === '/my-courses' ? 'My Courses' : 'Tất cả khóa học'}</span>
       </Link>
 
       {/* ── Hero section ── */}
-      <div className="grid lg:grid-cols-12 gap-10 mb-14">
+      <div className="grid lg:grid-cols-12 gap-8 mb-10">
         {/* Left — info */}
-        <div className="lg:col-span-7 space-y-5">
+        <div className="lg:col-span-7 space-y-4">
           {/* Badges */}
           <div className="flex flex-wrap items-center gap-2">
-            <span className={cn('px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase', level.cls)}>
+            <span className={cn('px-2.5 py-1 rounded-md text-[9px] font-black tracking-wider uppercase', level.cls)}>
               {level.label}
             </span>
             {course.subject && (
-              <span className="px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase bg-muted text-muted-foreground">
+              <span className="px-2.5 py-1 rounded-md text-[9px] font-bold tracking-wider uppercase bg-muted text-muted-foreground border border-border/40">
                 {course.subject}
               </span>
             )}
             {course.isBestSeller && (
-              <span className="px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase bg-amber-500/10 text-amber-600">
-                🏆 Bán chạy nhất
+              <span className="px-2.5 py-1 rounded-md text-[9px] font-black tracking-wider uppercase bg-brand text-brand-foreground shadow-xs">
+                Nổi Bật
               </span>
             )}
           </div>
 
-          <h1 className="text-3xl md:text-4xl font-black text-foreground leading-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground leading-tight">
             {course.title}
           </h1>
 
-          <p className="text-muted-foreground leading-relaxed text-sm md:text-base">
+          <p className="text-muted-foreground leading-relaxed text-xs sm:text-sm">
             {course.description.replace(/[#*`]/g, '').slice(0, 220)}
             {course.description.length > 220 ? '…' : ''}
           </p>
 
           {/* Stats row */}
-          <div className="flex flex-wrap items-center gap-5 text-sm font-semibold text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-muted-foreground">
             {course.rating && (
               <div className="flex items-center gap-1.5">
-                <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
                 <span className="text-foreground font-bold">{course.rating.toFixed(1)}</span>
               </div>
             )}
             <div className="flex items-center gap-1.5">
-              <PlayCircle className="h-4 w-4 text-primary" />
+              <PlayCircle className="h-3.5 w-3.5 text-brand" />
               <span>{totalLessons} bài giảng</span>
             </div>
             {hasTopics && (
               <div className="flex items-center gap-1.5">
-                <Layers className="h-4 w-4 text-primary" />
+                <Layers className="h-3.5 w-3.5 text-brand" />
                 <span>{topics.length} chủ đề</span>
               </div>
             )}
             {course.weeks && (
               <div className="flex items-center gap-1.5">
-                <Clock className="h-4 w-4 text-primary" />
+                <Clock className="h-3.5 w-3.5 text-brand" />
                 <span>{course.weeks} tuần</span>
               </div>
             )}
@@ -186,23 +186,23 @@ export default function CourseDetailClient({
 
           {/* Overall progress */}
           {basePath && totalLessons > 0 && (
-            <div className="p-5 rounded-2xl bg-primary/8 border border-primary/20 space-y-3">
+            <div className="p-4 rounded-2xl bg-brand/5 border border-brand/20 space-y-2.5">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm font-bold text-primary">
-                  <TrendingUp className="h-4 w-4" />
+                <div className="flex items-center gap-2 text-xs font-bold text-brand">
+                  <TrendingUp className="h-3.5 w-3.5" />
                   Tiến độ của bạn
                 </div>
-                <span className="text-sm font-black text-primary">{progressPercent}%</span>
+                <span className="text-xs font-black text-brand">{progressPercent}%</span>
               </div>
-              <div className="h-2.5 w-full bg-primary/15 rounded-full overflow-hidden">
+              <div className="h-2 w-full bg-brand/15 rounded-full overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${progressPercent}%` }}
                   transition={{ duration: 0.8, ease: 'easeOut' }}
-                  className="h-full bg-primary rounded-full"
+                  className="h-full bg-brand rounded-full"
                 />
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[11px] text-muted-foreground">
                 {completedCount} / {totalLessons} bài học đã hoàn thành
               </p>
             </div>
@@ -286,9 +286,9 @@ export default function CourseDetailClient({
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
                 className={cn(
-                  'px-5 py-3 text-sm font-extrabold border-b-2 transition-all cursor-pointer -mb-px',
+                  'px-4 py-2.5 text-xs sm:text-sm font-bold border-b-2 transition-all cursor-pointer -mb-px',
                   activeTab === tab.id
-                    ? 'border-primary text-primary'
+                    ? 'border-brand text-brand'
                     : 'border-transparent text-muted-foreground hover:text-foreground'
                 )}
               >

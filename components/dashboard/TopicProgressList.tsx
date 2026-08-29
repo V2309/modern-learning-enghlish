@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, BookOpen } from 'lucide-react';
 import Pagination from '@/components/Pagination';
 
 interface TopicProgress {
@@ -23,43 +23,50 @@ export default function TopicProgressList({ topicCompletionRates }: TopicProgres
   const [currentPage, setCurrentPage] = useState(1);
 
   const totalPages = Math.max(1, Math.ceil(topicCompletionRates.length / PAGE_SIZE));
-  
-  // Paginated data
+
   const paginatedTopics = topicCompletionRates.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE
   );
 
   return (
-    <div className="space-y-6 pt-4">
-      <div className="flex items-center justify-between border-b border-border pb-4">
-        <h2 className="text-2xl font-black text-foreground">Tiến trình từ vựng theo chủ đề</h2>
-        <Link href="/vocabulary" className="text-xs font-bold text-primary hover:underline flex items-center gap-1">
+    <div className="space-y-4 pt-2">
+      <div className="flex items-center justify-between border-b border-border/60 pb-3">
+        <div className="flex items-center gap-2">
+          <BookOpen className="h-4 w-4 text-brand" />
+          <h2 className="text-base font-bold text-foreground">Tiến Trình Từ Vựng Theo Chủ Đề</h2>
+        </div>
+        <Link href="/vocabulary" className="text-xs font-bold text-brand hover:underline flex items-center gap-1">
           Thư viện từ vựng <ChevronRight className="h-3.5 w-3.5" />
         </Link>
       </div>
 
       {topicCompletionRates.length === 0 ? (
-        <div className="text-center py-8 text-sm text-muted-foreground italic bg-card border border-border rounded-3xl">
+        <div className="text-center py-8 text-xs text-muted-foreground italic bg-card border border-border/80 rounded-3xl">
           Chưa có chủ đề từ vựng nào được tìm thấy.
         </div>
       ) : (
         <>
           <div className="grid sm:grid-cols-2 gap-4">
             {paginatedTopics.map((topic) => (
-              <div key={topic.id} className="p-5 rounded-3xl bg-card border border-border flex flex-col justify-between gap-3 hover:border-emerald-500/40 transition-colors">
+              <div
+                key={topic.id}
+                className="p-5 rounded-3xl bg-card border border-border/80 flex flex-col justify-between gap-3 hover:border-brand/40 shadow-xs transition-all"
+              >
                 <div className="space-y-1">
-                  <h3 className="text-base font-extrabold text-foreground line-clamp-1">{topic.name}</h3>
-                  <p className="text-xs text-muted-foreground">{topic.completedCount} / {topic.totalCount} từ đã thuộc</p>
+                  <h3 className="text-sm font-bold text-foreground line-clamp-1">{topic.name}</h3>
+                  <p className="text-[11px] text-muted-foreground">
+                    {topic.completedCount} / {topic.totalCount} từ đã thuộc
+                  </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="flex-1 bg-muted rounded-full h-1.5 overflow-hidden border border-border">
-                    <div 
-                      className="bg-emerald-500 h-full rounded-full transition-all duration-500" 
+                  <div className="flex-1 bg-muted rounded-full h-1.5 overflow-hidden border border-border/40">
+                    <div
+                      className="bg-brand h-full rounded-full transition-all duration-500"
                       style={{ width: `${topic.percentage}%` }}
                     />
                   </div>
-                  <span className="text-xs font-bold text-foreground w-8 text-right">{topic.percentage}%</span>
+                  <span className="text-xs font-black text-brand w-8 text-right">{topic.percentage}%</span>
                 </div>
               </div>
             ))}

@@ -44,12 +44,12 @@ export const MatchMode = ({
         {/* Banner */}
         <div className="flex justify-between items-center bg-card border border-border px-4 py-2.5 rounded-2xl shadow-xs">
           <div className="flex items-center gap-2 text-xs text-foreground font-semibold">
-            <Timer className="h-4 w-4 text-primary" />
+            <Timer className="h-4 w-4 text-brand" />
             <span>Thời gian: {matchSeconds}s</span>
           </div>
           <button
             onClick={onRestart}
-            className="text-xs text-primary font-bold hover:underline flex items-center gap-1 cursor-pointer"
+            className="text-xs text-brand font-bold hover:underline flex items-center gap-1 cursor-pointer"
           >
             <RefreshCw className="h-3 w-3" /> Làm mới game
           </button>
@@ -75,11 +75,11 @@ export const MatchMode = ({
                 }
 
                 let cardClass =
-                  'bg-card border-border text-foreground hover:bg-muted/50 hover:border-primary/40 cursor-pointer';
+                  'bg-card border-border text-foreground hover:bg-muted/50 hover:border-brand/40 cursor-pointer';
                 if (card.isFailed) {
                   cardClass = 'bg-rose-500/15 border-rose-500 text-rose-600 dark:text-rose-400';
                 } else if (card.isSelected) {
-                  cardClass = 'bg-primary border-primary text-white scale-98 shadow-md shadow-primary/20';
+                  cardClass = 'bg-primary border-primary text-primary-foreground scale-98 shadow-md shadow-black/10';
                 }
 
                 return (
@@ -107,22 +107,22 @@ export const MatchMode = ({
               <Award className="h-7 w-7" />
             </div>
             <div className="space-y-1">
-              <h2 className="text-2xl font-bold text-foreground">Tuyệt vời!</h2>
+              <h2 className="text-xl font-bold text-foreground">Tuyệt vời!</h2>
               <p className="text-xs text-muted-foreground">
                 Bạn đã ghép chính xác tất cả các cặp trong
               </p>
-              <div className="text-3xl font-black text-primary">{matchSeconds} giây</div>
+              <div className="text-3xl font-black text-brand">{matchSeconds} giây</div>
             </div>
             <div className="flex gap-3 pt-2">
               <button
                 onClick={onRestart}
-                className="flex-1 py-2.5 border border-border text-foreground hover:bg-muted rounded-full text-xs font-semibold transition-all cursor-pointer"
+                className="flex-1 py-2.5 border border-border text-foreground hover:bg-muted rounded-xl text-xs font-bold transition-all cursor-pointer"
               >
                 Chơi lại
               </button>
               <button
                 onClick={onBackToList}
-                className="flex-1 py-2.5 bg-primary text-white hover:bg-primary/95 rounded-full text-xs font-semibold transition-all cursor-pointer shadow-xs"
+                className="flex-1 py-2.5 bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-md shadow-black/10"
               >
                 Về danh sách
               </button>

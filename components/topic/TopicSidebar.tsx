@@ -92,21 +92,21 @@ export const TopicSidebar = ({
               className={cn(
                 'w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all text-left text-xs font-medium border group',
                 isActive
-                  ? 'bg-primary/10 border-primary/20 text-primary font-bold shadow-xs'
+                  ? 'bg-brand/10 border-brand/20 text-brand font-bold shadow-xs'
                   : 'bg-transparent border-transparent text-muted-foreground hover:bg-muted/70 hover:text-foreground'
               )}
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className={cn(
                   'p-1 rounded-lg transition-colors shrink-0',
-                  isActive ? 'bg-primary/15 text-primary' : 'bg-muted/50 text-muted-foreground group-hover:text-foreground group-hover:bg-muted'
+                  isActive ? 'bg-brand/15 text-brand' : 'bg-muted/50 text-muted-foreground group-hover:text-foreground group-hover:bg-muted'
                 )}>
                   <Icon className="h-3.5 w-3.5" />
                 </div>
                 <span className="truncate">{item.label}</span>
               </div>
               {isActive && (
-                <div className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                <div className="h-1.5 w-1.5 rounded-full bg-brand shrink-0" />
               )}
             </Link>
           );
@@ -132,7 +132,7 @@ export const TopicSidebar = ({
               {topic.name}
             </h2>
           </div>
-          <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20 shrink-0">
+          <span className="text-[10px] font-bold text-brand bg-brand/10 px-2 py-0.5 rounded-full border border-brand/20 shrink-0">
             {wordCount} từ
           </span>
         </div>

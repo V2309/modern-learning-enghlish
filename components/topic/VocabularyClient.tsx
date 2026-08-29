@@ -271,25 +271,24 @@ export default function VocabularyClient({
   const completedCount = filteredTopics.filter((t) => completedIds.includes(t.id)).length;
 
   return (
-    <div className="container mx-auto px-4 py-4 ">
+    <div className="w-full">
 
       {/* ── Header: asymmetric split layout ─────────────────────────────── */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
         {/* Left: title + stats */}
-        <div className="space-y-3">
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
+        <div className="space-y-2">
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-brand bg-brand/10 px-3 py-1 rounded-full border border-brand/20">
             <GraduationCap className="h-3.5 w-3.5" />
-            Vocabulary Library
+            Thư Viện Từ Vựng Thông Minh
           </span>
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight leading-none">
-            Pick a Topic, 
-            <span className="text-primary"> Start Learning.</span>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight leading-tight">
+            Khám Phá <span className="text-brand">Chủ Đề Từ Vựng</span>
           </h1>
           {filteredTopics.length > 0 && (
-            <p className="text-muted-foreground text-base">
-              <span className="font-semibold text-foreground">{filteredTopics.length}</span> topics available
+            <p className="text-muted-foreground text-xs sm:text-sm">
+              <span className="font-semibold text-foreground">{filteredTopics.length}</span> chủ đề có sẵn
               {completedCount > 0 && (
-                <> · <span className="font-semibold text-emerald-500">{completedCount} completed</span></>
+                <> · <span className="font-semibold text-emerald-600 dark:text-emerald-400">{completedCount} đã hoàn thành</span></>
               )}
             </p>
           )}
@@ -298,18 +297,18 @@ export default function VocabularyClient({
         {/* Right: controls */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-brand transition-colors" />
             <input
               type="text"
-              placeholder="Search topics..."
+              placeholder="Tìm kiếm chủ đề..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-11 pr-5 py-2.5 w-64 bg-muted border border-border rounded-full focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-foreground text-sm placeholder:text-muted-foreground"
+              className="pl-10 pr-5 py-2 w-56 sm:w-64 bg-muted/60 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all text-foreground text-xs sm:text-sm placeholder:text-muted-foreground"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -326,10 +325,10 @@ export default function VocabularyClient({
           {isAdmin && (
             <button
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary/90 active:scale-[0.98] transition-all shadow-lg shadow-primary/25 cursor-pointer"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs sm:text-sm font-semibold hover:bg-primary/90 active:scale-[0.98] transition-all shadow-md shadow-black/10 cursor-pointer"
             >
               <Plus className="h-4 w-4" />
-              New Topic
+              Thêm chủ đề
             </button>
           )}
         </div>
@@ -340,20 +339,20 @@ export default function VocabularyClient({
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col items-center justify-center py-28 bg-card border border-border rounded-3xl text-center gap-4"
+          className="flex flex-col items-center justify-center py-20 bg-card border border-border/80 rounded-3xl text-center gap-3.5"
         >
-          <div className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center">
-            <BookOpen className="h-8 w-8 text-muted-foreground" />
+          <div className="h-14 w-14 rounded-2xl bg-muted/60 flex items-center justify-center">
+            <BookOpen className="h-7 w-7 text-muted-foreground" />
           </div>
-          <div>
-            <p className="text-lg font-semibold text-foreground mb-1">No topics found</p>
-            <p className="text-sm text-muted-foreground">
-              {searchQuery ? `No results for "${searchQuery}"` : 'No topics have been created yet.'}
+          <div className="space-y-1">
+            <p className="text-base font-bold text-foreground">Không tìm thấy chủ đề phù hợp</p>
+            <p className="text-xs text-muted-foreground">
+              {searchQuery ? `Không có kết quả nào cho "${searchQuery}"` : 'Chưa có chủ đề từ vựng nào được tạo.'}
             </p>
           </div>
           {searchQuery && (
-            <button onClick={() => setSearchQuery('')} className="text-sm text-primary hover:underline">
-              Clear search
+            <button onClick={() => setSearchQuery('')} className="text-xs font-bold text-brand hover:underline cursor-pointer">
+              Xoá tìm kiếm
             </button>
           )}
         </motion.div>
@@ -379,7 +378,7 @@ export default function VocabularyClient({
                   <Link
                     href={`/vocabulary/topic/${topic.id}`}
                     className={[
-                      'flex flex-col h-full rounded-2xl bg-card border border-border overflow-hidden',
+                      'flex flex-col h-full rounded-2xl bg-card border border-border/80 overflow-hidden',
                       'transition-all duration-300 hover:shadow-xl hover:-translate-y-1',
                       pal.hoverBorder,
                       pal.hoverShadow,
@@ -389,15 +388,14 @@ export default function VocabularyClient({
                     <div className={`h-1 w-full ${pal.topBar} opacity-70`} />
 
                     <div className="flex flex-col flex-1 p-5 gap-4">
-                     
 
                       {/* Title + description */}
                       <div className="flex-1 min-w-0">
-                        <h3 className={`text-base font-bold text-foreground mb-1.5 leading-snug transition-colors pr-6 ${pal.titleHover} line-clamp-2`}>
+                        <h3 className={`text-sm sm:text-base font-bold text-foreground mb-1.5 leading-snug transition-colors pr-6 ${pal.titleHover} line-clamp-2`}>
                           {topic.name}
                         </h3>
                         {topic.description && (
-                          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
+                          <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
                             {topic.description}
                           </p>
                         )}
@@ -408,7 +406,7 @@ export default function VocabularyClient({
                         {/* Word count badge */}
                         <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full border ${pal.badge}`}>
                           <Sparkles className="h-3 w-3" />
-                          {wordCount} {wordCount === 1 ? 'word' : 'words'}
+                          {wordCount} từ
                         </span>
 
                         <div className="flex items-center gap-2">
@@ -427,7 +425,7 @@ export default function VocabularyClient({
                             title={isCompleted ? 'Đánh dấu chưa hoàn thành' : 'Đánh dấu đã hoàn thành'}
                           >
                             <Check className="h-3 w-3 stroke-[2.5]" />
-                            {isCompleted ? 'Done' : 'Mark done'}
+                            {isCompleted ? 'Đã xong' : 'Xong'}
                           </button>
 
                           <ChevronRight className={`h-4 w-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-200 ${pal.chevron}`} />
@@ -513,44 +511,44 @@ export default function VocabularyClient({
             >
               <div className="p-6 border-b border-border flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-foreground">Create New Topic</h2>
-                  <p className="text-muted-foreground text-sm mt-0.5">Organize words into a meaningful collection.</p>
+                  <h2 className="text-lg font-bold text-foreground">Tạo Chủ Đề Mới</h2>
+                  <p className="text-muted-foreground text-xs mt-0.5">Tổ chức các từ vựng theo danh mục chủ đề.</p>
                 </div>
-                <button onClick={() => setShowAddModal(false)} className="p-2 rounded-xl hover:bg-muted text-muted-foreground transition-colors">
+                <button onClick={() => setShowAddModal(false)} className="p-2 rounded-xl hover:bg-muted text-muted-foreground transition-colors cursor-pointer">
                   <X className="h-4 w-4" />
                 </button>
               </div>
-              <div className="p-6 space-y-5">
+              <div className="p-6 space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Topic Name</label>
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Tên chủ đề</label>
                   <input
                     type="text"
                     value={newTopic.name}
                     onChange={(e) => setNewTopic({ ...newTopic, name: e.target.value })}
-                    className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary transition-all"
-                    placeholder="e.g. Travel & Adventure"
+                    className="w-full bg-muted/60 border border-border rounded-xl px-4 py-2.5 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all"
+                    placeholder="ví dụ: Travel & Adventure"
                     autoFocus
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Description</label>
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Mô tả</label>
                   <textarea
                     value={newTopic.description}
                     onChange={(e) => setNewTopic({ ...newTopic, description: e.target.value })}
                     rows={3}
-                    className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary transition-all resize-none"
-                    placeholder="What is this collection about?"
+                    className="w-full bg-muted/60 border border-border rounded-xl px-4 py-2.5 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all resize-none"
+                    placeholder="Chủ đề này gồm những từ vựng ngữ cảnh nào?"
                   />
                 </div>
               </div>
-              <div className="p-6 bg-muted/40 border-t border-border">
+              <div className="p-6 bg-muted/30 border-t border-border">
                 <button
                   onClick={handleAddTopic}
                   disabled={!newTopic.name || isAdding}
-                  className="w-full py-3 bg-primary disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-semibold text-sm hover:bg-primary/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3 bg-primary disabled:opacity-50 disabled:cursor-not-allowed text-primary-foreground rounded-xl font-bold text-sm hover:bg-primary/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-black/10"
                 >
                   <Plus className="h-4 w-4" />
-                  {isAdding ? 'Creating...' : 'Create Topic'}
+                  {isAdding ? 'Đang tạo...' : 'Tạo chủ đề'}
                 </button>
               </div>
             </motion.div>
@@ -578,38 +576,38 @@ export default function VocabularyClient({
             >
               <div className="p-6 border-b border-border flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-foreground">Sửa chủ đề</h2>
-                  <p className="text-muted-foreground text-sm mt-0.5">Cập nhật thông tin chủ đề từ vựng.</p>
+                  <h2 className="text-lg font-bold text-foreground">Sửa Chủ Đề</h2>
+                  <p className="text-muted-foreground text-xs mt-0.5">Cập nhật thông tin chủ đề từ vựng.</p>
                 </div>
-                <button onClick={() => setShowEditModal(false)} className="p-2 rounded-xl hover:bg-muted text-muted-foreground transition-colors">
+                <button onClick={() => setShowEditModal(false)} className="p-2 rounded-xl hover:bg-muted text-muted-foreground transition-colors cursor-pointer">
                   <X className="h-4 w-4" />
                 </button>
               </div>
-              <div className="p-6 space-y-5">
+              <div className="p-6 space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Tên chủ đề</label>
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Tên chủ đề</label>
                   <input
                     type="text"
                     value={editForm.name}
                     onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                    className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary transition-all"
+                    className="w-full bg-muted/60 border border-border rounded-xl px-4 py-2.5 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Mô tả</label>
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Mô tả</label>
                   <textarea
                     value={editForm.description}
                     onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
                     rows={3}
-                    className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-primary transition-all resize-none"
+                    className="w-full bg-muted/60 border border-border rounded-xl px-4 py-2.5 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all resize-none"
                   />
                 </div>
               </div>
-              <div className="p-6 bg-muted/40 border-t border-border">
+              <div className="p-6 bg-muted/30 border-t border-border">
                 <button
                   onClick={handleEditTopic}
                   disabled={!editForm.name || isSaving}
-                  className="w-full py-3 bg-primary disabled:opacity-50 text-white rounded-xl font-semibold text-sm hover:bg-primary/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3 bg-primary disabled:opacity-50 text-primary-foreground rounded-xl font-bold text-sm hover:bg-primary/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-black/10"
                 >
                   {isSaving ? 'Đang lưu...' : 'Lưu thay đổi'}
                 </button>

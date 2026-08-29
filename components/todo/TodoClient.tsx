@@ -266,15 +266,15 @@ export default function TodoClient({ userId, initialLists, initialCompletedIds, 
           key={list.id}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-card border border-border rounded-2xl p-5 flex flex-col gap-3 shadow-sm"
+          className="bg-card border border-border/80 rounded-3xl p-5 flex flex-col gap-3 shadow-xs hover:border-brand/40 transition-all"
         >
           {/* List header */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
-              <div className="h-2.5 w-2.5 rounded-full bg-primary shrink-0" />
-              <h3 className="font-extrabold text-foreground text-sm truncate">{list.title}</h3>
+              <div className="h-2.5 w-2.5 rounded-full bg-brand shrink-0" />
+              <h3 className="font-bold text-foreground text-sm truncate">{list.title}</h3>
             </div>
-            <span className="text-[10px] font-bold text-muted-foreground whitespace-nowrap">
+            <span className="text-[10px] font-bold text-brand bg-brand/10 px-2 py-0.5 rounded-md border border-brand/20 whitespace-nowrap">
               {listDone}/{list.tasks.length}
             </span>
           </div>
@@ -283,7 +283,7 @@ export default function TodoClient({ userId, initialLists, initialCompletedIds, 
           {list.tasks.length > 0 && (
             <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
               <motion.div
-                className="h-full bg-primary rounded-full"
+                className="h-full bg-brand rounded-full"
                 initial={{ width: 0 }}
                 animate={{ width: `${listPct}%` }}
                 transition={{ duration: 0.4 }}
@@ -303,14 +303,14 @@ export default function TodoClient({ userId, initialLists, initialCompletedIds, 
                     <button
                       onClick={() => handleToggle(task.id)}
                       className={cn(
-                        'flex items-start gap-2.5 w-full text-left group transition-all',
+                        'flex items-start gap-2.5 w-full text-left group transition-all cursor-pointer',
                         done ? 'opacity-60' : ''
                       )}
                     >
-                      <span className={cn('mt-0.5 shrink-0 transition-colors', done ? 'text-primary' : 'text-muted-foreground group-hover:text-primary')}>
-                        {done ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
+                      <span className={cn('mt-0.5 shrink-0 transition-colors', done ? 'text-brand' : 'text-muted-foreground group-hover:text-brand')}>
+                        {done ? <CheckSquare className="h-4 w-4 text-brand" /> : <Square className="h-4 w-4" />}
                       </span>
-                      <span className={cn('text-sm leading-relaxed', done ? 'line-through text-muted-foreground' : 'text-foreground')}>
+                      <span className={cn('text-xs sm:text-sm leading-relaxed', done ? 'line-through text-muted-foreground' : 'text-foreground')}>
                         {task.content}
                       </span>
                     </button>
@@ -505,24 +505,27 @@ export default function TodoClient({ userId, initialLists, initialCompletedIds, 
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <div className="container mx-auto px-4 py-10 space-y-8">
+    <div className="w-full space-y-8">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-              <ListTodo className="h-5 w-5" />
-            </div>
-            <h1 className="text-3xl font-black text-foreground tracking-tight">Todo List</h1>
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-brand bg-brand/10 px-3 py-1 rounded-full border border-brand/20">
+              <ListTodo className="h-3.5 w-3.5" />
+              Năng Suất & Kỷ Luật Học Tập
+            </span>
           </div>
-          <p className="text-muted-foreground text-sm pl-[52px]">
-            Quản lý nhiệm vụ học tập hàng ngày của bạn.
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
+            Kế Hoạch <span className="text-brand">Todo & Pomodoro</span>
+          </h1>
+          <p className="text-muted-foreground text-xs sm:text-sm">
+            Quản lý nhiệm vụ học tập hàng ngày kết hợp chu kỳ tập trung sâu Pomodoro.
           </p>
         </div>
 
         {/* Today summary pill */}
         {activeTab !== 'edit' && (
-          <div className="flex items-center gap-3 p-3 rounded-2xl bg-card border border-border shadow-sm">
+          <div className="flex items-center gap-3 p-3 rounded-2xl bg-card border border-border/80 shadow-xs">
             <div className="relative h-9 w-9 shrink-0">
               <svg className="h-9 w-9 -rotate-90" viewBox="0 0 36 36">
                 <circle cx="18" cy="18" r="15.9" fill="none" stroke="currentColor" strokeWidth="3" className="text-muted/40" />
@@ -531,16 +534,16 @@ export default function TodoClient({ userId, initialLists, initialCompletedIds, 
                   stroke="currentColor" strokeWidth="3"
                   strokeDasharray={`${todayPct} ${100 - todayPct}`}
                   strokeLinecap="round"
-                  className="text-primary transition-all duration-500"
+                  className="text-brand transition-all duration-500"
                 />
               </svg>
-              <span className="absolute inset-0 flex items-center justify-center text-[9px] font-black text-primary">
+              <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-brand">
                 {todayPct}%
               </span>
             </div>
             <div>
-              <p className="text-xs font-black text-foreground">Hôm nay</p>
-              <p className="text-xs text-muted-foreground">{todayDone}/{todayTotal} task xong</p>
+              <p className="text-xs font-bold text-foreground">Hôm nay</p>
+              <p className="text-[11px] text-muted-foreground">{todayDone}/{todayTotal} việc xong</p>
             </div>
           </div>
         )}
@@ -552,15 +555,15 @@ export default function TodoClient({ userId, initialLists, initialCompletedIds, 
         <div className="lg:col-span-2 space-y-6">
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-muted/50 rounded-2xl border border-border w-fit">
+      <div className="flex gap-1 p-1 bg-muted/60 rounded-2xl border border-border/80 w-fit">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={cn(
-              'flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all',
+              'flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer',
               activeTab === tab.id
-                ? 'bg-background text-primary shadow-sm border border-border'
+                ? 'bg-background text-brand shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
             )}
           >

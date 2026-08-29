@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Calendar, Award, BookOpen } from 'lucide-react';
+import { Calendar, Sparkles, Info } from 'lucide-react';
 
 interface LearningHeatmapProps {
   userCreatedAt: string;
@@ -9,7 +9,7 @@ interface LearningHeatmapProps {
 }
 
 export default function LearningHeatmap({ userCreatedAt, activityMap }: LearningHeatmapProps) {
-  const [selectedDate, setSelectedDate] = useState<{ date: string; count: number } | null>(null);
+  const [hoveredDate, setHoveredDate] = useState<{ date: string; count: number } | null>(null);
 
   // Parse registration date and today
   const regDate = new Date(userCreatedAt);
@@ -18,12 +18,17 @@ export default function LearningHeatmap({ userCreatedAt, activityMap }: Learning
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Generate date list from regDate to today
-  const datesList: { dateStr: string; dateObj: Date; count: number }[] = [];
-  const tempDate = new Date(regDate);
+  // Generate date list for last ~12 weeks (84 days)
+  const startDate = new Date(today);
+  startDate.setDate(startDate.getDate() - 83);
+  if (regDate < startDate) {
+    startDate.setTime(regDate.getTime());
+  }
 
-  // Safety fallback if date calculation goes wrong
-  let loopLimit = 1000;
+  const datesList: { dateStr: string; dateObj: Date; count: number }[] = [];
+  const tempDate = new Date(startDate);
+
+  let loopLimit = 365;
   while (tempDate <= today && loopLimit > 0) {
     const dateStr = tempDate.toISOString().split('T')[0];
     datesList.push({
@@ -35,7 +40,9 @@ export default function LearningHeatmap({ userCreatedAt, activityMap }: Learning
     loopLimit--;
   }
 
-  // Format Vietnamese date: 12/08/2026
+  const totalActivities = Object.values(activityMap).reduce((a, b) => a + b, 0);
+  const activeDaysCount = Object.values(activityMap).filter((v) => v > 0).length;
+
   const formatDateVN = (dateStr: string) => {
     try {
       const parts = dateStr.split('-');
@@ -48,76 +55,71 @@ export default function LearningHeatmap({ userCreatedAt, activityMap }: Learning
     }
   };
 
+  const getColorClass = (count: number) => {
+    if (count === 0) return 'bg-muted/60 border-border/40 hover:border-border';
+    if (count <= 2) return 'bg-emerald-500/30 border-emerald-500/40';
+    if (count <= 5) return 'bg-emerald-500/60 border-emerald-500/70';
+    if (count <= 10) return 'bg-emerald-500/85 border-emerald-500';
+    return 'bg-emerald-600 border-emerald-700 shadow-xs shadow-emerald-500/20';
+  };
+
   return (
-    <div className="bg-card border border-border rounded-3xl p-6 sm:p-8 space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/40 pb-4">
+    <div className="bg-card border border-border/80 rounded-3xl p-6 sm:p-7 space-y-5 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 pb-4">
         <div className="flex items-center gap-2.5">
-          <Calendar className="h-5 w-5 text-emerald-500" />
-          <h2 className="text-xl font-black text-foreground">Bản đồ học tập (Heatmap)</h2>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          Bắt đầu từ ngày đăng ký {formatDateVN(userCreatedAt.split('T')[0])}. Thêm 1 ô vuông mỗi ngày.
-        </p>
-      </div>
-
-      {/* Grid of days */}
-      <div className="flex flex-wrap gap-1.5 min-h-[40px] items-center">
-        {datesList.map((item, index) => {
-          let bgColor = 'bg-slate-100 dark:bg-muted border border-border/30';
-          if (item.count > 0 && item.count <= 2) {
-            bgColor = 'bg-emerald-500/20 border border-emerald-500/30 text-emerald-600';
-          } else if (item.count > 2 && item.count <= 5) {
-            bgColor = 'bg-emerald-500/40 border border-emerald-500/50 text-white';
-          } else if (item.count > 5) {
-            bgColor = 'bg-emerald-600 border border-emerald-700 text-white';
-          }
-
-          const formattedDate = formatDateVN(item.dateStr);
-
-          return (
-            <div
-              key={item.dateStr}
-              onClick={() => setSelectedDate({ date: item.dateStr, count: item.count })}
-              title={`${formattedDate}: ${item.count} hoạt động`}
-              className={`w-6 h-6 rounded-md transition-all duration-200 cursor-pointer flex items-center justify-center text-[10px] font-bold hover:scale-110 active:scale-95 ${bgColor} group relative`}
-            >
-              {item.count > 0 && <span>{item.count}</span>}
-              
-              {/* Tooltip */}
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 bg-slate-900 text-white text-[10px] font-black rounded-lg whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 shadow-md">
-                {formattedDate} • {item.count} hoạt động
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Selected day details card */}
-      {selectedDate ? (
-        <div className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/10 flex items-center justify-between gap-4 animate-fade-in">
-          <div className="space-y-1">
-            <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-              Chi tiết ngày {formatDateVN(selectedDate.date)}
-            </h4>
-            <p className="text-sm font-semibold text-foreground">
-              {selectedDate.count > 0 
-                ? `Bạn đã hoàn thành ${selectedDate.count} hoạt động học tập vào ngày này.`
-                : 'Bạn không có hoạt động học tập nào được ghi nhận vào ngày này.'
-              }
+          <div className="h-8 w-8 rounded-xl bg-brand/10 border border-brand/20 flex items-center justify-center text-brand">
+            <Calendar className="h-4 w-4" />
+          </div>
+          <div>
+            <h2 className="text-base font-bold text-foreground">Bản Đồ Hoạt Động Học Tập</h2>
+            <p className="text-[11px] text-muted-foreground">
+              {totalActivities} hoạt động được ghi nhận qua {activeDaysCount} ngày chăm chỉ.
             </p>
           </div>
-          <button 
-            onClick={() => setSelectedDate(null)}
-            className="text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer px-2.5 py-1 rounded-lg hover:bg-muted"
-          >
-            Đóng
-          </button>
         </div>
-      ) : (
-        <p className="text-xs text-muted-foreground italic text-center">
-          Nhấp vào bất kỳ ô vuông nào để xem chi tiết hoạt động của ngày đó.
-        </p>
-      )}
+
+        {/* Legend */}
+        <div className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground self-start sm:self-auto">
+          <span>Ít</span>
+          <div className="flex items-center gap-1">
+            <div className="h-2.5 w-2.5 rounded-[3px] bg-muted/60 border border-border/40" />
+            <div className="h-2.5 w-2.5 rounded-[3px] bg-emerald-500/30 border border-emerald-500/40" />
+            <div className="h-2.5 w-2.5 rounded-[3px] bg-emerald-500/60 border border-emerald-500/70" />
+            <div className="h-2.5 w-2.5 rounded-[3px] bg-emerald-600 border border-emerald-700" />
+          </div>
+          <span>Nhiều</span>
+        </div>
+      </div>
+
+      {/* Heatmap Grid */}
+      <div className="overflow-x-auto pb-2">
+        <div className="flex flex-wrap gap-1.5 min-w-[500px]">
+          {datesList.map((item) => (
+            <div
+              key={item.dateStr}
+              onMouseEnter={() => setHoveredDate({ date: item.dateStr, count: item.count })}
+              onMouseLeave={() => setHoveredDate(null)}
+              className={`h-3.5 w-3.5 rounded-[3px] border transition-all cursor-pointer ${getColorClass(item.count)}`}
+              title={`${formatDateVN(item.dateStr)}: ${item.count} hoạt động`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Hover Info Tooltip bar */}
+      <div className="h-6 flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border/40">
+        {hoveredDate ? (
+          <div className="flex items-center gap-2 text-foreground font-medium">
+            <span className="h-2 w-2 rounded-full bg-brand" />
+            <span>Ngày {formatDateVN(hoveredDate.date)}: <strong>{hoveredDate.count}</strong> bài học & hoạt động hoàn thành</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/70">
+            <Info className="h-3 w-3" />
+            <span>Di chuột vào từng ô vuông để xem chi tiết số bài học đã làm trong ngày.</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

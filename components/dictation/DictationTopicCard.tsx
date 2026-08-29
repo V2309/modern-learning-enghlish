@@ -28,73 +28,53 @@ export default function DictationTopicCard({ topic }: DictationTopicCardProps) {
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -4 }}
       transition={{ duration: 0.3 }}
-      className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm hover:shadow-md hover:border-primary/30 transition-all flex flex-col justify-between"
+      className="group relative overflow-hidden rounded-3xl border border-border/80 bg-card p-6 shadow-xs hover:shadow-xl hover:border-brand/40 transition-all flex flex-col justify-between"
     >
-      {/* Glow highlight for completed or in-progress cards */}
-      {progress > 0 && (
-        <div 
-          className="absolute -right-12 -top-12 h-24 w-24 rounded-full bg-primary/10 blur-xl group-hover:bg-primary/20 transition-all"
-          style={{ transform: `scale(${1 + progress / 100})` }}
-        />
-      )}
-
       <div>
         <div className="flex items-center justify-between gap-2 mb-3">
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-brand/10 text-brand border border-brand/20">
             {level}
           </span>
           <div className="flex items-center gap-2">
             {isCompleted && (
-              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-500/10 text-green-600 border border-green-500/20">
-                Completed
+              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                Đã xong
               </span>
             )}
-            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-              <BookOpen size={14} />
-              {totalSentences} sentences
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground">
+              <BookOpen size={13} className="text-brand" />
+              {totalSentences} câu
             </span>
           </div>
         </div>
 
-        <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+        <h3 className="text-base sm:text-lg font-bold text-foreground mb-2 group-hover:text-brand transition-colors">
           {title}
         </h3>
 
         {description && (
-          <p className="text-sm text-muted-foreground line-clamp-2 mb-6">
+          <p className="text-xs text-muted-foreground line-clamp-2 mb-5 leading-relaxed">
             {description}
           </p>
         )}
       </div>
 
-      <div className="space-y-4 pt-4 border-t border-border/60">
-        {/* Topic Status */}
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground font-semibold">Status</span>
-          <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-bold border ${
-            isCompleted
-              ? "bg-green-500/10 text-green-600 border-green-500/20"
-              : "bg-muted text-muted-foreground border-border"
-          }`}>
-            {isCompleted ? "Completed" : "Uncompleted"}
-          </span>
-        </div>
-
+      <div className="space-y-3.5 pt-4 border-t border-border/60">
         {/* Extra stats */}
         <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">Average Accuracy</span>
-          <span className="font-semibold text-foreground flex items-center gap-1">
-            <Sparkles size={13} className="text-yellow-500" />
-            {progress > 0 ? `${averageAccuracy}%` : "N/A"}
+          <span className="text-muted-foreground">Độ chính xác</span>
+          <span className="font-bold text-brand flex items-center gap-1">
+            <Sparkles size={13} />
+            {progress > 0 ? `${averageAccuracy}%` : "Chưa làm"}
           </span>
         </div>
 
         {/* Action Button */}
         <Link href={`/dictation/${id}`} className="block w-full">
-          <button className="w-full cursor-pointer flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all border bg-foreground text-background hover:bg-foreground/90 active:scale-98">
-            <Headphones size={15} />
-            <span>{progress > 0 ? "Continue" : "Start Practice"}</span>
-            <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+          <button className="w-full cursor-pointer flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all bg-primary text-primary-foreground hover:bg-primary/90 shadow-md shadow-black/10">
+            <Headphones size={14} />
+            <span>{progress > 0 ? "Tiếp tục luyện" : "Bắt đầu làm bài"}</span>
+            <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
           </button>
         </Link>
       </div>

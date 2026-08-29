@@ -402,7 +402,7 @@ export const SentencePracticeMode: React.FC<SentencePracticeModeProps> = ({ word
                 }}
                 placeholder={`Ví dụ: ${currentWord.example ? currentWord.example : `Write a sentence containing "${currentWord.word}"...`}`}
                 rows={3}
-                className="w-full p-3 rounded-xl bg-muted/30 border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 text-foreground text-base placeholder:text-muted-foreground/60 resize-none outline-none transition-all"
+                className="w-full p-3 rounded-xl bg-muted/30 border border-border focus:border-brand focus:ring-2 focus:ring-brand/20 text-foreground text-base placeholder:text-muted-foreground/60 resize-none outline-none transition-all"
               />
             </div>
 
@@ -417,7 +417,7 @@ export const SentencePracticeMode: React.FC<SentencePracticeModeProps> = ({ word
               <button
                 onClick={handlePrevWord}
                 disabled={currentIndex === 0 || isEvaluating}
-                className="px-3.5 py-2 rounded-full border border-border text-muted-foreground hover:text-foreground hover:bg-muted text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 cursor-pointer"
+                className="px-3.5 py-2 rounded-xl border border-border text-muted-foreground hover:text-foreground hover:bg-muted text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 cursor-pointer"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
                 Từ trước
@@ -426,7 +426,7 @@ export const SentencePracticeMode: React.FC<SentencePracticeModeProps> = ({ word
               <button
                 onClick={handleSubmit}
                 disabled={isEvaluating || !userSentence.trim()}
-                className="px-5 py-2.5 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary/95 transition-all shadow-md shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
+                className="px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-all shadow-md shadow-black/10 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
               >
                 {isEvaluating ? (
                   <>
@@ -503,7 +503,7 @@ export const SentencePracticeMode: React.FC<SentencePracticeModeProps> = ({ word
 
                 {/* AI Feedback */}
                 <div className="space-y-1.5">
-                  <h5 className="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-1.5">
+                  <h5 className="text-xs font-bold text-brand uppercase tracking-wider flex items-center gap-1.5">
                     <Sparkles className="h-3.5 w-3.5" />
                     Nhận xét chi tiết từ AI
                   </h5>

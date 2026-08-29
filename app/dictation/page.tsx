@@ -48,31 +48,34 @@ export default async function DictationPage() {
     : 0;
 
   return (
-    <main className="container mx-auto px-4 py-8 space-y-8">
+    <div className="w-full space-y-8">
       {/* Title & Introduction */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-muted/20 border border-border/80 p-6 md:p-8 rounded-3xl">
-        <div className="space-y-1.5">
-          <h1 className="text-3xl font-black tracking-tight text-foreground flex items-center gap-2">
-            <Headphones className="text-primary" size={28} />
-            <span>Dictation</span>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 bg-card border border-border/80 p-6 md:p-8 rounded-3xl">
+        <div className="space-y-2">
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-brand bg-brand/10 px-3.5 py-1 rounded-full border border-brand/20">
+            <Headphones size={13} />
+            Luyện Nghe Chép Chính Tả AI
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+            Luyện Nghe <span className="text-brand">Dictation</span>
           </h1>
-          <p className="text-sm text-muted-foreground max-w-lg">
-            Listen carefully to spoken sentences and write down exactly what you hear. Master grammar, vocabulary, spelling, and listening comprehension.
+          <p className="text-xs sm:text-sm text-muted-foreground max-w-lg leading-relaxed">
+            Lắng nghe ngữ điệu bản xứ và ghi lại chính xác từng câu. Rèn luyện phản xạ nghe, nối âm, từ vựng và ngữ pháp toàn diện.
           </p>
         </div>
 
         {/* User Stats Card in Header */}
         {attemptedTopicsCount > 0 && (
-          <div className="flex items-center gap-4 bg-card border border-border/60 p-4 rounded-2xl shadow-sm self-start md:self-auto min-w-[200px] justify-around">
+          <div className="flex items-center gap-4 bg-muted/40 border border-border/60 p-4 rounded-2xl shadow-xs self-start md:self-auto min-w-[200px] justify-around">
             <div className="flex flex-col items-center">
-              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Completed</span>
-              <span className="text-lg font-black text-foreground">{completedTopicsCount}/{topics.length}</span>
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Đã hoàn thành</span>
+              <span className="text-base font-black text-foreground">{completedTopicsCount}/{topics.length}</span>
             </div>
             <div className="h-8 w-px bg-border/60" />
             <div className="flex flex-col items-center">
-              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Avg Accuracy</span>
-              <span className="text-lg font-black text-foreground flex items-center gap-0.5">
-                <Sparkles size={13} className="text-yellow-500" />
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Độ chính xác</span>
+              <span className="text-base font-black text-brand flex items-center gap-0.5">
+                <Sparkles size={13} className="text-brand" />
                 {overallAvgAccuracy}%
               </span>
             </div>
@@ -81,23 +84,23 @@ export default async function DictationPage() {
       </div>
 
       {/* Topics Grid */}
-      <div className="space-y-6">
+      <div className="space-y-5">
         <div className="flex items-center justify-between border-b border-border pb-3">
-          <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-            <BookOpen size={18} className="text-primary" />
-            <span>Practice Topics</span>
+          <h2 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
+            <BookOpen size={18} className="text-brand" />
+            <span>Chủ Đề Luyện Nghe</span>
           </h2>
           {user.role === "admin" && (
             <Link
               href="/admin/dictation"
-              className="text-xs font-bold text-primary hover:underline"
+              className="text-xs font-bold text-brand hover:underline"
             >
-              Admin Dashboard &rarr;
+              Trang Quản Trị &rarr;
             </Link>
           )}
         </div>
         <DictationTopicList topics={topics} />
       </div>
-    </main>
+    </div>
   );
 }
