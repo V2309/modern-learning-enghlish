@@ -41,7 +41,7 @@ export const FlashcardMode = ({
     const isGoodRecall = rating === 'good' || rating === 'easy';
     if (onSetMasterStatus && isGoodRecall) {
       onSetMasterStatus(currentWord.id, true);
-    } else if (onSetMasterStatus && rating === 'again') {
+    } else if (onSetMasterStatus && (rating === 'again' || rating === 'hard')) {
       onSetMasterStatus(currentWord.id, false);
     }
 

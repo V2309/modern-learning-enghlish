@@ -37,7 +37,7 @@ export default async function TopicLayout(props: LayoutProps) {
   const words = await getVocabularyByTopic(topicId);
   const masteredProgresses = await getVocabularyProgress(user.uid);
   const initialMasteredWordIds = masteredProgresses
-    .filter((vp) => vp.vocabulary.topicId === topicId)
+    .filter((vp) => vp.vocabulary.topicId === topicId && (vp.status === 'mastered' || vp.status === 'reviewing' || (vp.interval && vp.interval >= 1) || Boolean(vp.masteredAt)))
     .map((vp) => vp.vocabularyId);
 
   return (
