@@ -11,7 +11,7 @@ export const Flashcard = ({
   isFlipped,
   onFlip,
 }: {
-  word: Vocabulary;
+  word: Vocabulary & { mastered?: boolean };
   speak: (t: string) => void;
   isFlipped: boolean;
   onFlip: () => void;
@@ -32,10 +32,10 @@ export const Flashcard = ({
             transition={{ duration: 0.3 }}
             className="absolute inset-0 w-full h-full p-6 sm:p-8 rounded-3xl bg-card border border-border shadow-xl flex flex-col items-center justify-center space-y-4 text-foreground backface-hidden overflow-hidden"
           >
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-brand/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
 
             {word.partOfSpeech && (
-              <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider border border-primary/20">
+              <span className="px-3 py-1 rounded-full bg-brand/10 text-brand text-xs font-bold uppercase tracking-wider border border-brand/20">
                 {word.partOfSpeech}
               </span>
             )}
@@ -51,7 +51,7 @@ export const Flashcard = ({
             )}
 
             <div className="flex items-center gap-2 text-muted-foreground/70 text-xs font-medium pt-3">
-              <Sparkles className="h-3.5 w-3.5 text-primary" />
+              <Sparkles className="h-3.5 w-3.5 text-brand" />
               <span>Nhấn để lật xem nghĩa &amp; ví dụ</span>
             </div>
           </motion.div>
@@ -65,11 +65,11 @@ export const Flashcard = ({
             transition={{ duration: 0.3 }}
             className="absolute inset-0 w-full h-full p-6 rounded-3xl bg-card border border-border shadow-xl flex flex-col justify-between text-foreground backface-hidden overflow-hidden"
           >
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -ml-32 -mb-32 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-brand/5 rounded-full blur-3xl -ml-32 -mb-32 pointer-events-none" />
 
             {/* Top Bar on Card Back */}
             <div className="flex items-center justify-between shrink-0">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-brand bg-brand/10 px-2.5 py-0.5 rounded-full border border-brand/20">
                 {word.partOfSpeech || 'Từ vựng'}
               </span>
               <div className="flex items-center gap-1 text-muted-foreground/70 text-[11px] font-semibold">
@@ -92,7 +92,7 @@ export const Flashcard = ({
 
               {/* Pronunciation & Audio Pill */}
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-muted/60 border border-border">
-                <Languages className="h-3.5 w-3.5 text-primary shrink-0" />
+                <Languages className="h-3.5 w-3.5 text-brand shrink-0" />
                 <span className="font-mono text-xs sm:text-sm tracking-wide text-foreground">
                   {word.pronunciation || '/.../'}
                 </span>
@@ -102,7 +102,7 @@ export const Flashcard = ({
                     e.stopPropagation();
                     speak(word.word);
                   }}
-                  className="p-1 rounded-full bg-primary/10 hover:bg-primary text-primary hover:text-white transition-all active:scale-95 cursor-pointer shrink-0 ml-0.5"
+                  className="p-1 rounded-full bg-brand/10 hover:bg-brand text-brand hover:text-white transition-all active:scale-95 cursor-pointer shrink-0 ml-0.5"
                   title="Phát âm"
                 >
                   <Volume2 className="h-3.5 w-3.5" />
@@ -110,7 +110,7 @@ export const Flashcard = ({
               </div>
             </div>
 
-            {/* Bottom: Example Box (fully visible & fitted) */}
+            {/* Bottom: Example Box */}
             {(word.examples && word.examples.length > 0 ? word.examples : [word.example]).some(Boolean) && (
               <div className="p-3 rounded-2xl bg-muted/40 border border-border/80 text-center space-y-1 shrink-0">
                 <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block">
@@ -127,4 +127,3 @@ export const Flashcard = ({
     </div>
   );
 };
-

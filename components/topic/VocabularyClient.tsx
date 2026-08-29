@@ -6,7 +6,7 @@ import Link from 'next/link';
 import {
   BookOpen, ChevronRight, Search, Plus, X,
   MoreVertical, Pencil, Trash2, Check, Sparkles,
-  GraduationCap,
+  GraduationCap, Brain,
 } from 'lucide-react';
 import { createTopicAction, updateTopicAction, deleteTopicAction } from '@/actions/topic.action';
 import { toggleTopicCompletionAction } from '@/actions/progress.action';
@@ -332,6 +332,35 @@ export default function VocabularyClient({
             </button>
           )}
         </div>
+      </div>
+
+      {/* ── SRS Spaced Repetition Callout Banner ─────────────────────────── */}
+      <div className="mb-8 p-5 sm:p-6 rounded-3xl bg-card border border-border/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="h-11 w-11 rounded-2xl bg-brand/10 border border-brand/20 flex items-center justify-center text-brand shrink-0">
+            <Brain className="h-5 w-5" />
+          </div>
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm sm:text-base font-bold text-foreground">Ôn Tập Ngắt Quãng (SRS Review)</h3>
+              <span className="text-[9px] font-black uppercase text-brand bg-brand/10 px-2 py-0.5 rounded border border-brand/20">
+                Thuật toán SM-2
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Ôn lại các từ vựng đến hạn hôm nay để củng cố trí nhớ dài hạn và không bao giờ bị quên.
+            </p>
+          </div>
+        </div>
+
+        <Link
+          href="/review"
+          className="px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-all shadow-md shadow-black/10 flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+        >
+          <Sparkles className="h-3.5 w-3.5 text-brand" />
+          <span>Vào Bảng Ôn Tập</span>
+          <ChevronRight className="h-3.5 w-3.5" />
+        </Link>
       </div>
 
       {/* ── Topic Grid ──────────────────────────────────────────────────── */}

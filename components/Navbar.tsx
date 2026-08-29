@@ -18,6 +18,7 @@ const Navbar = () => {
   const allNavItems = [
     { name: 'Home', path: '/', requiresAuth: false },
     { name: 'Vocabulary', path: '/vocabulary', requiresAuth: true },
+    // { name: 'Ôn Tập (SRS)', path: '/review', requiresAuth: true },
     { name: 'Courses', path: '/courses', requiresAuth: false },
     { name: 'Shadowing', path: '/shadowing', requiresAuth: true },
     { name: 'Dictation', path: '/dictation', requiresAuth: true },

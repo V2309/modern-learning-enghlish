@@ -91,7 +91,7 @@ export async function getDailyActivity(userId: string) {
     }),
     prisma.vocabularyProgress.findMany({
       where: { userId },
-      select: { masteredAt: true }
+      select: { masteredAt: true, lastReviewedAt: true }
     })
   ]);
 
@@ -109,7 +109,11 @@ export async function getDailyActivity(userId: string) {
   };
 
   lessonProgress.forEach(lp => addActivity(lp.completedAt));
-  vocabProgress.forEach(vp => addActivity(vp.masteredAt));
+  vocabProgress.forEach(vp => {
+    if (vp.masteredAt || vp.lastReviewedAt) {
+      addActivity(vp.masteredAt || vp.lastReviewedAt || new Date());
+    }
+  });
 
   return activityMap;
 }
@@ -130,7 +134,7 @@ export async function getRecentLearning(userId: string) {
     }),
     prisma.vocabularyProgress.findMany({
       where: { userId },
-      orderBy: { masteredAt: "desc" },
+      orderBy: { lastReviewedAt: "desc" },
       take: 5,
       include: {
         vocabulary: {
@@ -154,19 +158,19 @@ export async function getRecentLearning(userId: string) {
       id: rv.id,
       type: "vocabulary" as const,
       title: rv.vocabulary.word,
-      subtitle: rv.vocabulary.topic.name,
-      timestamp: rv.masteredAt
+      subtitle: rv.vocabulary.topic?.name || 'Từ vựng',
+      timestamp: rv.lastReviewedAt || rv.masteredAt || new Date()
     }))
   ];
 
   // Sort activities by timestamp descending
-  return activities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()).slice(0, 5);
+  return activities.sort((a, b) => (b.timestamp ? b.timestamp.getTime() : 0) - (a.timestamp ? a.timestamp.getTime() : 0)).slice(0, 5);
 }
 
 export async function getLearningStreak(userId: string) {
   const [lessonDates, vocabDates] = await Promise.all([
     prisma.lessonProgress.findMany({ where: { userId }, select: { completedAt: true } }),
-    prisma.vocabularyProgress.findMany({ where: { userId }, select: { masteredAt: true } })
+    prisma.vocabularyProgress.findMany({ where: { userId }, select: { masteredAt: true, lastReviewedAt: true } })
   ]);
 
   const toLocalDateString = (date: Date) => {
@@ -177,7 +181,7 @@ export async function getLearningStreak(userId: string) {
 
   const dates = [
     ...lessonDates.map((lp) => lp.completedAt),
-    ...vocabDates.map((vp) => vp.masteredAt)
+    ...vocabDates.map((vp) => vp.lastReviewedAt || vp.masteredAt).filter(Boolean) as Date[]
   ].map(toLocalDateString);
 
   const uniqueDates = Array.from(new Set(dates)).sort((a, b) => b.localeCompare(a));

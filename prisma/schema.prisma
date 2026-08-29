@@ -222,16 +222,43 @@ model LessonProgress {
 }
 
 model VocabularyProgress {
-  id           String   @id @db.VarChar(255)
-  userId       String   @map("user_id") @db.VarChar(255)
-  vocabularyId String   @map("vocabulary_id") @db.VarChar(255)
-  masteredAt   DateTime @default(now()) @map("mastered_at") @db.Timestamp()
+  id             String    @id @db.VarChar(255)
+  userId         String    @map("user_id") @db.VarChar(255)
+  vocabularyId   String    @map("vocabulary_id") @db.VarChar(255)
+  
+  // SRS SM-2 fields
+  status         String    @default("learning") @db.VarChar(50) // "learning" | "reviewing" | "mastered"
+  interval       Int       @default(0) // Interval in days
+  easeFactor     Float     @default(2.5) @map("ease_factor")
+  repetitions    Int       @default(0)
+  nextReviewAt   DateTime  @default(now()) @map("next_review_at") @db.Timestamp()
+  lastReviewedAt DateTime? @map("last_reviewed_at") @db.Timestamp()
+  reviewCount    Int       @default(0) @map("review_count")
+  lapseCount     Int       @default(0) @map("lapse_count")
+  masteredAt     DateTime? @map("mastered_at") @db.Timestamp()
 
-  user         User       @relation(fields: [userId], references: [uid], onDelete: Cascade)
-  vocabulary   Vocabulary @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
+  user           User       @relation(fields: [userId], references: [uid], onDelete: Cascade)
+  vocabulary     Vocabulary @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
+  reviewLogs     SrsReviewLog[]
 
   @@unique([userId, vocabularyId], name: "uniqueUserVocabularyProgress")
+  @@index([userId, nextReviewAt])
   @@map("vocabulary_progress")
+}
+
+model SrsReviewLog {
+  id             String    @id @default(uuid()) @db.VarChar(255)
+  userId         String    @map("user_id") @db.VarChar(255)
+  progressId     String    @map("progress_id") @db.VarChar(255)
+  rating         String    @db.VarChar(20) // "again" | "hard" | "good" | "easy"
+  intervalBefore Int       @map("interval_before")
+  intervalAfter  Int       @map("interval_after")
+  easeFactor     Float     @default(2.5) @map("ease_factor")
+  reviewedAt     DateTime  @default(now()) @map("reviewed_at") @db.Timestamp()
+
+  progress       VocabularyProgress @relation(fields: [progressId], references: [id], onDelete: Cascade)
+
+  @@map("srs_review_logs")
 }
 
 model TopicProgress {

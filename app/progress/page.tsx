@@ -92,7 +92,7 @@ export default async function ProgressPage() {
                     </div>
                     <p className="text-sm text-muted-foreground leading-normal line-clamp-1">{vp.vocabulary.meaning}</p>
                     <span className="text-[10px] text-muted-foreground/60 block">
-                      Đã thuộc vào: {new Date(vp.masteredAt).toLocaleDateString('vi-VN')}
+                      Đã thuộc vào: {new Date(vp.masteredAt || Date.now()).toLocaleDateString('vi-VN')}
                     </span>
                   </div>
                   <Link 

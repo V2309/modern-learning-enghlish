@@ -1,10 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, X, Check } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Vocabulary } from '@/data/mockData';
 import { Flashcard } from './Flashcard';
+import { submitSrsReviewAction } from '@/actions/srs.action';
+import { SrsRating } from '@/services/srs.service';
+import { toast } from 'react-hot-toast';
 
 interface FlashcardModeProps {
   words: (Vocabulary & { mastered?: boolean })[];
@@ -21,22 +24,56 @@ export const FlashcardMode = ({
   speak,
   onSetMasterStatus,
 }: FlashcardModeProps) => {
-  const [isFlipped, setIsFlipped] = React.useState(false);
-  const [shuffledWords, setShuffledWords] = React.useState(() =>
-    [...words]
-  );
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [shuffledWords, setShuffledWords] = useState(() => [...words]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Sync when words list changes
-  React.useEffect(() => {
+  useEffect(() => {
     setShuffledWords([...words]);
   }, [words]);
 
   // Reset flip state when card changes
-  React.useEffect(() => {
+  useEffect(() => {
     setIsFlipped(false);
   }, [flashcardIndex]);
 
-  React.useEffect(() => {
+  const currentWord = shuffledWords[flashcardIndex];
+
+  const handleSrsRate = async (rating: SrsRating) => {
+    if (!currentWord || isSubmitting) return;
+
+    setIsSubmitting(true);
+
+    const isGoodRecall = rating === 'good' || rating === 'easy';
+    if (onSetMasterStatus && isGoodRecall) {
+      onSetMasterStatus(currentWord.id, true);
+    } else if (onSetMasterStatus && rating === 'again') {
+      onSetMasterStatus(currentWord.id, false);
+    }
+
+    try {
+      await submitSrsReviewAction(currentWord.id, rating);
+      const labels: Record<SrsRating, string> = {
+        again: '🔴 Ôn lại sau 10 phút',
+        hard: '🟠 Ôn lại sau 1 ngày',
+        good: '🔵 Ôn lại sau 3 ngày',
+        easy: '🟢 Ôn lại sau 7 ngày',
+      };
+      toast.success(labels[rating], { duration: 1500, position: 'bottom-center' });
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSubmitting(false);
+    }
+
+    // Auto advance to next card
+    if (flashcardIndex < shuffledWords.length - 1) {
+      setFlashcardIndex((prev) => prev + 1);
+    }
+  };
+
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === 'Space') {
         e.preventDefault();
@@ -47,18 +84,24 @@ export const FlashcardMode = ({
       } else if (e.code === 'ArrowRight') {
         e.preventDefault();
         setFlashcardIndex((prev) => Math.min(shuffledWords.length - 1, prev + 1));
-      } else if (e.key === '1' && onSetMasterStatus && shuffledWords[flashcardIndex]) {
+      } else if (e.key === '1') {
         e.preventDefault();
-        onSetMasterStatus(shuffledWords[flashcardIndex].id, false);
-      } else if (e.key === '2' && onSetMasterStatus && shuffledWords[flashcardIndex]) {
+        handleSrsRate('again');
+      } else if (e.key === '2') {
         e.preventDefault();
-        onSetMasterStatus(shuffledWords[flashcardIndex].id, true);
+        handleSrsRate('hard');
+      } else if (e.key === '3') {
+        e.preventDefault();
+        handleSrsRate('good');
+      } else if (e.key === '4') {
+        e.preventDefault();
+        handleSrsRate('easy');
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [shuffledWords, flashcardIndex, setFlashcardIndex, onSetMasterStatus]);
+  }, [shuffledWords, flashcardIndex]);
 
   if (shuffledWords.length === 0) {
     return (
@@ -84,7 +127,7 @@ export const FlashcardMode = ({
 
           <div className="w-40 h-1.5 bg-muted rounded-full mx-auto overflow-hidden">
             <div
-              className="h-full bg-primary transition-all duration-300"
+              className="h-full bg-brand transition-all duration-300"
               style={{ width: `${((flashcardIndex + 1) / shuffledWords.length) * 100}%` }}
             />
           </div>
@@ -110,19 +153,20 @@ export const FlashcardMode = ({
             className="cursor-grab active:cursor-grabbing touch-pan-y"
           >
             <Flashcard
-              word={shuffledWords[flashcardIndex]}
+              word={currentWord}
               speak={speak}
               isFlipped={isFlipped}
               onFlip={() => setIsFlipped((prev) => !prev)}
             />
           </motion.div>
 
+          {/* Navigation Controls */}
           <div className="flex items-center justify-center gap-4 mt-4">
             <button
               onClick={() => setFlashcardIndex((prev) => Math.max(0, prev - 1))}
               disabled={flashcardIndex === 0}
               title="Thẻ trước (←)"
-              className="p-2.5 rounded-full bg-muted border border-border text-foreground hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm cursor-pointer"
+              className="p-2.5 rounded-full bg-muted border border-border text-foreground hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-xs cursor-pointer"
             >
               <ChevronLeft size={18} />
             </button>
@@ -130,7 +174,7 @@ export const FlashcardMode = ({
             <button
               onClick={() => setIsFlipped((prev) => !prev)}
               title="Lật thẻ (Space)"
-              className="px-4 py-2 rounded-full bg-primary/10 border border-primary/30 text-primary font-semibold text-xs hover:bg-primary hover:text-white transition-all shadow-sm cursor-pointer"
+              className="px-5 py-2 rounded-full bg-brand/10 border border-brand/30 text-brand font-bold text-xs hover:bg-brand hover:text-white transition-all shadow-xs cursor-pointer"
             >
               Lật thẻ (Space)
             </button>
@@ -139,32 +183,52 @@ export const FlashcardMode = ({
               onClick={() => setFlashcardIndex((prev) => Math.min(shuffledWords.length - 1, prev + 1))}
               disabled={flashcardIndex === shuffledWords.length - 1}
               title="Thẻ tiếp theo (→)"
-              className="p-2.5 rounded-full bg-muted border border-border text-foreground hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm cursor-pointer"
+              className="p-2.5 rounded-full bg-muted border border-border text-foreground hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-xs cursor-pointer"
             >
               <ChevronRight size={18} />
             </button>
           </div>
 
-          {onSetMasterStatus && (
-            <div className="flex items-center justify-center gap-3 mt-3">
-              <button
-                onClick={() => onSetMasterStatus(shuffledWords[flashcardIndex].id, false)}
-                className="px-4 py-2 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-500 hover:bg-rose-500 hover:text-white font-bold text-xs uppercase tracking-wider transition-all shadow-sm cursor-pointer flex items-center gap-1.5"
-              >
-                <X className="h-3.5 w-3.5 stroke-[3]" />
-                Khó (1)
-              </button>
-              <button
-                onClick={() => onSetMasterStatus(shuffledWords[flashcardIndex].id, true)}
-                className="px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 hover:bg-emerald-500 hover:text-white font-bold text-xs uppercase tracking-wider transition-all shadow-sm cursor-pointer flex items-center gap-1.5"
-              >
-                <Check className="h-3.5 w-3.5 stroke-[3]" />
-                Đã biết (2)
-              </button>
-            </div>
-          )}
+          {/* 4 SRS Rating Buttons */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4 max-w-xl mx-auto">
+            <button
+              onClick={() => handleSrsRate('again')}
+              disabled={isSubmitting}
+              className="p-2.5 rounded-2xl bg-rose-500/10 hover:bg-rose-500 border border-rose-500/30 text-rose-500 hover:text-white font-bold text-xs transition-all shadow-xs cursor-pointer flex flex-col items-center justify-center disabled:opacity-50 group"
+            >
+              <span className="uppercase tracking-wider">Again (1)</span>
+              <span className="text-[10px] text-muted-foreground group-hover:text-white/80 font-medium">10 phút</span>
+            </button>
 
-          <p className="text-center text-[11px] text-muted-foreground mt-2.5 opacity-60 flex flex-wrap justify-center items-center gap-1">
+            <button
+              onClick={() => handleSrsRate('hard')}
+              disabled={isSubmitting}
+              className="p-2.5 rounded-2xl bg-amber-500/10 hover:bg-amber-500 border border-amber-500/30 text-amber-600 dark:text-amber-400 hover:text-white font-bold text-xs transition-all shadow-xs cursor-pointer flex flex-col items-center justify-center disabled:opacity-50 group"
+            >
+              <span className="uppercase tracking-wider">Hard (2)</span>
+              <span className="text-[10px] text-muted-foreground group-hover:text-white/80 font-medium">1 ngày</span>
+            </button>
+
+            <button
+              onClick={() => handleSrsRate('good')}
+              disabled={isSubmitting}
+              className="p-2.5 rounded-2xl bg-sky-500/10 hover:bg-sky-500 border border-sky-500/30 text-sky-600 dark:text-sky-400 hover:text-white font-bold text-xs transition-all shadow-xs cursor-pointer flex flex-col items-center justify-center disabled:opacity-50 group"
+            >
+              <span className="uppercase tracking-wider">Good (3)</span>
+              <span className="text-[10px] text-muted-foreground group-hover:text-white/80 font-medium">3 ngày</span>
+            </button>
+
+            <button
+              onClick={() => handleSrsRate('easy')}
+              disabled={isSubmitting}
+              className="p-2.5 rounded-2xl bg-emerald-500/10 hover:bg-emerald-500 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:text-white font-bold text-xs transition-all shadow-xs cursor-pointer flex flex-col items-center justify-center disabled:opacity-50 group"
+            >
+              <span className="uppercase tracking-wider">Easy (4)</span>
+              <span className="text-[10px] text-muted-foreground group-hover:text-white/80 font-medium">7 ngày</span>
+            </button>
+          </div>
+
+          <p className="text-center text-[11px] text-muted-foreground mt-3 opacity-60 flex flex-wrap justify-center items-center gap-1">
             <kbd className="px-1 py-0.5 rounded bg-muted border border-border font-mono text-[10px]">←</kbd>
             <span>Trước</span>
             <span className="mx-1">•</span>
@@ -173,10 +237,12 @@ export const FlashcardMode = ({
             <span className="mx-1">•</span>
             <kbd className="px-1 py-0.5 rounded bg-muted border border-border font-mono text-[10px]">→</kbd>
             <span>Sau</span>
+            <span className="mx-1">•</span>
+            <kbd className="px-1 py-0.5 rounded bg-muted border border-border font-mono text-[10px]">1-4</kbd>
+            <span>Đánh giá ghi nhớ</span>
           </p>
         </div>
       </motion.div>
     </div>
   );
 };
-
