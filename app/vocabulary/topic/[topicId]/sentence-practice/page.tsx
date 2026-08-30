@@ -5,9 +5,18 @@ import { hasPaidCourseAccess } from '@/services/course.service';
 import Link from 'next/link';
 import { Lock, ArrowRight } from 'lucide-react';
 
+import { getUserSentencePracticesByTopic } from '@/services/sentencePractice.service';
+
 export const dynamic = "force-dynamic";
 
-export default async function SentencePracticePage() {
+interface PageProps {
+  params: Promise<{ topicId: string }>;
+}
+
+export default async function SentencePracticePage(props: PageProps) {
+  const params = await props.params;
+  const topicId = params.topicId;
+
   const user = await getCurrentUser();
   if (!user) {
     return (
@@ -48,5 +57,25 @@ export default async function SentencePracticePage() {
     );
   }
 
-  return <SentencePracticePageClient />;
+  const rawSaved = await getUserSentencePracticesByTopic(user.uid, topicId);
+  const initialPractices = rawSaved.map((p) => ({
+    id: p.id,
+    vocabularyId: p.vocabularyId,
+    userSentence: p.userSentence,
+    isCorrect: p.isCorrect,
+    score: p.score,
+    targetWordUsed: p.targetWordUsed,
+    feedback: p.feedback,
+    grammarErrors: p.grammarErrors,
+    suggestedSentence: p.suggestedSentence,
+    suggestedSentenceMeaning: p.suggestedSentenceMeaning,
+    updatedAt: p.updatedAt,
+  }));
+
+  return (
+    <SentencePracticePageClient
+      topicId={topicId}
+      initialPractices={initialPractices}
+    />
+  );
 }

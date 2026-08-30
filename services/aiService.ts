@@ -108,19 +108,24 @@ export async function evaluateUserSentence(data: {
   }
 
   try {
-    const prompt = `Bạn là một giáo viên dạy tiếng Anh chuyên nghiệp.
+    const prompt = `Bạn là một giáo viên dạy tiếng Anh thân thiện và chuyên nghiệp.
 Người học vừa tự đặt câu với từ tiếng Anh sau:
 - Từ vựng: "${data.word}" (${data.partOfSpeech || 'N/V/Adj'})
 - Nghĩa tiếng Việt của từ: "${data.meaning}"
 - Câu người dùng vừa đặt: "${data.userSentence}"
 
-Hãy phân tích và đánh giá câu của người dùng theo các tiêu chí:
-1. Từ "${data.word}" có được sử dụng chính xác về ngữ cảnh, ngữ nghĩa và từ loại không?
-2. Ngữ pháp, từ vựng và sự tự nhiên của toàn câu tiếng Anh có đúng không?
+Hãy phân tích và đánh giá câu của người dùng theo các tiêu chí và quy tắc sau:
+1. Kiểm tra xem từ "${data.word}" có được sử dụng chính xác về ngữ cảnh, ngữ nghĩa và từ loại hay không.
+2. Kiểm tra ngữ pháp, chính tả và độ tự nhiên của toàn câu tiếng Anh.
 3. Thang điểm từ 0 - 100.
-4. Đưa ra nhận xét chi tiết, gần gũi bằng tiếng Việt.
-5. Liệt kê danh sách các lỗi ngữ pháp/chính tả nếu có (bằng tiếng Việt).
-6. Đưa ra một câu gợi ý chuẩn và tự nhiên bằng tiếng Anh (bắt buộc phải sử dụng đúng từ vựng "${data.word}" trong ngữ cảnh và cấu trúc chính xác) kèm theo dịch nghĩa tiếng Việt.`;
+4. Đưa ra nhận xét chi tiết, dễ hiểu, mang tính khích lệ bằng tiếng Việt.
+5. Liệt kê danh sách các lỗi ngữ pháp/chính tả/dùng từ nếu có (bằng tiếng Việt).
+6. Đưa ra câu gợi ý hoàn chỉnh ("suggestedSentence") kèm bản dịch nghĩa tiếng Việt ("suggestedSentenceMeaning") tuân thủ nghiêm ngặt các QUY TẮC sau:
+   - BÁM SÁT Ý ĐỊNH CỦA NGƯỜI DÙNG: Hiểu rõ ý tưởng/nội dung mà người học muốn truyền tải qua câu của họ. Tuyệt đối KHÔNG tự ý bịa ra một ngữ cảnh hoặc nội dung hoàn toàn khác.
+   - NÂNG CẤP CÁCH DIỄN ĐẠT (NẾU CHƯA TỐT): Nếu người dùng có ý tưởng nhưng cách đặt câu còn lủng củng, gượng gạo, dịch word-by-word hoặc sai ngữ pháp -> Hãy giữ đúng ý tưởng đó và diễn đạt lại thành một câu tiếng Anh tự nhiên, mượt mà, đúng văn phong đời sống thường ngày.
+   - NẾU CÂU ĐÃ ỔN: Giữ nguyên cấu trúc của người dùng và chỉ tinh chỉnh nhẹ (mạo từ, giới từ, thì...) để câu chuẩn chỉnh hơn.
+   - TỪ VỰNG TỰ NHIÊN, DỄ HIỂU: Sử dụng từ ngữ thông dụng, gần gũi trong giao tiếp thực tế. Tuyệt đối KHÔNG dùng từ vựng quá cao siêu, học thuật phức tạp hoặc đao to búa lớn gây khó hiểu cho người học.
+   - BẮT BUỘC phải chứa từ khóa "${data.word}" với ngữ cảnh và ngữ pháp chính xác.`;
 
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
@@ -139,8 +144,14 @@ Hãy phân tích và đánh giá câu của người dùng theo các tiêu chí:
               items: { type: Type.STRING },
               description: "Danh sách lỗi ngữ pháp hoặc dùng từ"
             },
-            suggestedSentence: { type: Type.STRING, description: "Câu gợi ý chuẩn và tự nhiên bằng tiếng Anh (bắt buộc phải chứa từ khóa cần luyện tập)" },
-            suggestedSentenceMeaning: { type: Type.STRING, description: "Dịch nghĩa tiếng Việt của câu gợi ý" }
+            suggestedSentence: {
+              type: Type.STRING,
+              description: "Câu gợi ý chuẩn, mượt mà bằng tiếng Anh bám sát trọn vẹn ý tưởng của người dùng, nâng cấp cách diễn đạt tự nhiên, dùng từ ngữ thông dụng dễ hiểu và chứa từ khóa cần luyện tập"
+            },
+            suggestedSentenceMeaning: {
+              type: Type.STRING,
+              description: "Dịch nghĩa tiếng Việt của câu gợi ý, phản ánh đúng ý tưởng người dùng muốn diễn đạt"
+            }
           },
           required: ["isCorrect", "score", "targetWordUsed", "feedback", "grammarErrors", "suggestedSentence", "suggestedSentenceMeaning"]
         }

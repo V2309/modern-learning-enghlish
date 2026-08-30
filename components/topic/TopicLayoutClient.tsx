@@ -63,13 +63,21 @@ export default function TopicLayoutClient({
     setIsDeletingWord,
     setWords,
     setMasteredIds,
+    setFlashcardIndex,
+    setCurrentQuizIndex,
+    setDictationIndex,
+    setTranslateIndex,
   } = useTopicDetailStore();
 
-  // Sync server data to Zustand store
+  // Sync server data to Zustand store and reset progress indices when topic changes
   useEffect(() => {
     setWords(initialWords);
     setMasteredIds(initialMasteredWordIds);
-  }, [initialWords, initialMasteredWordIds, setWords, setMasteredIds]);
+    setFlashcardIndex(0);
+    setCurrentQuizIndex(0);
+    setDictationIndex(0);
+    setTranslateIndex(0);
+  }, [topic.id, initialWords, initialMasteredWordIds, setWords, setMasteredIds, setFlashcardIndex, setCurrentQuizIndex, setDictationIndex, setTranslateIndex]);
 
   // Determine active mode dynamically based on pathname
   let activeMode: 'list' | 'flashcards' | 'quiz' | 'match' | 'dictation' | 'translate' | 'sentence-practice' = 'list';
@@ -191,7 +199,7 @@ export default function TopicLayoutClient({
       )}>
         {/* Inner centered page container */}
         <div className={cn(
-          'container mx-auto px-4 py-3 flex-1 flex flex-col',
+          'w-full max-w-[1650px] mx-auto px-3 sm:px-6 py-3 flex-1 flex flex-col',
           isPracticeMode ? 'h-full overflow-hidden' : ''
         )}>
           {/* Page Header */}

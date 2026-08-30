@@ -48,6 +48,7 @@ model User {
   todoLists          TodoList[]
   todoCompletions    TodoCompletion[]
   pomodoroSessions   PomodoroSession[]
+  sentencePractices  UserSentencePractice[]
 
   @@map("users")
 }
@@ -83,6 +84,7 @@ model Vocabulary {
   topic            Topic        @relation(fields: [topicId], references: [id], onDelete: Cascade)
   createdByUser    User?        @relation(fields: [createdByUserId], references: [uid], onDelete: SetNull)
   vocabProgresses  VocabularyProgress[]
+  sentencePractices UserSentencePractice[]
 
   @@map("vocabulary")
 }
@@ -418,4 +420,26 @@ model PomodoroSession {
   user        User     @relation(fields: [userId], references: [uid], onDelete: Cascade)
 
   @@map("pomodoro_sessions")
+}
+
+model UserSentencePractice {
+  id                       String   @id @default(uuid()) @db.VarChar(255)
+  userId                   String   @map("user_id") @db.VarChar(255)
+  vocabularyId             String   @map("vocabulary_id") @db.VarChar(255)
+  userSentence             String   @map("user_sentence") @db.Text
+  isCorrect                Boolean  @default(false) @map("is_correct")
+  score                    Int      @default(0)
+  targetWordUsed           Boolean  @default(true) @map("target_word_used")
+  feedback                 String   @db.Text
+  grammarErrors            String[] @map("grammar_errors")
+  suggestedSentence        String   @map("suggested_sentence") @db.Text
+  suggestedSentenceMeaning String   @map("suggested_sentence_meaning") @db.Text
+  createdAt                DateTime @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt                DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp()
+
+  user                     User       @relation(fields: [userId], references: [uid], onDelete: Cascade)
+  vocabulary               Vocabulary @relation(fields: [vocabularyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, vocabularyId], name: "uniqueUserVocabSentencePractice")
+  @@map("user_sentence_practices")
 }
