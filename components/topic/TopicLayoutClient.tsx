@@ -69,14 +69,24 @@ export default function TopicLayoutClient({
     setTranslateIndex,
   } = useTopicDetailStore();
 
-  // Sync server data to Zustand store and reset progress indices when topic changes
+  // Track previous topic id so we only reset progress indices when topic actually changes
+  const prevTopicIdRef = React.useRef<string | null>(null);
+
+  // Sync server data to Zustand store
   useEffect(() => {
+    const isNewTopic = prevTopicIdRef.current !== topic.id;
+    prevTopicIdRef.current = topic.id;
+
     setWords(initialWords);
     setMasteredIds(initialMasteredWordIds);
-    setFlashcardIndex(0);
-    setCurrentQuizIndex(0);
-    setDictationIndex(0);
-    setTranslateIndex(0);
+
+    // Only reset practice indices when switching to a different topic
+    if (isNewTopic) {
+      setFlashcardIndex(0);
+      setCurrentQuizIndex(0);
+      setDictationIndex(0);
+      setTranslateIndex(0);
+    }
   }, [topic.id, initialWords, initialMasteredWordIds, setWords, setMasteredIds, setFlashcardIndex, setCurrentQuizIndex, setDictationIndex, setTranslateIndex]);
 
   // Determine active mode dynamically based on pathname

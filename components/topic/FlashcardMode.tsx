@@ -36,26 +36,27 @@ export const FlashcardMode = ({
   const handleSrsRate = async (rating: SrsRating) => {
     if (!currentWord || isSubmitting) return;
 
+    const targetWord = currentWord;
     setIsSubmitting(true);
 
     const isGoodRecall = rating === 'good' || rating === 'easy';
     if (onSetMasterStatus && isGoodRecall) {
-      onSetMasterStatus(currentWord.id, true);
+      onSetMasterStatus(targetWord.id, true);
     } else if (onSetMasterStatus && (rating === 'again' || rating === 'hard')) {
-      onSetMasterStatus(currentWord.id, false);
+      onSetMasterStatus(targetWord.id, false);
+    }
+
+    // Advance to next card immediately
+    if (flashcardIndex < words.length - 1) {
+      setFlashcardIndex((prev) => prev + 1);
     }
 
     try {
-      await submitSrsReviewAction(currentWord.id, rating);
+      await submitSrsReviewAction(targetWord.id, rating);
     } catch (e) {
       console.error(e);
     } finally {
       setIsSubmitting(false);
-    }
-
-    // Advance to next card in the fixed topic list
-    if (flashcardIndex < words.length - 1) {
-      setFlashcardIndex((prev) => prev + 1);
     }
   };
 
