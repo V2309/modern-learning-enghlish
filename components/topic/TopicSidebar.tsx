@@ -90,23 +90,23 @@ export const TopicSidebar = ({
               href={linkHref}
               onClick={() => onClose?.()}
               className={cn(
-                'w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all text-left text-xs font-medium border group',
+                'w-full flex items-center justify-between px-3 py-2.5 rounded-2xl transition-all text-left text-xs font-bold border group cursor-pointer',
                 isActive
-                  ? 'bg-brand/10 border-brand/20 text-brand font-bold shadow-xs'
+                  ? 'bg-brand/10 border-brand/20 text-brand font-black shadow-2xs'
                   : 'bg-transparent border-transparent text-muted-foreground hover:bg-muted/70 hover:text-foreground'
               )}
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className={cn(
-                  'p-1 rounded-lg transition-colors shrink-0',
-                  isActive ? 'bg-brand/15 text-brand' : 'bg-muted/50 text-muted-foreground group-hover:text-foreground group-hover:bg-muted'
+                  'p-1.5 rounded-xl transition-colors shrink-0',
+                  isActive ? 'bg-brand/15 text-brand' : 'bg-muted/60 text-muted-foreground group-hover:text-foreground group-hover:bg-muted'
                 )}>
-                  <Icon className="h-3.5 w-3.5" />
+                  <Icon className="h-4 w-4" />
                 </div>
                 <span className="truncate">{item.label}</span>
               </div>
               {isActive && (
-                <div className="h-1.5 w-1.5 rounded-full bg-brand shrink-0" />
+                <div className="h-2 w-2 rounded-full bg-brand shrink-0" />
               )}
             </Link>
           );
@@ -123,16 +123,16 @@ export const TopicSidebar = ({
           <div className="flex items-center gap-2 min-w-0">
             <Link
               href="/vocabulary"
-              className="p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-all shrink-0"
+              className="p-1.5 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-all shrink-0"
               title="Quay lại danh sách chủ đề"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4 stroke-[2.5]" />
             </Link>
-            <h2 className="text-sm font-bold text-foreground tracking-tight truncate" title={topic.name}>
+            <h2 className="text-sm font-black text-foreground tracking-tight truncate" title={topic.name}>
               {topic.name}
             </h2>
           </div>
-          <span className="text-[10px] font-bold text-brand bg-brand/10 px-2 py-0.5 rounded-full border border-brand/20 shrink-0">
+          <span className="text-[10px] font-black text-brand bg-brand/10 px-2.5 py-0.5 rounded-full border border-brand/20 shrink-0">
             {wordCount} từ
           </span>
         </div>

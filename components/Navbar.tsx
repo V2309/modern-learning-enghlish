@@ -35,24 +35,25 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md px-4 md:px-8">
+    <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md px-3 sm:px-5 lg:px-8">
       <div className="container mx-auto">
-        <div className="flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center gap-1 text-xl font-black text-foreground tracking-tight" onClick={handleLinkClick}>
+        <div className="flex h-16 items-center justify-between gap-2">
+          {/* Brand Logo */}
+          <Link href="/" className="flex items-center gap-1 text-lg sm:text-xl font-black text-foreground tracking-tight shrink-0" onClick={handleLinkClick}>
             <span>Linguify</span>
             <span className="text-brand text-2xl leading-none">.</span>
           </Link>
           
-          <div className="flex items-center gap-4">
-            {/* Desktop Navigation Links */}
-            <div className="hidden md:flex items-center gap-8 mr-4">
+          <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 min-w-0">
+            {/* Desktop & Tablet Navigation Links */}
+            <div className="hidden md:flex items-center gap-2.5 lg:gap-5 xl:gap-7 overflow-hidden">
               {navItems.map((item) => (
                 <Link
                   key={item.path}
                   href={item.path}
                   className={cn(
-                    "text-sm font-medium transition-colors hover:text-foreground",
-                    pathname === item.path ? "text-brand font-bold" : "text-muted-foreground"
+                    "text-xs lg:text-sm font-semibold transition-colors hover:text-foreground whitespace-nowrap px-1.5 py-1 rounded-lg",
+                    pathname === item.path ? "text-brand font-black bg-brand/10" : "text-muted-foreground"
                   )}
                 >
                   {item.name}
@@ -62,8 +63,8 @@ const Navbar = () => {
                 <Link
                   href="/my-courses"
                   className={cn(
-                    "text-sm font-medium transition-colors hover:text-foreground",
-                    pathname === '/my-courses' ? "text-brand font-bold" : "text-muted-foreground"
+                    "text-xs lg:text-sm font-semibold transition-colors hover:text-foreground whitespace-nowrap px-1.5 py-1 rounded-lg",
+                    pathname === '/my-courses' ? "text-brand font-black bg-brand/10" : "text-muted-foreground"
                   )}
                 >
                   My Courses
@@ -74,19 +75,19 @@ const Navbar = () => {
             {/* Toggle Theme Button */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-xl bg-muted hover:bg-accent transition-all text-foreground cursor-pointer"
+              className="p-2 rounded-xl bg-muted hover:bg-accent transition-all text-foreground cursor-pointer shrink-0"
               aria-label="Toggle Theme"
             >
-              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
             </button>
 
             {/* Desktop Account States */}
-            <div className="hidden md:flex items-center gap-2.5 pl-2 border-l border-border min-h-[40px]">
+            <div className="hidden md:flex items-center gap-2.5 pl-2 border-l border-border min-h-[36px] shrink-0">
               {!isLoaded ? (
                 <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
               ) : isSignedIn && clerkUser ? (
-                <div className="flex items-center gap-3">
-                  <div className="flex flex-col items-end">
+                <div className="flex items-center gap-2.5">
+                  <div className="hidden xl:flex flex-col items-end text-right">
                     <span className="text-xs font-bold text-foreground leading-none">{clerkUser.fullName}</span>
                     <span className="text-[10px] text-muted-foreground">{clerkUser.primaryEmailAddress?.emailAddress}</span>
                   </div>
@@ -95,7 +96,7 @@ const Navbar = () => {
               ) : (
                 <Link
                   href="/auth/sign-in"
-                  className="px-4 py-2 text-xs font-bold text-primary-foreground bg-primary rounded-xl hover:bg-primary/90 transition-all"
+                  className="px-3.5 py-1.5 text-xs font-bold text-primary-foreground bg-primary rounded-xl hover:bg-primary/90 transition-all whitespace-nowrap"
                 >
                   Đăng nhập
                 </Link>
@@ -105,7 +106,7 @@ const Navbar = () => {
             {/* Responsive Mobile Menu Toggle Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl bg-muted hover:bg-accent transition-all text-foreground cursor-pointer"
+              className="md:hidden p-2 rounded-xl bg-muted hover:bg-accent transition-all text-foreground cursor-pointer shrink-0"
               aria-label="Toggle Mobile Menu"
             >
               {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}

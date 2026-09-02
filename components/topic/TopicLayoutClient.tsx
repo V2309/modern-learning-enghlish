@@ -213,13 +213,13 @@ export default function TopicLayoutClient({
           isPracticeMode ? 'h-full overflow-hidden' : ''
         )}>
           {/* Page Header */}
-          <div className="flex items-center justify-between gap-3 mb-3 pb-3 border-b border-border/60 shrink-0">
-            <div className="flex items-center gap-2 min-w-0">
-              <h1 className="text-lg font-bold text-foreground tracking-tight truncate">{topic.name}</h1>
-              <span className="text-[11px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20 whitespace-nowrap">
+          <div className="flex items-center justify-between gap-3 mb-4 pb-3.5 border-b border-border/70 shrink-0">
+            <div className="flex items-center gap-2.5 min-w-0 flex-wrap">
+              <h1 className="text-lg sm:text-xl font-black text-foreground tracking-tight truncate">{topic.name}</h1>
+              <span className="text-xs font-bold text-muted-foreground bg-muted px-2.5 py-0.5 rounded-full border border-border whitespace-nowrap">
                 {words.length} từ
               </span>
-              <span className="text-[11px] font-semibold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 whitespace-nowrap">
+              <span className="text-xs font-black text-duo bg-duo/10 px-2.5 py-0.5 rounded-full border border-duo/25 whitespace-nowrap">
                 {masteredIds.length} đã thuộc
               </span>
             </div>
@@ -227,17 +227,17 @@ export default function TopicLayoutClient({
               {/* Mobile sidebar toggle */}
               <button
                 onClick={() => setIsMobileSidebarOpen(true)}
-                className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 border border-border bg-card text-foreground rounded-full text-xs font-medium hover:bg-muted transition-all"
+                className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 border-2 border-border bg-card text-foreground rounded-2xl text-xs font-bold hover:bg-muted transition-all cursor-pointer shadow-2xs"
               >
-                <Menu className="h-3.5 w-3.5 text-primary" />
+                <Menu className="h-3.5 w-3.5 text-duo" />
                 <span>Menu</span>
               </button>
               {/* Desktop sidebar toggle */}
               <button
                 onClick={() => setIsDesktopSidebarOpen(!isDesktopSidebarOpen)}
-                className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 border border-border bg-card text-foreground rounded-full text-xs font-medium hover:bg-muted transition-all"
+                className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 border-2 border-border bg-card text-foreground rounded-2xl text-xs font-bold hover:bg-muted transition-all cursor-pointer shadow-2xs"
               >
-                <Menu className="h-3.5 w-3.5 text-primary" />
+                <Menu className="h-3.5 w-3.5 text-duo" />
                 <span>{isDesktopSidebarOpen ? 'Ẩn menu' : 'Hiện menu'}</span>
               </button>
             </div>

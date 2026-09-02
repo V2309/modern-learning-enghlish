@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, RotateCw } from 'lucide-react';
 import { Vocabulary } from '@/data/mockData';
 import { Flashcard } from './Flashcard';
 import { submitSrsReviewAction } from '@/actions/srs.action';
@@ -92,11 +92,16 @@ export const FlashcardMode = ({
 
   if (words.length === 0) {
     return (
-      <p className="text-center text-muted-foreground italic">
-        Chưa có từ vựng nào để luyện flashcard.
-      </p>
+      <div className="p-12 text-center border-2 border-dashed border-border rounded-3xl bg-card max-w-md mx-auto space-y-3">
+        <p className="text-base font-black text-foreground">Chưa có từ vựng nào</p>
+        <p className="text-xs text-muted-foreground">
+          Vui lòng thêm từ vựng vào chủ đề này để bắt đầu học Flashcard.
+        </p>
+      </div>
     );
   }
+
+  const progressPercent = Math.round(((flashcardIndex + 1) / words.length) * 100);
 
   return (
     <div className="h-full flex flex-col justify-center py-2">
@@ -105,21 +110,25 @@ export const FlashcardMode = ({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="max-w-2xl mx-auto w-full space-y-3"
+        className="max-w-2xl mx-auto w-full space-y-4"
       >
-        <div className="text-center space-y-1">
-          <p className="text-xs font-semibold text-muted-foreground">
+        {/* ── Progress Counter & Bar ─────────────────────────────── */}
+        <div className="flex items-center justify-between gap-4 px-2">
+          <span className="text-xs font-black text-muted-foreground uppercase tracking-wider">
             Thẻ {flashcardIndex + 1} / {words.length}
-          </p>
-
-          <div className="w-40 h-1.5 bg-muted rounded-full mx-auto overflow-hidden">
+          </span>
+          <div className="flex-1 max-w-xs h-3 bg-muted rounded-full overflow-hidden p-0.5 border border-border/60">
             <div
-              className="h-full bg-brand transition-all duration-300"
-              style={{ width: `${((flashcardIndex + 1) / words.length) * 100}%` }}
+              className="h-full bg-duo rounded-full transition-all duration-300"
+              style={{ width: `${progressPercent}%` }}
             />
           </div>
+          <span className="text-xs font-black text-duo">
+            {progressPercent}%
+          </span>
         </div>
 
+        {/* ── Flashcard ────────────────────────────────────────── */}
         <div className="relative">
           <motion.div
             drag="x"
@@ -147,87 +156,78 @@ export const FlashcardMode = ({
             />
           </motion.div>
 
-          {/* Navigation Controls */}
-          <div className="flex items-center justify-center gap-4 mt-4">
+          {/* ── Navigation 3D Controls ─────────────────────────── */}
+          <div className="flex items-center justify-center gap-3 mt-4">
             <button
               onClick={() => setFlashcardIndex((prev) => Math.max(0, prev - 1))}
               disabled={flashcardIndex === 0}
-              title="Thẻ trước (←)"
-              className="p-2.5 rounded-full bg-muted border border-border text-foreground hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-xs cursor-pointer"
+              title="Thẻ trước (Phím ←)"
+              className="p-3 rounded-2xl bg-card border-2 border-border text-foreground shadow-[0_3px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
             >
-              <ChevronLeft size={18} />
+              <ChevronLeft className="h-5 w-5 stroke-[2.5]" />
             </button>
 
             <button
               onClick={() => setIsFlipped((prev) => !prev)}
-              title="Lật thẻ (Space)"
-              className="px-5 py-2 rounded-full bg-brand/10 border border-brand/30 text-brand font-bold text-xs hover:bg-brand hover:text-white transition-all shadow-xs cursor-pointer"
+              title="Lật thẻ (Phím Space)"
+              className="btn-3d-duo px-7 py-3 rounded-2xl text-xs sm:text-sm font-black flex items-center gap-2"
             >
-              Lật thẻ (Space)
+              <RotateCw className="h-4 w-4 stroke-[2.5]" />
+              <span>Lật Thẻ (Space)</span>
             </button>
 
             <button
               onClick={() => setFlashcardIndex((prev) => Math.min(words.length - 1, prev + 1))}
               disabled={flashcardIndex === words.length - 1}
-              title="Thẻ tiếp theo (→)"
-              className="p-2.5 rounded-full bg-muted border border-border text-foreground hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-xs cursor-pointer"
+              title="Thẻ tiếp theo (Phím →)"
+              className="p-3 rounded-2xl bg-card border-2 border-border text-foreground shadow-[0_3px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
             >
-              <ChevronRight size={18} />
+              <ChevronRight className="h-5 w-5 stroke-[2.5]" />
             </button>
           </div>
 
-          {/* 4 SRS Rating Buttons */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4 max-w-xl mx-auto">
+          {/* ── 4 SRS Rating 3D Buttons ─────────────────────────── */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4 max-w-xl mx-auto">
+            {/* Again (1) */}
             <button
               onClick={() => handleSrsRate('again')}
               disabled={isSubmitting}
-              className="p-2.5 rounded-2xl bg-rose-500/10 hover:bg-rose-500 border border-rose-500/30 text-rose-500 hover:text-white font-bold text-xs transition-all shadow-xs cursor-pointer flex flex-col items-center justify-center disabled:opacity-50 group"
+              className="p-3 rounded-2xl bg-rose-500 hover:brightness-105 text-white font-black text-xs shadow-[0_4px_0_0_#9f1239] active:translate-y-1 active:shadow-none transition-all cursor-pointer flex flex-col items-center justify-center disabled:opacity-50"
             >
               <span className="uppercase tracking-wider">Again (1)</span>
-              <span className="text-[10px] text-muted-foreground group-hover:text-white/80 font-medium">10 phút</span>
+              <span className="text-[10px] text-white/80 font-bold mt-0.5">10 phút</span>
             </button>
 
+            {/* Hard (2) */}
             <button
               onClick={() => handleSrsRate('hard')}
               disabled={isSubmitting}
-              className="p-2.5 rounded-2xl bg-amber-500/10 hover:bg-amber-500 border border-amber-500/30 text-amber-600 dark:text-amber-400 hover:text-white font-bold text-xs transition-all shadow-xs cursor-pointer flex flex-col items-center justify-center disabled:opacity-50 group"
+              className="p-3 rounded-2xl bg-amber-500 hover:brightness-105 text-white font-black text-xs shadow-[0_4px_0_0_#b45309] active:translate-y-1 active:shadow-none transition-all cursor-pointer flex flex-col items-center justify-center disabled:opacity-50"
             >
               <span className="uppercase tracking-wider">Hard (2)</span>
-              <span className="text-[10px] text-muted-foreground group-hover:text-white/80 font-medium">1 ngày</span>
+              <span className="text-[10px] text-white/80 font-bold mt-0.5">1 ngày</span>
             </button>
 
+            {/* Good (3) */}
             <button
               onClick={() => handleSrsRate('good')}
               disabled={isSubmitting}
-              className="p-2.5 rounded-2xl bg-sky-500/10 hover:bg-sky-500 border border-sky-500/30 text-sky-600 dark:text-sky-400 hover:text-white font-bold text-xs transition-all shadow-xs cursor-pointer flex flex-col items-center justify-center disabled:opacity-50 group"
+              className="p-3 rounded-2xl bg-sky-500 hover:brightness-105 text-white font-black text-xs shadow-[0_4px_0_0_#0369a1] active:translate-y-1 active:shadow-none transition-all cursor-pointer flex flex-col items-center justify-center disabled:opacity-50"
             >
               <span className="uppercase tracking-wider">Good (3)</span>
-              <span className="text-[10px] text-muted-foreground group-hover:text-white/80 font-medium">3 ngày</span>
+              <span className="text-[10px] text-white/80 font-bold mt-0.5">3 ngày</span>
             </button>
 
+            {/* Easy (4) */}
             <button
               onClick={() => handleSrsRate('easy')}
               disabled={isSubmitting}
-              className="p-2.5 rounded-2xl bg-emerald-500/10 hover:bg-emerald-500 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:text-white font-bold text-xs transition-all shadow-xs cursor-pointer flex flex-col items-center justify-center disabled:opacity-50 group"
+              className="p-3 rounded-2xl bg-duo hover:brightness-105 text-duo-foreground font-black text-xs shadow-[0_4px_0_0_var(--duo-dark)] active:translate-y-1 active:shadow-none transition-all cursor-pointer flex flex-col items-center justify-center disabled:opacity-50"
             >
               <span className="uppercase tracking-wider">Easy (4)</span>
-              <span className="text-[10px] text-muted-foreground group-hover:text-white/80 font-medium">7 ngày</span>
+              <span className="text-[10px] text-white/80 font-bold mt-0.5">7 ngày</span>
             </button>
           </div>
-
-          <p className="text-center text-[11px] text-muted-foreground mt-3 opacity-60 flex flex-wrap justify-center items-center gap-1">
-            <kbd className="px-1 py-0.5 rounded bg-muted border border-border font-mono text-[10px]">←</kbd>
-            <span>Trước</span>
-            <span className="mx-1">•</span>
-            <kbd className="px-1 py-0.5 rounded bg-muted border border-border font-mono text-[10px]">Space</kbd>
-            <span>Lật</span>
-            <span className="mx-1">•</span>
-            <kbd className="px-1 py-0.5 rounded bg-muted border border-border font-mono text-[10px]">→</kbd>
-            <span>Sau</span>
-            <span className="mx-1">•</span>
-            <kbd className="px-1 py-0.5 rounded bg-muted border border-border font-mono text-[10px]">1-4</kbd>
-            <span>Đánh giá ghi nhớ</span>
-          </p>
         </div>
       </motion.div>
     </div>

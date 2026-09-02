@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Volume2, Sparkles, HelpCircle, CheckCircle2, Pencil, Trash2, Loader2, Plus } from 'lucide-react';
+import { Volume2, Sparkles, CheckCircle2, Pencil, Trash2, Loader2, Plus, Check, BookOpen, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Vocabulary } from '@/data/mockData';
 
@@ -18,11 +18,19 @@ interface VocabListProps {
 
 const PAGE_SIZE = 10;
 
-export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit, onDelete, isAdmin = false }: VocabListProps) => {
+export const VocabList = ({
+  words,
+  speak,
+  onOpenAddModal,
+  onToggleMaster,
+  onEdit,
+  onDelete,
+  isAdmin = false,
+}: VocabListProps) => {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const loaderRef = useRef<HTMLDivElement>(null);
 
-  // Reset về trang đầu khi danh sách từ thay đổi (thêm/xoá)
+  // Reset page when list count changes
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
   }, [words.length]);
@@ -31,7 +39,6 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
     setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, words.length));
   }, [words.length]);
 
-  // Gắn IntersectionObserver vào sentinel div ở cuối danh sách
   useEffect(() => {
     const el = loaderRef.current;
     if (!el) return;
@@ -51,6 +58,8 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
 
   const visibleWords = words.slice(0, visibleCount);
   const hasMore = visibleCount < words.length;
+  const masteredCount = words.filter((w) => w.mastered).length;
+  const progressPercent = words.length > 0 ? Math.round((masteredCount / words.length) * 100) : 0;
 
   return (
     <motion.div
@@ -58,103 +67,149 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
-      className="space-y-5"
+      className="space-y-6"
     >
-      {/* Header & Actions Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-card border border-border shadow-xs">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">Danh sách từ vựng</h1>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-            Nhấp vào biểu tượng Loa để nghe phát âm giọng bản xứ rõ ràng.
-          </p>
+      {/* ── Duolingo Header & Progress Bar ─────────────────────────────── */}
+      <div className="p-5 sm:p-6 rounded-3xl bg-card border-2 border-border/80 shadow-[0_4px_0_0_theme(colors.border)] flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black uppercase tracking-wider text-duo bg-duo/10 px-2.5 py-0.5 rounded-full border border-duo/25">
+                Danh Sách Bài Học
+              </span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
+              Danh Sách Từ Vựng
+            </h1>
+            <p className="text-xs sm:text-sm text-muted-foreground font-medium">
+              Nhấp vào biểu tượng Loa để nghe phát âm giọng bản xứ chuẩn xác.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            {words.length > 0 && (
+              <div className="flex items-center gap-2">
+                {/* Mastered chip */}
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-black bg-duo/15 text-duo border border-duo/30 shadow-2xs">
+                  <Trophy className="h-3.5 w-3.5" />
+                  {masteredCount}/{words.length} đã thuộc ({progressPercent}%)
+                </span>
+              </div>
+            )}
+
+            {isAdmin && (
+              <button
+                onClick={onOpenAddModal}
+                className="btn-3d-duo px-4 py-2 rounded-2xl text-xs font-black flex items-center gap-1.5 cursor-pointer shadow-xs"
+              >
+                <Plus className="h-4 w-4 stroke-[3]" />
+                <span>Thêm từ vựng</span>
+              </button>
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-2.5 shrink-0">
-          {words.length > 0 && (
-            <span className="text-xs font-semibold text-muted-foreground bg-muted px-3 py-1.5 rounded-full border border-border/70">
-              {Math.min(visibleCount, words.length)} / {words.length} từ
-            </span>
-          )}
-          {isAdmin && (
-            <button
-              onClick={onOpenAddModal}
-              className="flex items-center gap-1.5 px-4 py-2 bg-primary text-white text-xs font-bold rounded-full hover:bg-primary/95 transition-all shadow-sm shadow-primary/20 cursor-pointer"
-            >
-              <Plus className="h-4 w-4" />
-              <span>Thêm từ vựng</span>
-            </button>
-          )}
-        </div>
+
+        {/* Thin progress bar */}
+        {words.length > 0 && (
+          <div className="space-y-1.5 pt-2 border-t border-border/60">
+            <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted p-0.5">
+              <div
+                className="h-full rounded-full bg-duo transition-all duration-500 ease-out"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="space-y-6">
+      {/* ── Word Cards List ──────────────────────────────────────────────── */}
+      <div className="space-y-5">
         {words.length === 0 ? (
-          <div className="p-12 text-center border border-dashed border-border rounded-3xl">
-            <HelpCircle className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
-            <p className="text-muted-foreground font-medium">
-              Chưa có từ vựng nào trong chủ đề này.
-            </p>
-            <button
-              onClick={onOpenAddModal}
-              className="mt-4 px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold"
-            >
-              Thêm từ ngay
-            </button>
+          <div className="p-12 text-center border-2 border-dashed border-border rounded-3xl bg-card space-y-4">
+            <div className="h-16 w-16 rounded-3xl bg-duo/10 border-2 border-duo/20 flex items-center justify-center mx-auto text-3xl">
+              📖
+            </div>
+            <div className="space-y-1 max-w-sm mx-auto">
+              <p className="text-base font-black text-foreground">Chưa có từ vựng nào trong chủ đề này</p>
+              <p className="text-xs text-muted-foreground">
+                Hãy bắt đầu bổ sung các từ vựng đầu tiên để luyện tập và nâng cao vốn từ.
+              </p>
+            </div>
+            {isAdmin && (
+              <button
+                onClick={onOpenAddModal}
+                className="btn-3d-duo px-5 py-2.5 rounded-2xl text-xs font-black inline-flex items-center gap-1.5"
+              >
+                <Plus className="h-4 w-4 stroke-[3]" />
+                <span>Thêm từ ngay</span>
+              </button>
+            )}
           </div>
         ) : (
           <>
-            <div className="space-y-6">
+            <div className="space-y-5">
               {visibleWords.map((word) => (
                 <motion.div
                   key={word.id}
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.22, ease: 'easeOut' }}
-                  className="bg-card border border-border rounded-3xl p-6 sm:p-8 hover:shadow-md hover:border-primary/50 transition-all hover:bg-muted/50 duration-300 relative group flex flex-col md:flex-row gap-6 items-start justify-between"
+                  className="bg-card border-2 border-border/80 rounded-3xl p-6 sm:p-7 shadow-[0_4px_0_0_theme(colors.border)] hover:border-duo/50 hover:shadow-[0_6px_0_0_theme(colors.border)] transition-all relative group flex flex-col md:flex-row gap-6 items-start justify-between"
                 >
                   <div className="space-y-4 flex-1 w-full">
                     {/* Title word header */}
                     <div className="flex flex-wrap items-center gap-3">
-                      <h3 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
+                      <h3 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
                         {word.word}
                       </h3>
-                      <span className="text-xs font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-full uppercase border border-primary/20">
+
+                      {/* Part of Speech Pill */}
+                      <span className="text-xs font-black text-duo bg-duo/10 px-3 py-1 rounded-xl uppercase border border-duo/25">
                         {word.partOfSpeech}
                       </span>
-                      <div className="flex items-center gap-2 text-muted-foreground bg-muted/65 px-3 py-1 rounded-4xl text-sm font-medium border border-border/40">
-                        <span className="font-mono text-primary font-semibold">
-                          {word.pronunciation || '/.../ '}
+
+                      {/* Phonetic Pronunciation */}
+                      <div className="flex items-center gap-2 text-muted-foreground bg-muted/80 px-3 py-1 rounded-xl text-sm font-medium border border-border/60">
+                        <span className="font-mono text-foreground font-semibold">
+                          {word.pronunciation || '/.../'}
                         </span>
                       </div>
-                      <div className="flex items-center gap-1.5 ml-2">
-                        <button
-                          onClick={() => speak(word.word)}
-                          title="Giọng UK"
-                          className="p-2 rounded-full bg-muted border border-border/40 hover:bg-primary hover:text-white transition-all text-muted-foreground cursor-pointer"
-                        >
-                          <Volume2 className="h-4 w-4" />
-                        </button>
-                        <span className="text-[10px] font-bold text-muted-foreground uppercase mr-2">UK</span>
-                        <button
-                          onClick={() => speak(word.word)}
-                          title="Giọng US"
-                          className="p-2 rounded-full bg-muted border border-border/40 hover:bg-primary hover:text-white transition-all text-muted-foreground cursor-pointer"
-                        >
-                          <Volume2 className="h-4 w-4" />
-                        </button>
-                        <span className="text-[10px] font-bold text-muted-foreground uppercase mr-4">US</span>
 
+                      {/* Pronunciation & Mastered Buttons */}
+                      <div className="flex flex-wrap items-center gap-2 ml-auto sm:ml-2">
+                        {/* UK Audio */}
+                        <button
+                          onClick={() => speak(word.word)}
+                          title="Phát âm giọng UK"
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-card border-2 border-border text-foreground shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none hover:bg-muted font-bold text-xs cursor-pointer transition-all"
+                        >
+                          <Volume2 className="h-3.5 w-3.5 text-duo" />
+                          <span className="text-[10px] text-muted-foreground">UK</span>
+                        </button>
+
+                        {/* US Audio */}
+                        <button
+                          onClick={() => speak(word.word)}
+                          title="Phát âm giọng US"
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-card border-2 border-border text-foreground shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none hover:bg-muted font-bold text-xs cursor-pointer transition-all"
+                        >
+                          <Volume2 className="h-3.5 w-3.5 text-duo" />
+                          <span className="text-[10px] text-muted-foreground">US</span>
+                        </button>
+
+                        {/* Mastered Toggle 3D Button */}
                         {onToggleMaster && (
                           <button
                             onClick={() => onToggleMaster(word.id)}
-                            title={word.mastered ? 'Đã thuộc từ này' : 'Đánh dấu đã thuộc'}
+                            title={word.mastered ? 'Đã thuộc từ này (Click để huỷ)' : 'Đánh dấu đã thuộc từ này'}
                             className={cn(
-                              'p-2 rounded-4xl border transition-all flex items-center gap-1.5 cursor-pointer text-xs font-bold',
+                              'px-3.5 py-1.5 rounded-2xl transition-all flex items-center gap-1.5 cursor-pointer text-xs font-black select-none',
                               word.mastered
-                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/20'
-                                : 'bg-muted border-border/40 hover:bg-muted-foreground/10 text-muted-foreground'
+                                ? 'bg-duo text-duo-foreground shadow-[0_3px_0_0_var(--duo-dark)] active:translate-y-0.5 active:shadow-none'
+                                : 'bg-card border-2 border-border text-muted-foreground shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none hover:text-duo hover:border-duo/50'
                             )}
                           >
-                            <CheckCircle2 className="h-4 w-4" />
+                            <Check className={cn('h-3.5 w-3.5', word.mastered ? 'stroke-[3]' : 'stroke-[2]')} />
                             <span>{word.mastered ? 'Đã thuộc' : 'Chưa thuộc'}</span>
                           </button>
                         )}
@@ -162,14 +217,14 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
                     </div>
 
                     {/* Definitions block */}
-                    <div className="space-y-2">
-                      <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                    <div className="space-y-1.5">
+                      <span className="text-[11px] font-black text-muted-foreground uppercase tracking-wider">
                         Định nghĩa:
-                      </div>
-                      <div className="text-base font-semibold text-foreground bg-muted/20 border border-border/30 rounded-3xl p-4 space-y-1">
+                      </span>
+                      <div className="text-base font-bold text-foreground bg-muted/40 border-2 border-border/70 rounded-2xl p-4 space-y-1">
                         <p>{word.meaning}</p>
                         {(word as any).definition && (
-                          <p className="text-sm text-muted-foreground font-normal italic">
+                          <p className="text-xs text-muted-foreground font-medium italic">
                             = {(word as any).definition}
                           </p>
                         )}
@@ -177,10 +232,10 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
                     </div>
 
                     {/* Examples block */}
-                    <div className="space-y-2">
-                      <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                        Ví dụ:
-                      </div>
+                    <div className="space-y-1.5">
+                      <span className="text-[11px] font-black text-muted-foreground uppercase tracking-wider">
+                        Ví dụ mẫu:
+                      </span>
                       <div className="space-y-2">
                         {(word.examples && word.examples.length > 0
                           ? word.examples
@@ -188,16 +243,17 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
                         ).map((ex, exIdx) => (
                           <div
                             key={exIdx}
-                            className="bg-muted/10 border border-border/20 rounded-3xl p-4 flex gap-4 items-start"
+                            className="bg-muted/30 border-2 border-border/50 rounded-2xl p-3.5 flex gap-3.5 items-start"
                           >
                             <button
                               onClick={() => speak(ex)}
-                              className="p-2 rounded-full bg-primary/10 hover:bg-primary text-primary hover:text-white transition-all mt-0.5 shrink-0 cursor-pointer"
+                              title="Nghe câu ví dụ"
+                              className="p-1.5 rounded-xl bg-card border border-border/80 hover:bg-muted text-duo transition-all mt-0.5 shrink-0 cursor-pointer shadow-2xs"
                             >
-                              <Volume2 className="h-4 w-4" />
+                              <Volume2 className="h-3.5 w-3.5" />
                             </button>
-                            <div className="flex-1">
-                              <p className="text-foreground font-semibold italic text-base">{ex}</p>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-foreground font-semibold italic text-sm leading-relaxed">{ex}</p>
                             </div>
                           </div>
                         ))}
@@ -206,17 +262,17 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
                   </div>
 
                   {/* Right side: Image + Actions */}
-                  <div className="flex flex-col items-end gap-3 shrink-0 self-start md:self-start">
-                    {/* Edit / Delete buttons */}
+                  <div className="flex flex-col items-end gap-3 shrink-0 self-start md:self-start w-full md:w-auto">
+                    {/* Admin Edit / Delete buttons */}
                     {isAdmin && (
-                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity self-end">
                         {onEdit && (
                           <button
                             onClick={() => onEdit(word)}
                             title="Sửa từ"
-                            className="flex items-center gap-1.5 px-3 py-2 rounded-4xl bg-muted border border-border hover:bg-primary/10 hover:border-primary/30 text-muted-foreground hover:text-primary transition-all text-xs font-bold cursor-pointer"
+                            className="flex items-center gap-1 px-3 py-1 rounded-xl bg-card border-2 border-border text-foreground hover:bg-muted text-xs font-bold cursor-pointer transition-all shadow-2xs"
                           >
-                            <Pencil className="h-3.5 w-3.5" />
+                            <Pencil className="h-3 w-3 text-sky-500" />
                             Sửa
                           </button>
                         )}
@@ -224,9 +280,9 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
                           <button
                             onClick={() => onDelete(word)}
                             title="Xoá từ"
-                            className="flex items-center gap-1.5 px-3 py-2 rounded-4xl bg-muted border border-border hover:bg-red-500/10 hover:border-red-500/30 text-muted-foreground hover:text-red-500 transition-all text-xs font-bold cursor-pointer"
+                            className="flex items-center gap-1 px-3 py-1 rounded-xl bg-card border-2 border-border text-destructive hover:bg-destructive/10 text-xs font-bold cursor-pointer transition-all shadow-2xs"
                           >
-                            <Trash2 className="h-3.5 w-3.5" />
+                            <Trash2 className="h-3 w-3" />
                             Xoá
                           </button>
                         )}
@@ -235,7 +291,7 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
 
                     {/* Image asset */}
                     {word.imageUrl ? (
-                      <div className="w-full md:w-48 aspect-[4/3] md:aspect-square rounded-3xl overflow-hidden border border-border shadow-sm">
+                      <div className="w-full md:w-44 aspect-[4/3] md:aspect-square rounded-2xl overflow-hidden border-2 border-border/80 shadow-xs">
                         <img
                           src={word.imageUrl}
                           alt={word.word}
@@ -244,9 +300,9 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
                         />
                       </div>
                     ) : (
-                      <div className="w-full md:w-48 aspect-[4/3] md:aspect-square rounded-3xl bg-muted/25 border border-dashed border-border flex flex-col items-center justify-center text-muted-foreground p-4">
-                        <Sparkles className="h-8 w-8 text-primary mb-2 opacity-50" />
-                        <span className="italic text-xs text-center font-medium">Bản minh hoạ sẵn sàng</span>
+                      <div className="w-full md:w-44 aspect-[4/3] md:aspect-square rounded-2xl bg-muted/40 border-2 border-dashed border-border/80 flex flex-col items-center justify-center text-muted-foreground p-4">
+                        <Sparkles className="h-7 w-7 text-duo mb-1.5 opacity-60" />
+                        <span className="text-xs text-center font-bold">Hình minh hoạ</span>
                       </div>
                     )}
                   </div>
@@ -257,13 +313,13 @@ export const VocabList = ({ words, speak, onOpenAddModal, onToggleMaster, onEdit
             {/* Infinite scroll sentinel */}
             <div ref={loaderRef} className="flex justify-center py-6">
               {hasMore ? (
-                <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                <div className="flex items-center gap-2 text-muted-foreground text-sm font-bold bg-card border border-border px-4 py-2 rounded-2xl shadow-xs">
+                  <Loader2 className="h-4 w-4 animate-spin text-duo" />
                   <span>Đang tải thêm từ vựng...</span>
                 </div>
               ) : (
                 words.length > PAGE_SIZE && (
-                  <p className="text-xs text-muted-foreground/60 font-medium tracking-wide">
+                  <p className="text-xs text-muted-foreground font-bold tracking-wide bg-muted/60 px-4 py-1.5 rounded-full">
                     ✓ Đã hiển thị đầy đủ {words.length} từ vựng
                   </p>
                 )

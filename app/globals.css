@@ -7,263 +7,284 @@
    Design tokens integrated from DESIGN.md (Core Editorial System)           */
 @theme {
   /* Core UI & Brand Tokens */
-  --color-brand:                  var(--brand);
-  --color-brand-foreground:       var(--brand-foreground);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
 
-  --color-background:             var(--background);
-  --color-foreground:             var(--foreground);
+  /* Duolingo Style UI Tokens (#58CC02) */
+  --color-duo: var(--duo);
+  --color-duo-dark: var(--duo-dark);
+  --color-duo-foreground: var(--duo-foreground);
 
-  --color-card:                   var(--card);
-  --color-card-foreground:        var(--card-foreground);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
 
-  --color-popover:                var(--popover);
-  --color-popover-foreground:     var(--popover-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
 
-  --color-primary:                var(--primary);
-  --color-primary-foreground:     var(--primary-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
 
-  --color-secondary:              var(--secondary);
-  --color-secondary-foreground:   var(--secondary-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
 
-  --color-muted:                  var(--muted);
-  --color-muted-foreground:       var(--muted-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
 
-  --color-accent:                 var(--accent);
-  --color-accent-foreground:      var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
 
-  --color-destructive:            var(--destructive);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
 
-  --color-border:                 var(--border);
-  --color-input:                  var(--input);
-  --color-ring:                   var(--ring);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 
   /* DESIGN.md Surface Hierarchy */
-  --color-surface:                     var(--surface);
-  --color-surface-dim:                 var(--surface-dim);
-  --color-surface-bright:              var(--surface-bright);
-  --color-surface-container-lowest:    var(--surface-container-lowest);
-  --color-surface-container-low:       var(--surface-container-low);
-  --color-surface-container:           var(--surface-container);
-  --color-surface-container-high:      var(--surface-container-high);
-  --color-surface-container-highest:   var(--surface-container-highest);
-  --color-surface-variant:             var(--surface-variant);
-  --color-surface-tint:                var(--surface-tint);
+  --color-surface: var(--surface);
+  --color-surface-dim: var(--surface-dim);
+  --color-surface-bright: var(--surface-bright);
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
+  --color-surface-variant: var(--surface-variant);
+  --color-surface-tint: var(--surface-tint);
 
   /* DESIGN.md Content & Inversion Tokens */
-  --color-on-surface:             var(--on-surface);
-  --color-on-surface-variant:     var(--on-surface-variant);
-  --color-on-background:          var(--on-background);
-  --color-inverse-surface:        var(--inverse-surface);
-  --color-inverse-on-surface:     var(--inverse-on-surface);
-  --color-inverse-primary:        var(--inverse-primary);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-on-background: var(--on-background);
+  --color-inverse-surface: var(--inverse-surface);
+  --color-inverse-on-surface: var(--inverse-on-surface);
+  --color-inverse-primary: var(--inverse-primary);
 
   /* DESIGN.md Outline Tokens */
-  --color-outline:                var(--outline);
-  --color-outline-variant:        var(--outline-variant);
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
 
   /* DESIGN.md Container Tokens */
-  --color-primary-container:      var(--primary-container);
-  --color-on-primary-container:   var(--on-primary-container);
-  --color-secondary-container:    var(--secondary-container);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary-container: var(--on-primary-container);
+  --color-secondary-container: var(--secondary-container);
   --color-on-secondary-container: var(--on-secondary-container);
-  --color-tertiary:               var(--tertiary);
-  --color-on-tertiary:            var(--on-tertiary);
-  --color-tertiary-container:     var(--tertiary-container);
-  --color-on-tertiary-container:  var(--on-tertiary-container);
+  --color-tertiary: var(--tertiary);
+  --color-on-tertiary: var(--on-tertiary);
+  --color-tertiary-container: var(--tertiary-container);
+  --color-on-tertiary-container: var(--on-tertiary-container);
 
   /* DESIGN.md Error Tokens */
-  --color-error:                  var(--error);
-  --color-on-error:               var(--on-error);
-  --color-error-container:        var(--error-container);
-  --color-on-error-container:     var(--on-error-container);
+  --color-error: var(--error);
+  --color-on-error: var(--on-error);
+  --color-error-container: var(--error-container);
+  --color-on-error-container: var(--on-error-container);
 
   /* DESIGN.md Fixed Tokens */
-  --color-primary-fixed:              var(--primary-fixed);
-  --color-primary-fixed-dim:          var(--primary-fixed-dim);
-  --color-on-primary-fixed:           var(--on-primary-fixed);
-  --color-on-primary-fixed-variant:   var(--on-primary-fixed-variant);
-  --color-secondary-fixed:            var(--secondary-fixed);
-  --color-secondary-fixed-dim:        var(--secondary-fixed-dim);
-  --color-on-secondary-fixed:         var(--on-secondary-fixed);
+  --color-primary-fixed: var(--primary-fixed);
+  --color-primary-fixed-dim: var(--primary-fixed-dim);
+  --color-on-primary-fixed: var(--on-primary-fixed);
+  --color-on-primary-fixed-variant: var(--on-primary-fixed-variant);
+  --color-secondary-fixed: var(--secondary-fixed);
+  --color-secondary-fixed-dim: var(--secondary-fixed-dim);
+  --color-on-secondary-fixed: var(--on-secondary-fixed);
   --color-on-secondary-fixed-variant: var(--on-secondary-fixed-variant);
-  --color-tertiary-fixed:             var(--tertiary-fixed);
-  --color-tertiary-fixed-dim:         var(--tertiary-fixed-dim);
-  --color-on-tertiary-fixed:          var(--on-tertiary-fixed);
-  --color-on-tertiary-fixed-variant:  var(--on-tertiary-fixed-variant);
+  --color-tertiary-fixed: var(--tertiary-fixed);
+  --color-tertiary-fixed-dim: var(--tertiary-fixed-dim);
+  --color-on-tertiary-fixed: var(--on-tertiary-fixed);
+  --color-on-tertiary-fixed-variant: var(--on-tertiary-fixed-variant);
 }
 
 /* ── Light mode (DESIGN.md Core Editorial) ── */
 :root {
+  /* Duolingo Vibrant Green (#58CC02) */
+  --duo: #58CC02;
+  --duo-dark: #46A302;
+  --duo-foreground: #ffffff;
+
   /* Brand Accent Color (#f17463) */
-  --brand:                      #f17463;
-  --brand-foreground:           #ffffff;
+  --brand: #f17463;
+  --brand-foreground: #ffffff;
 
   /* Base & Surfaces (DESIGN.md: Background #FFFFFF, Surface #F9FAFB) */
-  --background:                 #ffffff;
-  --foreground:                 #111827; /* Deep Charcoal (Primary Text) */
-  --card:                       #ffffff;
-  --card-foreground:            #111827;
-  --popover:                    #ffffff;
-  --popover-foreground:         #111827;
+  --background: #ffffff;
+  --foreground: #111827;
+  /* Deep Charcoal (Primary Text) */
+  --card: #ffffff;
+  --card-foreground: #111827;
+  --popover: #ffffff;
+  --popover-foreground: #111827;
 
   /* Primary Action & Buttons (DESIGN.md: Solid Deep Charcoal #111827 with white text) */
-  --primary:                    #111827;
-  --primary-foreground:         #ffffff;
-  --secondary:                  #f9fafb;
-  --secondary-foreground:       #111827;
-  --muted:                      #f3f4f6;
-  --muted-foreground:           #6b7280; /* Slate Gray (Secondary Text) */
-  --accent:                     #f17463; /* Brand Coral Accent */
-  --accent-foreground:          #ffffff;
-  --destructive:                #ba1a1a;
-  --destructive-foreground:     #ffffff;
+  --primary: #111827;
+  --primary-foreground: #ffffff;
+  --secondary: #f9fafb;
+  --secondary-foreground: #111827;
+  --muted: #f3f4f6;
+  --muted-foreground: #6b7280;
+  /* Slate Gray (Secondary Text) */
+  --accent: #f17463;
+  /* Brand Coral Accent */
+  --accent-foreground: #ffffff;
+  --destructive: #ba1a1a;
+  --destructive-foreground: #ffffff;
 
   /* Borders & Controls (DESIGN.md: Border #E5E7EB) */
-  --border:                     #e5e7eb;
-  --input:                      #e5e7eb;
-  --ring:                       #f17463;
-  --radius:                     0.5rem;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: #f17463;
+  --radius: 0.5rem;
 
   /* DESIGN.md Semantic Palette */
-  --surface:                    #f9fafb;
-  --surface-dim:                #e5e7eb;
-  --surface-bright:             #ffffff;
-  --surface-container-lowest:   #ffffff;
-  --surface-container-low:      #f9fafb;
-  --surface-container:          #f3f4f6;
-  --surface-container-high:     #edeeef;
-  --surface-container-highest:  #e5e7eb;
-  --surface-variant:            #f3f4f6;
-  --surface-tint:               #f17463;
+  --surface: #f9fafb;
+  --surface-dim: #e5e7eb;
+  --surface-bright: #ffffff;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f9fafb;
+  --surface-container: #f3f4f6;
+  --surface-container-high: #edeeef;
+  --surface-container-highest: #e5e7eb;
+  --surface-variant: #f3f4f6;
+  --surface-tint: #f17463;
 
-  --on-surface:                 #111827; /* Deep Charcoal */
-  --on-surface-variant:         #6b7280; /* Slate Gray */
-  --on-background:              #111827; /* Deep Charcoal */
+  --on-surface: #111827;
+  /* Deep Charcoal */
+  --on-surface-variant: #6b7280;
+  /* Slate Gray */
+  --on-background: #111827;
+  /* Deep Charcoal */
 
-  --inverse-surface:            #111827;
-  --inverse-on-surface:         #f9fafb;
-  --inverse-primary:            #c0c6db;
+  --inverse-surface: #111827;
+  --inverse-on-surface: #f9fafb;
+  --inverse-primary: #c0c6db;
 
-  --outline:                    #76777d;
-  --outline-variant:            #c6c6cd;
+  --outline: #76777d;
+  --outline-variant: #c6c6cd;
 
-  --primary-container:          #141b2b;
-  --on-primary-container:       #7d8497;
+  --primary-container: #141b2b;
+  --on-primary-container: #7d8497;
 
-  --secondary-container:        #f17463;
-  --on-secondary-container:     #ffffff;
+  --secondary-container: #f17463;
+  --on-secondary-container: #ffffff;
 
-  --tertiary:                   #000000;
-  --on-tertiary:                #ffffff;
-  --tertiary-container:         #261906;
-  --on-tertiary-container:      #968065;
+  --tertiary: #000000;
+  --on-tertiary: #ffffff;
+  --tertiary-container: #261906;
+  --on-tertiary-container: #968065;
 
-  --error:                      #ba1a1a;
-  --on-error:                   #ffffff;
-  --error-container:            #ffdad6;
-  --on-error-container:         #93000a;
+  --error: #ba1a1a;
+  --on-error: #ffffff;
+  --error-container: #ffdad6;
+  --on-error-container: #93000a;
 
-  --primary-fixed:              #dce2f7;
-  --primary-fixed-dim:          #c0c6db;
-  --on-primary-fixed:           #141b2b;
-  --on-primary-fixed-variant:   #404758;
+  --primary-fixed: #dce2f7;
+  --primary-fixed-dim: #c0c6db;
+  --on-primary-fixed: #141b2b;
+  --on-primary-fixed-variant: #404758;
 
-  --secondary-fixed:            #fde8e5;
-  --secondary-fixed-dim:        #fbcbc5;
-  --on-secondary-fixed:         #5c170d;
+  --secondary-fixed: #fde8e5;
+  --secondary-fixed-dim: #fbcbc5;
+  --on-secondary-fixed: #5c170d;
   --on-secondary-fixed-variant: #8c2c1f;
 
-  --tertiary-fixed:             #f9debf;
-  --tertiary-fixed-dim:         #dcc2a4;
-  --on-tertiary-fixed:          #261906;
-  --on-tertiary-fixed-variant:  #55442d;
+  --tertiary-fixed: #f9debf;
+  --tertiary-fixed-dim: #dcc2a4;
+  --on-tertiary-fixed: #261906;
+  --on-tertiary-fixed-variant: #55442d;
 }
 
 /* ── Dark mode (Consistent with DESIGN.md hierarchy) ── */
 .dark {
+  /* Duolingo Vibrant Green (#58CC02) */
+  --duo: #58CC02;
+  --duo-dark: #3f9402;
+  --duo-foreground: #ffffff;
+
   /* Brand Color in Dark Mode */
-  --brand:                      #f38b7d;
-  --brand-foreground:           #191c1d;
+  --brand: #f38b7d;
+  --brand-foreground: #191c1d;
 
   /* Base & Surfaces */
-  --background:                 #191c1d;
-  --foreground:                 #f0f1f2;
-  --card:                       #2e3132;
-  --card-foreground:            #f0f1f2;
-  --popover:                    #2e3132;
-  --popover-foreground:         #f0f1f2;
+  --background: #191c1d;
+  --foreground: #f0f1f2;
+  --card: #2e3132;
+  --card-foreground: #f0f1f2;
+  --popover: #2e3132;
+  --popover-foreground: #f0f1f2;
 
   /* Primary Action & Buttons (Dark mode: Solid light off-white button) */
-  --primary:                    #f0f1f2;
-  --primary-foreground:         #111827;
-  --secondary:                  #26292a;
-  --secondary-foreground:       #f0f1f2;
-  --muted:                      #26292a;
-  --muted-foreground:           #c6c6cd;
-  --accent:                     #f38b7d;
-  --accent-foreground:          #191c1d;
-  --destructive:                #ffdad6;
-  --destructive-foreground:     #93000a;
+  --primary: #f0f1f2;
+  --primary-foreground: #111827;
+  --secondary: #26292a;
+  --secondary-foreground: #f0f1f2;
+  --muted: #26292a;
+  --muted-foreground: #c6c6cd;
+  --accent: #f38b7d;
+  --accent-foreground: #191c1d;
+  --destructive: #ffdad6;
+  --destructive-foreground: #93000a;
 
   /* Borders & Controls */
-  --border:                     #45464c;
-  --input:                      #45464c;
-  --ring:                       #f17463;
+  --border: #45464c;
+  --input: #45464c;
+  --ring: #f17463;
 
   /* Dark mode semantic palette */
-  --surface:                    #191c1d;
-  --surface-dim:                #111415;
-  --surface-bright:             #353839;
-  --surface-container-lowest:   #141617;
-  --surface-container-low:      #1c1f20;
-  --surface-container:          #222526;
-  --surface-container-high:     #2a2d2e;
-  --surface-container-highest:  #333638;
-  --surface-variant:            #45464c;
-  --surface-tint:               #f38b7d;
+  --surface: #191c1d;
+  --surface-dim: #111415;
+  --surface-bright: #353839;
+  --surface-container-lowest: #141617;
+  --surface-container-low: #1c1f20;
+  --surface-container: #222526;
+  --surface-container-high: #2a2d2e;
+  --surface-container-highest: #333638;
+  --surface-variant: #45464c;
+  --surface-tint: #f38b7d;
 
-  --on-surface:                 #f0f1f2;
-  --on-surface-variant:         #c6c6cd;
-  --on-background:              #f0f1f2;
+  --on-surface: #f0f1f2;
+  --on-surface-variant: #c6c6cd;
+  --on-background: #f0f1f2;
 
-  --inverse-surface:            #f8f9fa;
-  --inverse-on-surface:         #191c1d;
-  --inverse-primary:            #4b41e1;
+  --inverse-surface: #f8f9fa;
+  --inverse-on-surface: #191c1d;
+  --inverse-primary: #4b41e1;
 
-  --outline:                    #909197;
-  --outline-variant:            #45464c;
+  --outline: #909197;
+  --outline-variant: #45464c;
 
-  --primary-container:          #232c45;
-  --on-primary-container:       #dce2f7;
+  --primary-container: #232c45;
+  --on-primary-container: #dce2f7;
 
-  --secondary-container:        #4b41e1;
-  --on-secondary-container:     #ffffff;
+  --secondary-container: #4b41e1;
+  --on-secondary-container: #ffffff;
 
-  --tertiary:                   #f0f1f2;
-  --on-tertiary:                #191c1d;
-  --tertiary-container:         #55442d;
-  --on-tertiary-container:      #f9debf;
+  --tertiary: #f0f1f2;
+  --on-tertiary: #191c1d;
+  --tertiary-container: #55442d;
+  --on-tertiary-container: #f9debf;
 
-  --error:                      #ffb4ab;
-  --on-error:                   #690005;
-  --error-container:            #93000a;
-  --on-error-container:         #ffdad6;
+  --error: #ffb4ab;
+  --on-error: #690005;
+  --error-container: #93000a;
+  --on-error-container: #ffdad6;
 
-  --primary-fixed:              #dce2f7;
-  --primary-fixed-dim:          #c0c6db;
-  --on-primary-fixed:           #141b2b;
-  --on-primary-fixed-variant:   #404758;
+  --primary-fixed: #dce2f7;
+  --primary-fixed-dim: #c0c6db;
+  --on-primary-fixed: #141b2b;
+  --on-primary-fixed-variant: #404758;
 
-  --secondary-fixed:            #e2dfff;
-  --secondary-fixed-dim:        #c3c0ff;
-  --on-secondary-fixed:         #0f0069;
+  --secondary-fixed: #e2dfff;
+  --secondary-fixed-dim: #c3c0ff;
+  --on-secondary-fixed: #0f0069;
   --on-secondary-fixed-variant: #3323cc;
 
-  --tertiary-fixed:             #f9debf;
-  --tertiary-fixed-dim:         #dcc2a4;
-  --on-tertiary-fixed:          #261906;
-  --on-tertiary-fixed-variant:  #55442d;
+  --tertiary-fixed: #f9debf;
+  --tertiary-fixed-dim: #dcc2a4;
+  --on-tertiary-fixed: #261906;
+  --on-tertiary-fixed-variant: #55442d;
 }
 
 /* ── Base & Typography (Geist per DESIGN.md) ── */
@@ -275,23 +296,98 @@ body {
   line-height: 1.5;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   letter-spacing: -0.025em;
 }
 
 /* ── Utilities ── */
 @layer utilities {
-  .perspective-1000  { perspective: 1000px; }
-  .preserve-3d       { transform-style: preserve-3d; }
-  .backface-hidden   { backface-visibility: hidden; }
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
 }
 
+/* ── 3D Tactile Buttons ── */
+.btn-3d,
+[class*="btn-3d-"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  cursor: pointer;
+  border-width: 0px !important;
+  transition: all 100ms ease-out;
+}
 
+.btn-3d:active,
+[class*="btn-3d-"]:active {
+  transform: translateY(4px) !important;
+  box-shadow: 0 0 0 0 transparent !important;
+}
 
+.btn-3d-duo {
+  background-color: var(--duo) !important;
+  color: var(--duo-foreground) !important;
+  box-shadow: 0 4px 0 0 var(--duo-dark) !important;
+}
+.btn-3d-duo:hover {
+  filter: brightness(1.05);
+}
+
+.btn-3d-primary {
+  background-color: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+  box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.45) !important;
+}
+.btn-3d-primary:hover {
+  filter: brightness(1.1);
+}
+
+.btn-3d-brand {
+  background-color: var(--brand) !important;
+  color: var(--brand-foreground) !important;
+  box-shadow: 0 4px 0 0 #d95847 !important;
+}
+.btn-3d-brand:hover {
+  filter: brightness(1.05);
+}
+
+.btn-3d-destructive {
+  background-color: var(--destructive) !important;
+  color: var(--destructive-foreground) !important;
+  box-shadow: 0 4px 0 0 #7f1d1d !important;
+}
+.btn-3d-destructive:hover {
+  filter: brightness(1.05);
+}
+
+.btn-3d-muted {
+  background-color: var(--muted) !important;
+  color: var(--foreground) !important;
+  box-shadow: 0 4px 0 0 var(--border) !important;
+}
+.btn-3d-muted:hover {
+  background-color: var(--surface-container-high) !important;
+}
