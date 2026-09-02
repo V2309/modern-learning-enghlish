@@ -77,7 +77,7 @@ export const Flashcard = ({
                   <img
                     src={word.imageUrl}
                     alt={word.word}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full  object-fill"
                     referrerPolicy="no-referrer"
                   />
                 </div>

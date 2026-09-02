@@ -338,7 +338,7 @@ export const VocabList = ({
                         <img
                           src={word.imageUrl}
                           alt={word.word}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="w-full h-full object-fill group-hover:scale-105 transition-transform duration-300"
                           referrerPolicy="no-referrer"
                         />
                       </div>
