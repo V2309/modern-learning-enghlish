@@ -158,46 +158,77 @@ export const VocabList = ({
                 >
                   <div className="space-y-4 flex-1 w-full">
                     {/* Title word header */}
-                    <div className="flex flex-wrap items-center gap-3">
-                      <h3 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
-                        {word.word}
-                      </h3>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      {/* Left: Word + Badge + Phonetics + Audio */}
+                      <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+                        <h3 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
+                          {word.word}
+                        </h3>
 
-                      {/* Part of Speech Pill */}
-                      <span className="text-xs font-black text-duo bg-duo/10 px-3 py-1 rounded-xl uppercase border border-duo/25">
-                        {word.partOfSpeech}
-                      </span>
-
-                      {/* Phonetic Pronunciation */}
-                      <div className="flex items-center gap-2 text-muted-foreground bg-muted/80 px-3 py-1 rounded-xl text-sm font-medium border border-border/60">
-                        <span className="font-mono text-foreground font-semibold">
-                          {word.pronunciation || '/.../'}
+                        {/* Part of Speech Pill */}
+                        <span className="text-xs font-black text-duo bg-duo/10 px-3 py-1 rounded-xl uppercase border border-duo/25">
+                          {word.partOfSpeech}
                         </span>
+
+                        {/* Phonetic Pronunciation */}
+                        {word.pronunciation && (
+                          <div className="flex items-center gap-2 text-muted-foreground bg-muted/80 px-3 py-1 rounded-xl text-sm font-medium border border-border/60">
+                            <span className="font-mono text-foreground font-semibold">
+                              {word.pronunciation}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Audio Buttons */}
+                        <div className="flex items-center gap-1.5">
+                          {/* UK Audio */}
+                          <button
+                            onClick={() => speak(word.word)}
+                            title="Phát âm giọng UK"
+                            className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-card border-2 border-border text-foreground shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none hover:bg-muted font-bold text-xs cursor-pointer transition-all"
+                          >
+                            <Volume2 className="h-3.5 w-3.5 text-duo" />
+                            <span className="text-[10px] text-muted-foreground">UK</span>
+                          </button>
+
+                          {/* US Audio */}
+                          <button
+                            onClick={() => speak(word.word)}
+                            title="Phát âm giọng US"
+                            className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-card border-2 border-border text-foreground shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none hover:bg-muted font-bold text-xs cursor-pointer transition-all"
+                          >
+                            <Volume2 className="h-3.5 w-3.5 text-duo" />
+                            <span className="text-[10px] text-muted-foreground">US</span>
+                          </button>
+                        </div>
                       </div>
 
-                      {/* Pronunciation & Mastered Buttons */}
-                      <div className="flex flex-wrap items-center gap-2 ml-auto sm:ml-2">
-                        {/* UK Audio */}
-                        <button
-                          onClick={() => speak(word.word)}
-                          title="Phát âm giọng UK"
-                          className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-card border-2 border-border text-foreground shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none hover:bg-muted font-bold text-xs cursor-pointer transition-all"
-                        >
-                          <Volume2 className="h-3.5 w-3.5 text-duo" />
-                          <span className="text-[10px] text-muted-foreground">UK</span>
-                        </button>
+                      {/* Right: Mastered Toggle & Mobile Admin Buttons */}
+                      <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
+                        {/* Mobile-only Admin Edit/Delete */}
+                        {isAdmin && (
+                          <div className="flex md:hidden items-center gap-1.5">
+                            {onEdit && (
+                              <button
+                                onClick={() => onEdit(word)}
+                                title="Sửa từ"
+                                className="p-1.5 rounded-xl bg-card border-2 border-border text-sky-500 hover:bg-muted text-xs font-bold cursor-pointer transition-all shadow-2xs"
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                              </button>
+                            )}
+                            {onDelete && (
+                              <button
+                                onClick={() => onDelete(word)}
+                                title="Xoá từ"
+                                className="p-1.5 rounded-xl bg-card border-2 border-border text-destructive hover:bg-destructive/10 text-xs font-bold cursor-pointer transition-all shadow-2xs"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        )}
 
-                        {/* US Audio */}
-                        <button
-                          onClick={() => speak(word.word)}
-                          title="Phát âm giọng US"
-                          className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-card border-2 border-border text-foreground shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none hover:bg-muted font-bold text-xs cursor-pointer transition-all"
-                        >
-                          <Volume2 className="h-3.5 w-3.5 text-duo" />
-                          <span className="text-[10px] text-muted-foreground">US</span>
-                        </button>
-
-                        {/* Mastered Toggle 3D Button */}
                         {onToggleMaster && (
                           <button
                             onClick={() => onToggleMaster(word.id)}
@@ -231,6 +262,18 @@ export const VocabList = ({
                       </div>
                     </div>
 
+                    {/* Mobile Image (placed below definition on mobile, hidden on desktop) */}
+                    {word.imageUrl && (
+                      <div className="block md:hidden w-full aspect-[16/10] rounded-2xl overflow-hidden border-2 border-border/80 shadow-xs">
+                        <img
+                          src={word.imageUrl}
+                          alt={word.word}
+                          className="w-full h-full object-cover"
+                          referrerPolicy="no-referrer"
+                        />
+                      </div>
+                    )}
+
                     {/* Examples block */}
                     <div className="space-y-1.5">
                       <span className="text-[11px] font-black text-muted-foreground uppercase tracking-wider">
@@ -261,11 +304,11 @@ export const VocabList = ({
                     </div>
                   </div>
 
-                  {/* Right side: Image + Actions */}
-                  <div className="flex flex-col items-end gap-3 shrink-0 self-start md:self-start w-full md:w-auto">
+                  {/* Right side: Desktop Image + Actions (hidden on mobile, shown on md+) */}
+                  <div className="hidden md:flex flex-col items-end gap-3 shrink-0 self-start w-auto">
                     {/* Admin Edit / Delete buttons */}
                     {isAdmin && (
-                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity self-end">
+                      <div className="flex items-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity self-end">
                         {onEdit && (
                           <button
                             onClick={() => onEdit(word)}
@@ -289,7 +332,7 @@ export const VocabList = ({
                       </div>
                     )}
 
-                    {/* Image asset */}
+                    {/* Desktop Image asset */}
                     {word.imageUrl ? (
                       <div className="w-full md:w-80 lg:w-96 xl:w-[420px] aspect-[4/3] rounded-3xl overflow-hidden border-2 border-border/80 shadow-xs">
                         <img

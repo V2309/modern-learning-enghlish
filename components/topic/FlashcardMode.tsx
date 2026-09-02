@@ -104,20 +104,20 @@ export const FlashcardMode = ({
   const progressPercent = Math.round(((flashcardIndex + 1) / words.length) * 100);
 
   return (
-    <div className="h-full flex flex-col justify-center py-2">
+    <div className="h-full flex flex-col justify-center py-2">  
       <motion.div
         key="flashcard-study"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="max-w-2xl mx-auto w-full space-y-4"
+        className="max-w-3xl mx-auto w-full space-y-4"
       >
         {/* ── Progress Counter & Bar ─────────────────────────────── */}
-        <div className="flex items-center justify-between gap-4 px-2">
+        <div className="flex items-center justify-between gap-3 px-1">
           <span className="text-xs font-black text-muted-foreground uppercase tracking-wider">
             Thẻ {flashcardIndex + 1} / {words.length}
           </span>
-          <div className="flex-1 max-w-xs h-3 bg-muted rounded-full overflow-hidden p-0.5 border border-border/60">
+          <div className="flex-1 max-w-[240px] h-2.5 bg-muted rounded-full overflow-hidden p-0.5 border border-border/60">
             <div
               className="h-full bg-duo rounded-full transition-all duration-300"
               style={{ width: `${progressPercent}%` }}
@@ -157,20 +157,20 @@ export const FlashcardMode = ({
           </motion.div>
 
           {/* ── Navigation 3D Controls ─────────────────────────── */}
-          <div className="flex items-center justify-center gap-3 mt-4">
+          <div className="flex items-center justify-center gap-3 mt-3.5">
             <button
               onClick={() => setFlashcardIndex((prev) => Math.max(0, prev - 1))}
               disabled={flashcardIndex === 0}
               title="Thẻ trước (Phím ←)"
               className="p-3 rounded-2xl bg-card border-2 border-border text-foreground shadow-[0_3px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
             >
-              <ChevronLeft className="h-5 w-5 stroke-[2.5]" />
+              <ChevronLeft className="h-4 w-4 stroke-[2.5]" />
             </button>
 
             <button
               onClick={() => setIsFlipped((prev) => !prev)}
               title="Lật thẻ (Phím Space)"
-              className="btn-3d-duo px-7 py-3 rounded-2xl text-xs sm:text-sm font-black flex items-center gap-2"
+              className="btn-3d-duo px-6 py-2.5 rounded-2xl text-xs sm:text-sm font-black flex items-center gap-2"
             >
               <RotateCw className="h-4 w-4 stroke-[2.5]" />
               <span>Lật Thẻ (Space)</span>
@@ -182,17 +182,17 @@ export const FlashcardMode = ({
               title="Thẻ tiếp theo (Phím →)"
               className="p-3 rounded-2xl bg-card border-2 border-border text-foreground shadow-[0_3px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
             >
-              <ChevronRight className="h-5 w-5 stroke-[2.5]" />
+              <ChevronRight className="h-4 w-4 stroke-[2.5]" />
             </button>
           </div>
 
           {/* ── 4 SRS Rating 3D Buttons ─────────────────────────── */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4 max-w-xl mx-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-3.5 max-w-xl mx-auto">
             {/* Again (1) */}
             <button
               onClick={() => handleSrsRate('again')}
               disabled={isSubmitting}
-              className="p-3 rounded-2xl bg-rose-500 hover:brightness-105 text-white font-black text-xs shadow-[0_4px_0_0_#9f1239] active:translate-y-1 active:shadow-none transition-all cursor-pointer flex flex-col items-center justify-center disabled:opacity-50"
+              className="py-2.5 px-3 rounded-2xl bg-rose-500 hover:brightness-105 text-white font-black text-xs shadow-[0_3px_0_0_#9f1239] active:translate-y-0.5 active:shadow-none transition-all cursor-pointer flex flex-col items-center justify-center disabled:opacity-50"
             >
               <span className="uppercase tracking-wider">Again (1)</span>
               <span className="text-[10px] text-white/80 font-bold mt-0.5">10 phút</span>
@@ -202,7 +202,7 @@ export const FlashcardMode = ({
             <button
               onClick={() => handleSrsRate('hard')}
               disabled={isSubmitting}
-              className="p-3 rounded-2xl bg-amber-500 hover:brightness-105 text-white font-black text-xs shadow-[0_4px_0_0_#b45309] active:translate-y-1 active:shadow-none transition-all cursor-pointer flex flex-col items-center justify-center disabled:opacity-50"
+              className="py-2.5 px-3 rounded-2xl bg-amber-500 hover:brightness-105 text-white font-black text-xs shadow-[0_3px_0_0_#b45309] active:translate-y-0.5 active:shadow-none transition-all cursor-pointer flex flex-col items-center justify-center disabled:opacity-50"
             >
               <span className="uppercase tracking-wider">Hard (2)</span>
               <span className="text-[10px] text-white/80 font-bold mt-0.5">1 ngày</span>
@@ -212,7 +212,7 @@ export const FlashcardMode = ({
             <button
               onClick={() => handleSrsRate('good')}
               disabled={isSubmitting}
-              className="p-3 rounded-2xl bg-sky-500 hover:brightness-105 text-white font-black text-xs shadow-[0_4px_0_0_#0369a1] active:translate-y-1 active:shadow-none transition-all cursor-pointer flex flex-col items-center justify-center disabled:opacity-50"
+              className="py-2.5 px-3 rounded-2xl bg-sky-500 hover:brightness-105 text-white font-black text-xs shadow-[0_3px_0_0_#0369a1] active:translate-y-0.5 active:shadow-none transition-all cursor-pointer flex flex-col items-center justify-center disabled:opacity-50"
             >
               <span className="uppercase tracking-wider">Good (3)</span>
               <span className="text-[10px] text-white/80 font-bold mt-0.5">3 ngày</span>
@@ -222,7 +222,7 @@ export const FlashcardMode = ({
             <button
               onClick={() => handleSrsRate('easy')}
               disabled={isSubmitting}
-              className="p-3 rounded-2xl bg-duo hover:brightness-105 text-duo-foreground font-black text-xs shadow-[0_4px_0_0_var(--duo-dark)] active:translate-y-1 active:shadow-none transition-all cursor-pointer flex flex-col items-center justify-center disabled:opacity-50"
+              className="py-2.5 px-3 rounded-2xl bg-duo hover:brightness-105 text-duo-foreground font-black text-xs shadow-[0_3px_0_0_var(--duo-dark)] active:translate-y-0.5 active:shadow-none transition-all cursor-pointer flex flex-col items-center justify-center disabled:opacity-50"
             >
               <span className="uppercase tracking-wider">Easy (4)</span>
               <span className="text-[10px] text-white/80 font-bold mt-0.5">7 ngày</span>
