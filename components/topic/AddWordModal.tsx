@@ -4,6 +4,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, ChevronDown, Sparkles, BookOpen, Trash2 } from 'lucide-react';
 import { Vocabulary } from '@/data/mockData';
+import { ImageUploadField } from '@/components/topic/ImageUploadField';
 
 interface NewWordState {
   word: string;
@@ -11,6 +12,7 @@ interface NewWordState {
   definition: string;
   example: string;
   partOfSpeech: Vocabulary['partOfSpeech'];
+  imageUrl?: string;
 }
 
 interface AddWordModalProps {
@@ -144,6 +146,12 @@ export const AddWordModal = ({
                   placeholder="e.g. the capacity to recover quickly from difficulties"
                 />
               </div>
+
+              {/* Image Upload */}
+              <ImageUploadField
+                imageUrl={newWord.imageUrl}
+                onChange={(url) => onWordChange('imageUrl', url)}
+              />
 
               {/* Example Sentences */}
               <div className="space-y-2.5 pt-2 border-t border-border/60">

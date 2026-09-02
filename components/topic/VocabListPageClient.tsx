@@ -55,6 +55,7 @@ export default function VocabListPageClient({ userId, topicId, isAdmin = false }
       meaning: word.meaning,
       example: word.example || '',
       partOfSpeech: word.partOfSpeech,
+      imageUrl: word.imageUrl || '',
     });
     setEditWordExamples(
       word.examples && word.examples.length > 0 ? word.examples : [word.example || '']

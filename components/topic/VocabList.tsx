@@ -291,7 +291,7 @@ export const VocabList = ({
 
                     {/* Image asset */}
                     {word.imageUrl ? (
-                      <div className="w-full md:w-44 aspect-[4/3] md:aspect-square rounded-2xl overflow-hidden border-2 border-border/80 shadow-xs">
+                      <div className="w-full md:w-80 lg:w-96 xl:w-[420px] aspect-[4/3] rounded-3xl overflow-hidden border-2 border-border/80 shadow-xs">
                         <img
                           src={word.imageUrl}
                           alt={word.word}
@@ -300,9 +300,9 @@ export const VocabList = ({
                         />
                       </div>
                     ) : (
-                      <div className="w-full md:w-44 aspect-[4/3] md:aspect-square rounded-2xl bg-muted/40 border-2 border-dashed border-border/80 flex flex-col items-center justify-center text-muted-foreground p-4">
-                        <Sparkles className="h-7 w-7 text-duo mb-1.5 opacity-60" />
-                        <span className="text-xs text-center font-bold">Hình minh hoạ</span>
+                      <div className="w-full md:w-80 lg:w-96 xl:w-[420px] aspect-[4/3] rounded-3xl bg-muted/40 border-2 border-dashed border-border/80 flex flex-col items-center justify-center text-muted-foreground p-5">
+                        <Sparkles className="h-9 w-9 text-duo mb-2 opacity-60" />
+                        <span className="text-xs sm:text-sm text-center font-bold">Hình minh hoạ</span>
                       </div>
                     )}
                   </div>

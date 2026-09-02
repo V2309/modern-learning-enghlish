@@ -68,8 +68,19 @@ export const Flashcard = ({
             </div>
           </div>
 
-          {/* Center: Meaning & Pronunciation */}
-          <div className="text-center space-y-2.5 py-1 my-auto">
+          {/* Center: Image & Meaning & Pronunciation */}
+          <div className="text-center space-y-2.5 py-1 my-auto flex flex-col items-center">
+            {word.imageUrl && (
+              <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-3xl overflow-hidden border-2 border-border/80 shadow-xs mb-1">
+                <img
+                  src={word.imageUrl}
+                  alt={word.word}
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+            )}
+
             <p className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
               {word.meaning}
             </p>

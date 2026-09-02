@@ -11,6 +11,7 @@ interface TopicWordForm {
   definition: string;
   example: string;
   partOfSpeech: PartOfSpeech;
+  imageUrl?: string;
 }
 
 interface EditWordForm {
@@ -18,6 +19,7 @@ interface EditWordForm {
   meaning: string;
   example: string;
   partOfSpeech: PartOfSpeech;
+  imageUrl?: string;
 }
 
 interface TopicDetailStoreState {
@@ -116,11 +118,11 @@ const initialState = {
   isDesktopSidebarOpen: true,
   isMobileSidebarOpen: false,
   showAddWordModal: false,
-  newWord: { word: '', meaning: '', definition: '', example: '', partOfSpeech: 'Noun' as PartOfSpeech },
+  newWord: { word: '', meaning: '', definition: '', example: '', partOfSpeech: 'Noun' as PartOfSpeech, imageUrl: '' },
   newWordExamples: [''],
   showEditWordModal: false,
   editingWord: null,
-  editWordForm: { word: '', meaning: '', example: '', partOfSpeech: 'Noun' as PartOfSpeech },
+  editWordForm: { word: '', meaning: '', example: '', partOfSpeech: 'Noun' as PartOfSpeech, imageUrl: '' },
   editWordExamples: [''],
   isSavingWord: false,
   showDeleteWordModal: false,

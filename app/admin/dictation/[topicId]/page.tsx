@@ -146,9 +146,10 @@ export default function AdminSentencesPage({ params }: AdminSentencesPageProps) 
     setUploading(true);
     const form = new FormData();
     form.append("file", fileToUpload);
+    form.append("folder", "/dictation-audio");
 
     try {
-      const res = await fetch("/api/dictation/upload", {
+      const res = await fetch("/api/upload", {
         method: "POST",
         body: form,
       });

@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { TopicSidebar, sidebarItems } from '@/components/topic/TopicSidebar';
 import { AddWordModal } from '@/components/topic/AddWordModal';
+import { ImageUploadField } from '@/components/topic/ImageUploadField';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import { useTopicDetailStore } from '@/stores/useTopicDetailStore';
 import { createVocabularyAction, updateVocabularyAction, deleteVocabularyAction } from '@/actions/vocabulary.action';
@@ -126,13 +127,14 @@ export default function TopicLayoutClient({
       examples: filteredExamples,
       category: topic.name,
       partOfSpeech: newWord.partOfSpeech,
+      imageUrl: newWord.imageUrl || undefined,
       createdByUserId: userId,
     });
 
     if (res.success && res.vocabulary) {
       setWords([...words, res.vocabulary]);
       setShowAddWordModal(false);
-      setNewWord({ word: '', meaning: '', definition: '', example: '', partOfSpeech: 'Noun' });
+      setNewWord({ word: '', meaning: '', definition: '', example: '', partOfSpeech: 'Noun', imageUrl: '' });
       setNewWordExamples(['']);
       toast.success('Thêm từ vựng mới thành công!');
     } else {
@@ -150,6 +152,7 @@ export default function TopicLayoutClient({
       example: filteredExamples[0] || '',
       examples: filteredExamples,
       partOfSpeech: editWordForm.partOfSpeech,
+      imageUrl: editWordForm.imageUrl || '',
     });
     setIsSavingWord(false);
 
@@ -350,6 +353,13 @@ export default function TopicLayoutClient({
                     </div>
                   </div>
                 </div>
+
+                {/* Image Upload */}
+                <ImageUploadField
+                  imageUrl={editWordForm.imageUrl}
+                  onChange={(url) => setEditWordForm((p) => ({ ...p, imageUrl: url }))}
+                  disabled={isSavingWord}
+                />
 
                 <div className="space-y-2.5 pt-2 border-t border-border/60">
                   <div className="flex items-center justify-between">
