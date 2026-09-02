@@ -13,10 +13,10 @@ export default function Footer() {
   if (isTopicPage || isAuthPage) return null;
 
   return (
-    <footer className="w-full py-6 bg-surface-container-highest text-on-surface-variant border-t border-border mt-4 text-xs shrink-0 select-none">
+    <footer className="w-full py-6  text-on-surface-variant border-t border-border mt-4 text-xs shrink-0 select-none">
       <div className="container mx-auto px-4 md:px-8 space-y-4">
         {/* Top layout */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8 pb-6 border-b border-border">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-8 pb-6 ">
           {/* Logo & description */}
           <div className="text-center md:text-left space-y-2">
             <span className="text-xl font-black text-foreground tracking-wide">LinguifyPro</span>
@@ -34,11 +34,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom layout */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left text-[10px] text-muted-foreground font-medium">
-          <span>© 2026 Linguify Academy. Empowering global communicators.</span>
-          <span>Made with ❤️ for English Learners</span>
-        </div>
+
       </div>
     </footer>
   );

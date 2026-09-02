@@ -23,8 +23,7 @@ import {
   ArrowRight,
   ArrowLeft,
   Check,
-  Circle,
-  Award,
+  FolderOpen,
   ChevronRight,
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -355,10 +354,10 @@ export default function CourseTopicClient({
       <div
         key={lesson.id}
         className={cn(
-          'rounded-2xl border transition-all overflow-hidden',
+          'rounded-2xl border-2 transition-all overflow-hidden shadow-2xs',
           isCurrentLesson
-            ? 'border-brand/40 bg-brand/5 shadow-xs ring-1 ring-brand/20'
-            : 'border-border/60 bg-card/70 hover:border-border hover:bg-card'
+            ? 'border-brand/40 bg-brand/5 shadow-[0_3px_0_0_theme(colors.brand)]'
+            : 'border-border/70 bg-card hover:border-border'
         )}
       >
         {/* Lesson Header Accordion Toggle */}
@@ -383,12 +382,12 @@ export default function CourseTopicClient({
           <div className="flex items-center gap-3 min-w-0 flex-1">
             <div
               className={cn(
-                'h-7 w-7 rounded-xl flex items-center justify-center font-black text-xs shrink-0 transition-colors',
+                'h-8 w-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0 transition-colors border-2 shadow-2xs',
                 isLessonCompleted
-                  ? 'bg-emerald-500 text-white shadow-xs'
+                  ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
                   : isCurrentLesson
-                  ? 'bg-primary text-primary-foreground shadow-xs'
-                  : 'bg-muted text-muted-foreground group-hover:bg-muted-foreground/20'
+                  ? 'bg-brand border-brand text-white shadow-xs'
+                  : 'bg-muted border-border/80 text-muted-foreground group-hover:bg-muted-foreground/20'
               )}
             >
               {isLessonCompleted ? <Check className="h-4 w-4 stroke-[3]" /> : lessonIdx + 1}
@@ -397,8 +396,8 @@ export default function CourseTopicClient({
             <div className="flex-1 min-w-0 pr-2">
               <h4
                 className={cn(
-                  'font-bold text-xs md:text-sm truncate transition-colors',
-                  isCurrentLesson ? 'text-brand font-black' : 'text-foreground'
+                  'font-black text-xs md:text-sm truncate transition-colors',
+                  isCurrentLesson ? 'text-brand' : 'text-foreground'
                 )}
               >
                 {formatLessonName(lesson.title, lessonIdx)}
@@ -432,7 +431,7 @@ export default function CourseTopicClient({
                   type="button"
                   onClick={(e) => openEditLesson(lesson, e)}
                   title="Sửa bài học"
-                  className="p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                  className="p-1.5 rounded-xl border border-border bg-card hover:bg-muted text-muted-foreground hover:text-brand transition-colors cursor-pointer"
                 >
                   <Pencil className="h-3 w-3" />
                 </button>
@@ -440,7 +439,7 @@ export default function CourseTopicClient({
                   type="button"
                   onClick={(e) => openDeleteLesson(lesson, e)}
                   title="Xoá bài học"
-                  className="p-1 rounded-md hover:bg-red-500/10 text-muted-foreground hover:text-rose-500 transition-colors cursor-pointer"
+                  className="p-1.5 rounded-xl border border-rose-500/30 bg-card hover:bg-rose-500/10 text-rose-500 transition-colors cursor-pointer"
                 >
                   <Trash2 className="h-3 w-3" />
                 </button>
@@ -461,7 +460,7 @@ export default function CourseTopicClient({
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="border-t border-border/40 bg-background/50 p-2 space-y-1.5"
+              className="border-t-2 border-border/60 bg-muted/20 p-2.5 space-y-2"
             >
               {/* 1. Video bài học */}
               <button
@@ -471,32 +470,33 @@ export default function CourseTopicClient({
                   handleSelectLessonVideo(lesson);
                 }}
                 className={cn(
-                  'w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left transition-all text-xs font-semibold cursor-pointer group/vid',
+                  'w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left transition-all text-xs font-black cursor-pointer border-2',
                   isVideoActive
-                    ? 'bg-primary text-white font-bold shadow-sm'
-                    : 'hover:bg-muted text-foreground'
+                    ? 'btn-3d-duo'
+                    : 'bg-card border-border shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none hover:bg-muted text-foreground'
                 )}
               >
-                <span className="truncate">
+                <span className="truncate flex items-center gap-2">
+                  <Video className="h-3.5 w-3.5" />
                   Video bài học
                 </span>
 
                 <div className="flex items-center gap-2 shrink-0 ml-2">
                   {isVideoActive ? (
-                    <span className="px-2 py-0.5 rounded-md bg-white/20 text-[10px] font-bold text-white">
+                    <span className="px-2 py-0.5 rounded-md bg-white/20 text-[10px] font-black text-white">
                       Đang xem
                     </span>
                   ) : isLessonCompleted ? (
-                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                    <CheckCircle2 className="h-4 w-4 text-emerald-500 stroke-[2.5]" />
                   ) : (
-                    <span className="text-muted-foreground text-[11px] opacity-60">
+                    <span className="text-muted-foreground text-[11px] font-semibold">
                       {lesson.duration || 'Video'}
                     </span>
                   )}
                 </div>
               </button>
 
-              {/* 2. Luyện tập bài học (chỉ hiển thị khi bài học có câu hỏi trong database) */}
+              {/* 2. Luyện tập bài học */}
               {hasPractice && (
                 <button
                   type="button"
@@ -505,23 +505,24 @@ export default function CourseTopicClient({
                     handleSelectLessonPractice(lesson);
                   }}
                   className={cn(
-                    'w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left transition-all text-xs font-semibold cursor-pointer group/prac',
+                    'w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left transition-all text-xs font-black cursor-pointer border-2',
                     isPracticeActive
-                      ? 'bg-primary text-white font-bold shadow-sm'
-                      : 'hover:bg-muted text-foreground'
+                      ? 'btn-3d-duo'
+                      : 'bg-card border-border shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none hover:bg-muted text-foreground'
                   )}
                 >
-                  <span className="truncate">
+                  <span className="truncate flex items-center gap-2">
+                    <FileQuestion className="h-3.5 w-3.5" />
                     Luyện tập: {cleanTitle}
                   </span>
 
                   <div className="flex items-center gap-2 shrink-0 ml-2">
                     {isPracticeActive ? (
-                      <span className="px-2 py-0.5 rounded-md bg-white/20 text-[10px] font-bold text-white">
+                      <span className="px-2 py-0.5 rounded-md bg-white/20 text-[10px] font-black text-white">
                         Đang làm
                       </span>
                     ) : isPracticeCompleted ? (
-                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                      <CheckCircle2 className="h-4 w-4 text-emerald-500 stroke-[2.5]" />
                     ) : null}
                   </div>
                 </button>
@@ -537,34 +538,34 @@ export default function CourseTopicClient({
   const renderSidebarContent = () => (
     <div className="space-y-6">
       {/* Course Navigation Header */}
-      <div className="p-5 md:p-6 rounded-3xl bg-card border border-border/80 space-y-5 shadow-xs">
+      <div className="p-5 md:p-6 rounded-3xl bg-card border-2 border-border/80 space-y-5 shadow-[0_6px_0_0_theme(colors.border)]">
         {/* Topic Title and Topic Section Indicator */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black text-brand uppercase tracking-wider bg-brand/10 px-2.5 py-1 rounded-md border border-brand/20">
+            <span className="text-[10px] font-black text-brand uppercase tracking-wider bg-brand/10 px-2.5 py-1 rounded-xl border-2 border-brand/20">
               Phần {partNumber}
             </span>
-            <span className="text-xs font-bold text-muted-foreground bg-muted px-2.5 py-0.5 rounded-md border border-border/40">
+            <span className="text-xs font-black text-muted-foreground bg-muted px-2.5 py-1 rounded-xl border border-border/60">
               {totalTopicLessons} bài học
             </span>
           </div>
-          <h3 className="text-sm md:text-base font-bold text-foreground flex items-center gap-2 pt-1">
-            <BookOpen className="h-4 w-4 text-brand shrink-0" />
+          <h3 className="text-sm md:text-base font-black text-foreground flex items-center gap-2 pt-1">
+            <FolderOpen className="h-4 w-4 text-brand shrink-0" />
             <span className="truncate">{topic.title}</span>
           </h3>
         </div>
 
         {/* Topic Progress Bar Widget */}
-        <div className="p-4 rounded-2xl bg-brand/5 border border-brand/20 space-y-2.5">
+        <div className="p-4 rounded-2xl bg-brand/5 border-2 border-brand/20 space-y-2.5 shadow-2xs">
           <div className="flex items-center justify-between">
-            <h4 className="text-xs font-bold text-brand uppercase tracking-wider flex items-center gap-1.5">
-              <CheckCircle2 className="h-3.5 w-3.5" />
+            <h4 className="text-xs font-black text-brand uppercase tracking-wider flex items-center gap-1.5">
+              <CheckCircle2 className="h-3.5 w-3.5 stroke-[2.5]" />
               Tiến Độ Phần Học
             </h4>
             <span className="text-xs font-black text-brand">{topicProgressPercent}%</span>
           </div>
 
-          <div className="h-2 w-full bg-brand/15 rounded-full overflow-hidden">
+          <div className="h-2.5 w-full bg-brand/15 rounded-full overflow-hidden p-0.5 border border-brand/20">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${topicProgressPercent}%` }}
@@ -578,8 +579,8 @@ export default function CourseTopicClient({
               <strong className="text-foreground font-black">{completedTopicLessons}</strong> / {totalTopicLessons} bài đã học
             </span>
             {completedTopicLessons === totalTopicLessons && totalTopicLessons > 0 && (
-              <span className="text-emerald-600 dark:text-emerald-400 font-extrabold flex items-center gap-1">
-                <CheckCircle2 className="h-3.5 w-3.5" /> Hoàn thành
+              <span className="text-emerald-600 dark:text-emerald-400 font-black flex items-center gap-1">
+                <CheckCircle2 className="h-3.5 w-3.5 stroke-[3]" /> Hoàn thành
               </span>
             )}
           </div>
@@ -599,9 +600,9 @@ export default function CourseTopicClient({
           {isAdmin && (
             <button
               onClick={() => setShowAddLessonModal(true)}
-              className="mt-4 w-full flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-dashed border-border hover:border-primary/50 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all text-xs font-bold cursor-pointer"
+              className="btn-3d-duo mt-4 w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-xs font-black"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4 stroke-[3]" />
               Thêm bài học mới
             </button>
           )}
@@ -609,7 +610,7 @@ export default function CourseTopicClient({
 
         {/* Other topics in course quick links */}
         {otherTopics.length > 0 && (
-          <div className="border-t border-border/60 pt-4 space-y-2">
+          <div className="border-t-2 border-border/60 pt-4 space-y-2">
             <h5 className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">
               Các phần khác trong khóa học
             </h5>
@@ -618,10 +619,10 @@ export default function CourseTopicClient({
                 <Link
                   key={ot.id}
                   href={`${courseBasePath}/${ot.id}`}
-                  className="flex items-center justify-between p-2 rounded-xl text-xs font-semibold text-muted-foreground hover:text-primary hover:bg-muted transition-all group"
+                  className="flex items-center justify-between p-2.5 rounded-2xl text-xs font-bold text-muted-foreground hover:text-brand hover:bg-muted border border-transparent hover:border-border/60 transition-all group"
                 >
                   <span className="truncate">Phần {otIdx + (partNumber === 1 ? 2 : 1)}: {ot.title}</span>
-                  <ChevronRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-transform" />
+                  <ChevronRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-brand group-hover:translate-x-0.5 transition-transform" />
                 </Link>
               ))}
             </div>
@@ -632,15 +633,15 @@ export default function CourseTopicClient({
   );
 
   return (
-    <div className="w-full relative">
+    <div className="w-full relative select-none">
       {/* ── Top Header Navigation ── */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 gap-3">
         <Link
           href={courseBasePath}
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-brand transition-colors group"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-card border-2 border-border shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none text-muted-foreground hover:text-brand transition-all group"
         >
-          <ChevronLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
-          <span className="text-xs md:text-sm font-semibold truncate max-w-[220px] sm:max-w-md">
+          <ChevronLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform stroke-[2.5]" />
+          <span className="text-xs sm:text-sm font-black truncate max-w-[180px] sm:max-w-md">
             {topic.course?.title || 'Quay lại khóa học'}
           </span>
         </Link>
@@ -649,7 +650,7 @@ export default function CourseTopicClient({
           {/* Mobile drawer toggle button */}
           <button
             onClick={() => setIsMobileDrawerOpen(true)}
-            className="lg:hidden flex items-center gap-2 px-3.5 py-2 border border-border bg-card rounded-xl text-xs font-bold text-foreground hover:bg-muted transition-all shadow-xs cursor-pointer"
+            className="lg:hidden flex items-center gap-2 px-3.5 py-2 border-2 border-border bg-card rounded-2xl text-xs font-black text-foreground shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none hover:bg-muted transition-all cursor-pointer"
           >
             <BookOpen className="h-4 w-4 text-brand" />
             <span>Bài học ({completedTopicLessons}/{totalTopicLessons})</span>
@@ -658,7 +659,7 @@ export default function CourseTopicClient({
           {/* Desktop cinema view toggle */}
           <button
             onClick={() => setIsDesktopSidebarOpen(!isDesktopSidebarOpen)}
-            className="hidden lg:flex items-center gap-2 px-4 py-2 border border-border bg-card rounded-xl text-xs font-bold text-foreground hover:bg-muted transition-all shadow-xs cursor-pointer"
+            className="hidden lg:flex items-center gap-2 px-4 py-2 border-2 border-border bg-card rounded-2xl text-xs font-black text-foreground shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none hover:bg-muted transition-all cursor-pointer"
           >
             <Menu className="h-4 w-4 text-brand" />
             <span>{isDesktopSidebarOpen ? 'Cinema View (Ẩn mục lục)' : 'Hiện mục lục'}</span>
@@ -680,7 +681,7 @@ export default function CourseTopicClient({
           {activeMode === 'video' ? (
             <>
               {/* Video Player Container */}
-              <div className="rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl bg-card border border-border">
+              <div className="rounded-3xl overflow-hidden shadow-[0_8px_0_0_theme(colors.border)] bg-card border-2 border-border/80">
                 <div className="aspect-video w-full bg-black relative">
                   {activeLesson ? (
                     <CustomVideoPlayer
@@ -692,7 +693,7 @@ export default function CourseTopicClient({
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
                       <PlayCircle className="h-16 w-16 text-muted-foreground opacity-40 animate-pulse" />
-                      <p className="text-muted-foreground font-bold uppercase tracking-widest text-xs">
+                      <p className="text-muted-foreground font-black uppercase tracking-wider text-xs">
                         Chọn bài học để bắt đầu
                       </p>
                     </div>
@@ -701,13 +702,13 @@ export default function CourseTopicClient({
               </div>
 
               {/* Quick Action Bar (Video / Practice Toggle + Navigation Controls) */}
-              <div className="p-4 md:p-6 rounded-3xl bg-card border border-border flex flex-wrap items-center justify-between gap-4 shadow-sm">
+              <div className="p-5 sm:p-6 rounded-3xl bg-card border-2 border-border/80 flex flex-wrap items-center justify-between gap-4 shadow-[0_5px_0_0_theme(colors.border)]">
                 {/* Mode Switcher Tabs */}
                 {hasLessonPractice(activeLesson) ? (
-                  <div className="flex items-center bg-muted/60 p-1 rounded-2xl border border-border/60">
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all bg-primary text-white shadow-sm"
+                      className="btn-3d-duo flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-black"
                     >
                       <Video className="h-4 w-4" />
                       <span>Video bài học</span>
@@ -716,15 +717,15 @@ export default function CourseTopicClient({
                     <button
                       type="button"
                       onClick={() => setActiveMode('practice')}
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                      className="flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer bg-card border-2 border-border text-muted-foreground hover:text-foreground shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none hover:bg-muted"
                     >
                       <FileQuestion className="h-4 w-4" />
-                      <span>Luyện tập thực hành</span>
+                      <span>Luyện tập</span>
                     </button>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground bg-muted/40 px-3.5 py-2 rounded-xl border border-border/50">
-                    <Video className="h-4 w-4 text-primary" />
+                  <div className="flex items-center gap-2 text-xs font-black text-brand bg-brand/10 px-3.5 py-2 rounded-2xl border-2 border-brand/20">
+                    <Video className="h-4 w-4 text-brand" />
                     <span>Video bài học</span>
                   </div>
                 )}
@@ -737,10 +738,10 @@ export default function CourseTopicClient({
                     onClick={handleGoToPrevLesson}
                     title={prevLesson ? `Bài trước: ${prevLesson.title}` : 'Không có bài trước'}
                     className={cn(
-                      'px-3.5 py-2.5 rounded-xl border border-border bg-card font-bold text-xs flex items-center gap-1.5 transition-all',
+                      'px-3.5 py-2 rounded-2xl border-2 border-border bg-card font-black text-xs flex items-center gap-1.5 transition-all shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none',
                       prevLesson
                         ? 'hover:bg-muted text-foreground cursor-pointer'
-                        : 'opacity-40 text-muted-foreground cursor-not-allowed'
+                        : 'opacity-40 text-muted-foreground cursor-not-allowed shadow-none'
                     )}
                   >
                     <ArrowLeft className="h-3.5 w-3.5" />
@@ -752,17 +753,17 @@ export default function CourseTopicClient({
                     <button
                       onClick={(e) => handleToggleComplete(activeLesson.id, e)}
                       className={cn(
-                        'px-4 py-2.5 rounded-xl font-black text-xs flex items-center gap-2 transition-all cursor-pointer shadow-sm',
+                        'px-4 py-2 rounded-2xl font-black text-xs flex items-center gap-2 transition-all cursor-pointer border-2',
                         completedIds.includes(activeLesson.id)
-                          ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/20'
-                          : 'border border-border bg-card hover:bg-muted text-foreground'
+                          ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 shadow-[0_2px_0_0_#059669]'
+                          : 'bg-card border-border shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none hover:bg-muted text-foreground'
                       )}
                     >
-                      <CheckCircle2 className="h-4 w-4" />
+                      <CheckCircle2 className="h-4 w-4 stroke-[2.5]" />
                       <span>
                         {completedIds.includes(activeLesson.id)
                           ? 'Đã hoàn thành'
-                          : 'Đánh dấu hoàn thành'}
+                          : 'Đánh dấu xong'}
                       </span>
                     </button>
                   )}
@@ -773,52 +774,52 @@ export default function CourseTopicClient({
                     onClick={handleGoToNextLesson}
                     title={nextLesson ? `Bài tiếp theo: ${nextLesson.title}` : 'Đã đến bài cuối cùng'}
                     className={cn(
-                      'px-4 py-2.5 rounded-xl font-black text-xs flex items-center gap-1.5 transition-all shadow-sm',
+                      'px-4 py-2 rounded-2xl font-black text-xs flex items-center gap-1.5 transition-all',
                       nextLesson
-                        ? 'bg-primary hover:bg-primary/95 text-white shadow-primary/20 cursor-pointer'
-                        : 'border border-border bg-card opacity-40 text-muted-foreground cursor-not-allowed'
+                        ? 'btn-3d-duo cursor-pointer'
+                        : 'border-2 border-border bg-card opacity-40 text-muted-foreground cursor-not-allowed shadow-none'
                     )}
                   >
                     <span className="hidden sm:inline">Bài tiếp theo</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
+                    <ArrowRight className="h-3.5 w-3.5 stroke-[3]" />
                   </button>
                 </div>
               </div>
 
               {/* Lesson Details & Markdown Notes Card */}
-              <div className="p-6 md:p-10 rounded-[2.5rem] bg-card border border-border space-y-6 shadow-sm">
+              <div className="p-6 md:p-8 rounded-3xl bg-card border-2 border-border/80 space-y-6 shadow-[0_6px_0_0_theme(colors.border)]">
                 {/* Header info */}
-                <div className="border-b border-border/60 pb-6 space-y-2">
+                <div className="border-b-2 border-border/60 pb-5 space-y-2.5">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-primary bg-primary/10 px-2.5 py-1 rounded-lg">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-brand bg-brand/10 border-2 border-brand/20 px-3 py-1 rounded-xl">
                       Phần {partNumber}: {topic.title}
                     </span>
                     {activeLesson?.duration && (
-                      <span className="text-xs text-muted-foreground font-semibold flex items-center gap-1 bg-muted px-2.5 py-1 rounded-lg">
-                        <Clock className="h-3.5 w-3.5 text-primary" />
+                      <span className="text-xs text-muted-foreground font-black flex items-center gap-1 bg-muted px-3 py-1 rounded-xl border border-border/60">
+                        <Clock className="h-3.5 w-3.5 text-brand" />
                         {activeLesson.duration}
                       </span>
                     )}
                     {activeLesson && completedIds.includes(activeLesson.id) && (
-                      <span className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg flex items-center gap-1">
-                        <CheckCircle2 className="h-3.5 w-3.5" /> Đã hoàn thành
+                      <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-2 border-emerald-500/25 px-3 py-1 rounded-xl flex items-center gap-1 shadow-2xs">
+                        <CheckCircle2 className="h-3.5 w-3.5 stroke-[3]" /> Đã hoàn thành
                       </span>
                     )}
                   </div>
 
-                  <h2 className="text-xl md:text-3xl font-black text-foreground">
+                  <h2 className="text-xl md:text-2xl font-black text-foreground tracking-tight">
                     {activeLesson ? formatLessonName(activeLesson.title, currentLessonIndex) : topic.title}
                   </h2>
                 </div>
 
                 {/* Markdown Description */}
                 {activeLesson?.description ? (
-                  <div className="p-6 rounded-2xl bg-muted/30 border border-border/50">
-                    <h4 className="text-xs font-bold text-primary uppercase tracking-wider mb-4 flex items-center gap-2">
+                  <div className="p-6 rounded-2xl bg-muted/40 border-2 border-border/80">
+                    <h4 className="text-xs font-black text-brand uppercase tracking-wider mb-4 flex items-center gap-2">
                       <BookOpen className="h-4 w-4" />
-                      Nội dung bài học
+                      Nội dung &amp; Ghi chú bài học
                     </h4>
-                    <div className="prose-sm text-foreground/80 leading-relaxed">
+                    <div className="prose-sm text-foreground/85 leading-relaxed">
                       <ReactMarkdown
                         remarkPlugins={[remarkGfm]}
                         components={{
@@ -831,31 +832,31 @@ export default function CourseTopicClient({
                             <h2 className="text-base font-bold text-foreground mt-3 mb-1.5">{children}</h2>
                           ),
                           h3: ({ children }) => (
-                            <h3 className="text-sm font-bold text-primary mt-2 mb-1">{children}</h3>
+                            <h3 className="text-sm font-bold text-brand mt-2 mb-1">{children}</h3>
                           ),
                           p: ({ children }) => (
-                            <p className="text-sm text-foreground/80 leading-relaxed mb-3">{children}</p>
+                            <p className="text-sm text-foreground/80 leading-relaxed mb-3 font-medium">{children}</p>
                           ),
                           ul: ({ children }) => (
-                            <ul className="list-disc pl-5 text-sm space-y-1 mb-3">{children}</ul>
+                            <ul className="list-disc pl-5 text-sm space-y-1 mb-3 font-medium">{children}</ul>
                           ),
                           ol: ({ children }) => (
-                            <ol className="list-decimal pl-5 text-sm space-y-1 mb-3">{children}</ol>
+                            <ol className="list-decimal pl-5 text-sm space-y-1 mb-3 font-medium">{children}</ol>
                           ),
                           li: ({ children }) => <li className="leading-relaxed">{children}</li>,
                           blockquote: ({ children }) => (
-                            <blockquote className="border-l-4 border-primary pl-3 py-1.5 bg-primary/5 rounded-r-xl text-sm italic text-muted-foreground my-3">
+                            <blockquote className="border-l-4 border-brand pl-3 py-1.5 bg-brand/5 rounded-r-xl text-sm italic text-muted-foreground my-3">
                               {children}
                             </blockquote>
                           ),
                           code: ({ children, className: cls }) => {
                             const isBlock = cls?.includes('language-');
                             return isBlock ? (
-                              <code className="block bg-muted border border-border rounded-xl px-4 py-3 text-xs font-mono text-foreground my-3 overflow-x-auto">
+                              <code className="block bg-muted border-2 border-border rounded-xl px-4 py-3 text-xs font-mono text-foreground my-3 overflow-x-auto">
                                 {children}
                               </code>
                             ) : (
-                              <code className="bg-muted border border-border/50 px-1.5 py-0.5 rounded-md text-xs font-mono text-primary font-bold">
+                              <code className="bg-muted border border-border/60 px-1.5 py-0.5 rounded-md text-xs font-mono text-brand font-bold">
                                 {children}
                               </code>
                             );
@@ -871,7 +872,7 @@ export default function CourseTopicClient({
                     </div>
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground italic">
+                  <p className="text-sm text-muted-foreground italic font-medium">
                     Chưa có ghi chú nội dung cho bài học này.
                   </p>
                 )}
@@ -905,7 +906,7 @@ export default function CourseTopicClient({
       <div className="lg:hidden fixed bottom-6 right-6 z-40">
         <button
           onClick={() => setIsMobileDrawerOpen(true)}
-          className="flex items-center gap-2 h-14 px-6 bg-primary text-white rounded-full font-black text-sm shadow-2xl hover:bg-primary/95 transition-all shadow-primary/30 cursor-pointer"
+          className="btn-3d-duo flex items-center gap-2 h-14 px-6 rounded-full text-sm font-black"
         >
           <BookOpen className="h-5 w-5" />
           <span>Bài học ({completedTopicLessons}/{totalTopicLessons})</span>
@@ -928,18 +929,18 @@ export default function CourseTopicClient({
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="relative w-full max-w-md h-full bg-card border-l border-border p-6 shadow-2xl overflow-y-auto z-10 flex flex-col space-y-6"
+              className="relative w-full max-w-md h-full bg-card border-l-2 border-border p-6 shadow-2xl overflow-y-auto z-10 flex flex-col space-y-6"
             >
-              <div className="flex items-center justify-between pb-4 border-b border-border">
+              <div className="flex items-center justify-between pb-4 border-b-2 border-border/70">
                 <span className="text-base font-black text-foreground flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-primary" />
+                  <FolderOpen className="h-5 w-5 text-brand" />
                   Nội dung chủ đề
                 </span>
                 <button
                   onClick={() => setIsMobileDrawerOpen(false)}
-                  className="p-2 bg-muted hover:bg-accent text-foreground rounded-xl cursor-pointer"
+                  className="p-2 bg-muted hover:bg-accent text-foreground rounded-2xl border-2 border-border cursor-pointer shadow-2xs"
                 >
-                  <X className="h-5 w-5" />
+                  <X className="h-5 w-5 stroke-[2.5]" />
                 </button>
               </div>
               <div className="flex-1">

@@ -43,47 +43,46 @@ export default function Pagination({
   };
 
   return (
-    <div className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 select-none">
       {/* Info */}
-      <p className="text-sm text-muted-foreground">
+      <p className="text-xs sm:text-sm text-muted-foreground font-medium">
         Hiển thị{' '}
-        <span className="font-bold text-foreground">{from}–{to}</span>
+        <span className="font-black text-foreground">{from}–{to}</span>
         {' '}trong{' '}
-        <span className="font-bold text-foreground">{totalItems}</span>
-        {' '}kết quả
+        <span className="font-black text-brand">{totalItems}</span>
+        {' '}khóa học
       </p>
 
       {/* Controls */}
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-2">
         {/* Prev */}
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="flex items-center justify-center h-9 w-9 rounded-4xl border border-border bg-card hover:bg-muted text-muted-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          className="flex items-center justify-center h-9 w-9 rounded-2xl border-2 border-border bg-card text-foreground shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-4 w-4 stroke-[2.5]" />
         </button>
 
         {/* Page numbers */}
         {getPageNumbers().map((page, idx) =>
           page === '...' ? (
-            <span key={`ellipsis-${idx}`} className="h-9 w-9 flex items-center justify-center text-muted-foreground text-sm">
+            <span key={`ellipsis-${idx}`} className="h-9 w-9 flex items-center justify-center text-muted-foreground text-sm font-bold">
               ···
             </span>
           ) : (
-            <motion.button
+            <button
               key={page}
               onClick={() => onPageChange(page)}
-              whileTap={{ scale: 0.9 }}
               className={cn(
-                'h-9 min-w-9 px-2.5 rounded-4xl text-sm font-bold transition-all border',
+                'h-9 min-w-9 px-3 rounded-2xl text-xs font-black transition-all border-2 cursor-pointer',
                 currentPage === page
-                  ? 'bg-primary text-white border-primary shadow-md shadow-primary/25'
-                  : 'bg-card border-border text-muted-foreground hover:bg-muted hover:text-foreground'
+                  ? 'btn-3d-duo'
+                  : 'bg-card border-border shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none text-muted-foreground hover:bg-muted hover:text-foreground'
               )}
             >
               {page}
-            </motion.button>
+            </button>
           )
         )}
 
@@ -91,9 +90,9 @@ export default function Pagination({
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="flex items-center justify-center h-9 w-9 rounded-4xl border border-border bg-card hover:bg-muted text-muted-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          className="flex items-center justify-center h-9 w-9 rounded-2xl border-2 border-border bg-card text-foreground shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
         >
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-4 w-4 stroke-[2.5]" />
         </button>
       </div>
     </div>

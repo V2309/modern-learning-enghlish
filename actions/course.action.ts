@@ -11,6 +11,7 @@ export async function createCourseAction(data: {
   thumbnail: string;
   level: CourseLevel;
   accessCode?: string;
+  topics?: { title: string; description?: string }[];
   lessons?: { title: string; duration: string; videoUrl: string; description?: string }[];
 }) {
   try {
@@ -21,7 +22,8 @@ export async function createCourseAction(data: {
 
     const course = await createCourse({
       ...validation.data,
-      lessons: data.lessons // Pass raw lessons as they are handled in service
+      topics: data.topics,
+      lessons: data.lessons
     });
     revalidatePath("/courses");
     return { success: true, course };

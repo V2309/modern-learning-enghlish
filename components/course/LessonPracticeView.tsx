@@ -179,15 +179,15 @@ export const LessonPracticeView = ({
   // If no questions exist in DB for this lesson
   if (questions.length === 0) {
     return (
-      <div className="p-8 md:p-12 rounded-3xl bg-card border border-border text-center space-y-6">
-        <div className="h-14 w-14 rounded-2xl bg-muted border border-border flex items-center justify-center mx-auto text-muted-foreground">
-          <FileQuestion className="h-7 w-7" />
+      <div className="p-8 md:p-12 rounded-3xl bg-card border-2 border-border/80 text-center space-y-6 shadow-[0_6px_0_0_theme(colors.border)]">
+        <div className="h-16 w-16 rounded-2xl bg-muted border-2 border-border flex items-center justify-center mx-auto text-muted-foreground shadow-2xs">
+          <FileQuestion className="h-8 w-8 text-brand" />
         </div>
         <div className="max-w-md mx-auto space-y-2">
-          <h3 className="text-lg font-bold text-foreground">
+          <h3 className="text-xl font-black text-foreground">
             Chưa có bài tập thực hành
           </h3>
-          <p className="text-xs text-muted-foreground leading-relaxed">
+          <p className="text-xs text-muted-foreground leading-relaxed font-medium">
             Bài học "{lesson?.title || 'này'}" hiện chưa có câu hỏi luyện tập trong cơ sở dữ liệu.
           </p>
         </div>
@@ -196,9 +196,9 @@ export const LessonPracticeView = ({
           <button
             type="button"
             onClick={onBackToVideo}
-            className="px-5 py-2.5 rounded-xl bg-primary text-white font-bold text-xs hover:bg-primary/95 transition-all flex items-center gap-2 cursor-pointer shadow-sm"
+            className="btn-3d-duo px-5 py-2.5 rounded-2xl text-xs font-black flex items-center gap-2 cursor-pointer"
           >
-            <Play className="h-3.5 w-3.5" />
+            <Play className="h-3.5 w-3.5 fill-current" />
             <span>Xem Video bài học</span>
           </button>
 
@@ -206,7 +206,7 @@ export const LessonPracticeView = ({
             <button
               type="button"
               onClick={onNextLesson}
-              className="px-5 py-2.5 rounded-xl border border-border bg-card hover:bg-muted font-bold text-xs text-foreground transition-all flex items-center gap-2 cursor-pointer"
+              className="px-5 py-2.5 rounded-2xl border-2 border-border bg-card shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none hover:bg-muted font-black text-xs text-foreground transition-all flex items-center gap-2 cursor-pointer"
             >
               <span>Bài học tiếp theo</span>
               <ArrowRight className="h-3.5 w-3.5" />
@@ -222,28 +222,28 @@ export const LessonPracticeView = ({
     const isPassed = correctCount >= Math.ceil(totalCount * 0.7);
 
     return (
-      <div className="p-8 md:p-12 rounded-3xl bg-card border border-border text-center space-y-8 shadow-sm">
+      <div className="p-8 md:p-12 rounded-3xl bg-card border-2 border-border/80 text-center space-y-8 shadow-[0_8px_0_0_theme(colors.border)]">
         <div className="max-w-md mx-auto space-y-3">
           <div
             className={cn(
-              'h-16 w-16 rounded-2xl flex items-center justify-center mx-auto',
-              isPassed ? 'bg-emerald-500/15 text-emerald-500' : 'bg-amber-500/15 text-amber-500'
+              'h-18 w-18 rounded-3xl flex items-center justify-center mx-auto border-2 shadow-2xs',
+              isPassed ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-500' : 'bg-amber-500/15 border-amber-500/30 text-amber-500'
             )}
           >
-            <Award className="h-8 w-8" />
+            <Award className="h-9 w-9 stroke-[2.5]" />
           </div>
-          <h3 className="text-2xl font-bold text-foreground">
-            Kết quả bài luyện tập
+          <h3 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
+            Kết Quả Luyện Tập
           </h3>
-          <p className="text-sm text-muted-foreground">
-            Bạn đã hoàn thành <strong className="text-foreground">{submittedCount}/{totalCount}</strong> câu hỏi.
+          <p className="text-sm text-muted-foreground font-medium">
+            Bạn đã hoàn thành <strong className="text-foreground font-black">{submittedCount}/{totalCount}</strong> câu hỏi.
           </p>
-          <div className="text-3xl font-extrabold text-primary py-2">
+          <div className="text-4xl font-black text-brand py-2">
             {correctCount} / {totalCount} đúng
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground font-medium">
             {isPassed
-              ? 'Xuất sắc! Bạn đã vượt qua bài luyện tập này.'
+              ? '🎉 Xuất sắc! Bạn đã vượt qua bài luyện tập này.'
               : 'Hãy xem lại các câu sai để nắm vững kiến thức hơn nhé.'}
           </p>
         </div>
@@ -252,7 +252,7 @@ export const LessonPracticeView = ({
           <button
             type="button"
             onClick={handleResetPractice}
-            className="px-5 py-3 rounded-xl border border-border bg-card hover:bg-muted font-bold text-xs text-foreground transition-all flex items-center gap-2 cursor-pointer"
+            className="px-5 py-3 rounded-2xl border-2 border-border bg-card shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none hover:bg-muted font-black text-xs text-foreground transition-all flex items-center gap-2 cursor-pointer"
           >
             <RotateCcw className="h-4 w-4" />
             <span>Làm lại từ đầu</span>
@@ -264,7 +264,7 @@ export const LessonPracticeView = ({
               setIsFinished(false);
               setCurrentIndex(0);
             }}
-            className="px-5 py-3 rounded-xl border border-border bg-card hover:bg-muted font-bold text-xs text-foreground transition-all flex items-center gap-2 cursor-pointer"
+            className="px-5 py-3 rounded-2xl border-2 border-border bg-card shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none hover:bg-muted font-black text-xs text-foreground transition-all flex items-center gap-2 cursor-pointer"
           >
             <span>Xem lại từng câu</span>
           </button>
@@ -274,9 +274,9 @@ export const LessonPracticeView = ({
             onClick={() => {
               onCompletePractice();
             }}
-            className="px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs transition-all flex items-center gap-2 cursor-pointer shadow-sm"
+            className="btn-3d-duo px-6 py-3 rounded-2xl font-black text-xs flex items-center gap-2 cursor-pointer"
           >
-            <CheckCircle2 className="h-4 w-4" />
+            <CheckCircle2 className="h-4 w-4 stroke-[3]" />
             <span>Hoàn thành bài tập</span>
           </button>
 
@@ -284,7 +284,7 @@ export const LessonPracticeView = ({
             <button
               type="button"
               onClick={onNextLesson}
-              className="px-6 py-3 rounded-xl bg-primary hover:bg-primary/95 text-white font-bold text-xs transition-all flex items-center gap-2 cursor-pointer shadow-sm"
+              className="btn-3d-brand px-6 py-3 rounded-2xl font-black text-xs flex items-center gap-2 cursor-pointer"
             >
               <span>Bài tiếp theo</span>
               <ArrowRight className="h-4 w-4" />
@@ -302,26 +302,26 @@ export const LessonPracticeView = ({
   const currentSelectedOption = currentQ?.options.find((o) => o.key === currentSelectedKey);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 select-none">
       {/* ── Top Header Bar ── */}
-      <div className="p-5 md:p-6 rounded-2xl bg-card border border-border flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+      <div className="p-5 md:p-6 rounded-3xl bg-card border-2 border-border/80 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-[0_5px_0_0_theme(colors.border)]">
         {/* Left Info */}
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={onBackToVideo}
-              className="text-xs font-semibold text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1 cursor-pointer"
+              className="text-xs font-black text-muted-foreground hover:text-brand transition-colors inline-flex items-center gap-1 cursor-pointer"
             >
-              <Play className="h-3 w-3" />
+              <Play className="h-3 w-3 fill-current" />
               <span>Xem Video bài học</span>
             </button>
             <span className="text-muted-foreground text-xs">•</span>
-            <span className="text-xs font-bold text-primary">
+            <span className="text-xs font-black text-brand bg-brand/10 px-2 py-0.5 rounded-md border border-brand/20">
               {currentQ?.category || 'Luyện tập'}
             </span>
           </div>
-          <h2 className="text-base md:text-lg font-bold text-foreground truncate">
+          <h2 className="text-base md:text-lg font-black text-foreground truncate">
             Luyện tập: {lesson?.title || 'Bài học'}
           </h2>
         </div>
@@ -329,16 +329,16 @@ export const LessonPracticeView = ({
         {/* Right Progress */}
         <div className="flex items-center gap-4 border-t md:border-t-0 pt-3 md:pt-0 border-border/60">
           <div className="text-right">
-            <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Progress
+            <div className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">
+              Tiến Độ
             </div>
-            <div className="text-xs font-extrabold text-foreground">
-              {answeredCount} / {totalCount} answered
+            <div className="text-xs font-black text-foreground">
+              {answeredCount} / {totalCount} đã chọn
             </div>
           </div>
-          <div className="w-28 sm:w-36 h-2 bg-muted rounded-full overflow-hidden">
+          <div className="w-28 sm:w-36 h-2.5 bg-muted rounded-full overflow-hidden p-0.5 border border-border/60">
             <div
-              className="h-full bg-primary transition-all duration-300 rounded-full"
+              className="h-full bg-brand transition-all duration-300 rounded-full"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -349,42 +349,42 @@ export const LessonPracticeView = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* ── Left / Center Focus: Question Card ── */}
         <div className="lg:col-span-8 space-y-5">
-          <div className="p-6 md:p-8 rounded-2xl bg-card border border-border space-y-6 shadow-sm">
+          <div className="p-6 md:p-8 rounded-3xl bg-card border-2 border-border/80 space-y-6 shadow-[0_6px_0_0_theme(colors.border)]">
             {/* Question Header */}
-            <div className="flex items-center justify-between border-b border-border/60 pb-4">
-              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                Question {currentIndex + 1} of {totalCount}
+            <div className="flex items-center justify-between border-b-2 border-border/60 pb-4">
+              <span className="text-xs font-black text-muted-foreground uppercase tracking-wider">
+                Câu Hỏi {currentIndex + 1} / {totalCount}
               </span>
               {currentQ?.category && (
-                <span className="text-[11px] font-semibold bg-muted px-2.5 py-1 rounded-md text-muted-foreground">
+                <span className="text-[11px] font-black bg-muted px-2.5 py-1 rounded-xl text-muted-foreground border border-border/60">
                   {currentQ.category}
                 </span>
               )}
             </div>
 
             {/* Question Text */}
-            <div className="text-base md:text-lg font-semibold text-foreground leading-relaxed">
+            <div className="text-base md:text-lg font-black text-foreground leading-relaxed">
               {currentIndex + 1}. {currentQ?.question}
             </div>
 
-            {/* Options List (Single-choice row cards) */}
+            {/* Options List (Single-choice row cards with 3D tactile feel) */}
             <div className="space-y-3 pt-2">
               {currentQ?.options.map((opt) => {
                 const isSelected = currentSelectedKey === opt.key;
                 const isCorrectOpt = opt.key === currentQ.correct;
 
-                let rowStyle = 'border-border bg-card hover:bg-muted/40 hover:border-muted-foreground/30 text-foreground';
+                let rowStyle = 'border-border/80 bg-card hover:border-brand/40 shadow-[0_3px_0_0_theme(colors.border)] text-foreground';
 
                 if (isCurrentSubmitted) {
                   if (isCorrectOpt) {
-                    rowStyle = 'border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-semibold';
+                    rowStyle = 'border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-bold shadow-[0_3px_0_0_#059669]';
                   } else if (isSelected && !isCorrectOpt) {
-                    rowStyle = 'border-rose-500 bg-rose-500/10 text-rose-700 dark:text-rose-300 font-semibold';
+                    rowStyle = 'border-rose-500/40 bg-rose-500/10 text-rose-700 dark:text-rose-300 font-bold shadow-[0_3px_0_0_#e11d48]';
                   } else {
-                    rowStyle = 'border-border/40 bg-muted/20 opacity-50 text-muted-foreground';
+                    rowStyle = 'border-border/40 bg-muted/20 opacity-50 text-muted-foreground shadow-none';
                   }
                 } else if (isSelected) {
-                  rowStyle = 'border-primary bg-primary/5 text-primary font-semibold shadow-xs';
+                  rowStyle = 'border-brand/60 bg-brand/5 text-brand font-bold shadow-[0_3px_0_0_theme(colors.brand)]';
                 }
 
                 return (
@@ -400,40 +400,39 @@ export const LessonPracticeView = ({
                       }
                     }}
                     className={cn(
-                      'w-full flex items-center gap-3.5 p-4 rounded-xl border transition-all cursor-pointer select-none text-sm',
+                      'w-full flex items-center gap-3.5 p-4 rounded-2xl border-2 transition-all cursor-pointer select-none text-sm active:translate-y-0.5 active:shadow-none',
                       rowStyle
                     )}
                   >
                     {/* Radio circle */}
                     <div
                       className={cn(
-                        'h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all',
+                        'h-6 w-6 rounded-xl border-2 flex items-center justify-center shrink-0 transition-all font-black text-xs',
                         isCurrentSubmitted
                           ? isCorrectOpt
                             ? 'border-emerald-500 bg-emerald-500 text-white'
                             : isSelected
                             ? 'border-rose-500 bg-rose-500 text-white'
-                            : 'border-muted-foreground/40'
+                            : 'border-muted-foreground/30 text-muted-foreground'
                           : isSelected
-                          ? 'border-primary bg-primary text-white'
-                          : 'border-muted-foreground/40'
+                          ? 'border-brand bg-brand text-white'
+                          : 'border-muted-foreground/30 text-muted-foreground'
                       )}
                     >
                       {isCurrentSubmitted ? (
                         isCorrectOpt ? (
-                          <Check className="h-3 w-3 stroke-[3]" />
+                          <Check className="h-3.5 w-3.5 stroke-[3]" />
                         ) : isSelected ? (
-                          <span className="text-[10px] font-bold">✕</span>
-                        ) : null
-                      ) : isSelected ? (
-                        <div className="h-2 w-2 rounded-full bg-white" />
-                      ) : null}
+                          <span className="text-xs font-black">✕</span>
+                        ) : opt.key
+                      ) : (
+                        opt.key
+                      )}
                     </div>
 
                     {/* Option Text */}
-                    <div className="flex-1 min-w-0">
-                      <span className="font-bold mr-2">{opt.key}.</span>
-                      <span>{opt.text}</span>
+                    <div className="flex-1 min-w-0 font-semibold text-sm">
+                      {opt.text}
                     </div>
                   </div>
                 );
@@ -441,20 +440,20 @@ export const LessonPracticeView = ({
             </div>
 
             {/* Action Buttons: Previous | Submit Answer | Next */}
-            <div className="flex items-center justify-between pt-4 border-t border-border/60 gap-3">
+            <div className="flex items-center justify-between pt-4 border-t-2 border-border/60 gap-3">
               <button
                 type="button"
                 disabled={currentIndex === 0}
                 onClick={handlePrevious}
                 className={cn(
-                  'px-4 py-2.5 rounded-xl border border-border font-bold text-xs flex items-center gap-1.5 transition-all',
+                  'px-4 py-2.5 rounded-2xl border-2 border-border font-black text-xs flex items-center gap-1.5 transition-all shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none',
                   currentIndex > 0
                     ? 'hover:bg-muted text-foreground cursor-pointer'
-                    : 'opacity-40 text-muted-foreground cursor-not-allowed'
+                    : 'opacity-40 text-muted-foreground cursor-not-allowed shadow-none'
                 )}
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
-                <span>Previous</span>
+                <span>Câu trước</span>
               </button>
 
               <div className="flex items-center gap-2">
@@ -464,27 +463,27 @@ export const LessonPracticeView = ({
                     disabled={!currentSelectedKey}
                     onClick={handleSubmitCurrent}
                     className={cn(
-                      'px-5 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 shadow-sm',
+                      'px-5 py-2.5 rounded-2xl font-black text-xs transition-all flex items-center gap-1.5',
                       currentSelectedKey
-                        ? 'bg-primary hover:bg-primary/95 text-white cursor-pointer'
-                        : 'bg-muted text-muted-foreground opacity-60 cursor-not-allowed'
+                        ? 'btn-3d-duo cursor-pointer'
+                        : 'bg-muted border-2 border-border text-muted-foreground opacity-60 cursor-not-allowed'
                     )}
                   >
-                    <span>Submit Answer</span>
+                    <span>Kiểm tra đáp án</span>
                   </button>
                 ) : (
-                  <span className="text-xs font-bold text-muted-foreground px-2">
-                    Submitted
+                  <span className="text-xs font-black text-muted-foreground px-2">
+                    Đã nộp bài
                   </span>
                 )}
 
                 <button
                   type="button"
                   onClick={handleNext}
-                  className="px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/95 text-white font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+                  className="btn-3d-duo px-4 py-2.5 rounded-2xl font-black text-xs flex items-center gap-1.5 cursor-pointer"
                 >
-                  <span>{currentIndex === totalCount - 1 ? 'Finish' : 'Next'}</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
+                  <span>{currentIndex === totalCount - 1 ? 'Tổng kết' : 'Câu tiếp'}</span>
+                  <ArrowRight className="h-3.5 w-3.5 stroke-[3]" />
                 </button>
               </div>
             </div>
@@ -497,40 +496,40 @@ export const LessonPracticeView = ({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
                   className={cn(
-                    'p-5 rounded-xl border space-y-3 mt-4 text-xs md:text-sm',
+                    'p-5 rounded-2xl border-2 space-y-3 mt-4 text-xs md:text-sm shadow-2xs',
                     isCurrentCorrect
                       ? 'bg-emerald-500/10 border-emerald-500/30'
                       : 'bg-rose-500/10 border-rose-500/30'
                   )}
                 >
                   {/* Status Banner */}
-                  <div className="flex items-center gap-2 font-bold text-sm md:text-base">
+                  <div className="flex items-center gap-2 font-black text-sm md:text-base">
                     {isCurrentCorrect ? (
                       <>
-                        <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                        <span className="text-emerald-700 dark:text-emerald-300">✓ Correct!</span>
+                        <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />
+                        <span className="text-emerald-700 dark:text-emerald-300">Chính xác! Làm rất tốt.</span>
                       </>
                     ) : (
                       <>
-                        <XCircle className="h-5 w-5 text-rose-600 dark:text-rose-400" />
-                        <span className="text-rose-700 dark:text-rose-300">✕ Incorrect</span>
+                        <XCircle className="h-5 w-5 text-rose-600 dark:text-rose-400 stroke-[2.5]" />
+                        <span className="text-rose-700 dark:text-rose-300">Chưa chính xác!</span>
                       </>
                     )}
                   </div>
 
                   {/* Answers recap */}
-                  <div className="space-y-1 text-xs">
+                  <div className="space-y-1 text-xs font-medium">
                     {!isCurrentCorrect && (
                       <div>
-                        <span className="text-muted-foreground">Your Answer: </span>
-                        <span className="font-bold text-rose-600 dark:text-rose-400">
+                        <span className="text-muted-foreground">Đáp án của bạn: </span>
+                        <span className="font-black text-rose-600 dark:text-rose-400">
                           {currentSelectedKey}. {currentSelectedOption?.text}
                         </span>
                       </div>
                     )}
                     <div>
-                      <span className="text-muted-foreground">Correct Answer: </span>
-                      <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                      <span className="text-muted-foreground">Đáp án đúng: </span>
+                      <span className="font-black text-emerald-600 dark:text-emerald-400">
                         {currentQ.correct}. {currentCorrectOption?.text}
                       </span>
                     </div>
@@ -538,9 +537,9 @@ export const LessonPracticeView = ({
 
                   {/* Explanation */}
                   {currentQ.explanation && (
-                    <div className="pt-2 border-t border-border/40 text-xs text-foreground/80 leading-relaxed">
-                      <div className="font-bold text-foreground mb-1">Explanation:</div>
-                      <p>{currentQ.explanation}</p>
+                    <div className="pt-2 border-t-2 border-border/40 text-xs text-foreground/85 leading-relaxed">
+                      <div className="font-black text-foreground mb-1">Giải thích chi tiết:</div>
+                      <p className="font-medium">{currentQ.explanation}</p>
                     </div>
                   )}
                 </motion.div>
@@ -551,12 +550,12 @@ export const LessonPracticeView = ({
 
         {/* ── Right Side: Questions Palette Grid (1 to N) ── */}
         <div className="lg:col-span-4 space-y-4">
-          <div className="p-5 md:p-6 rounded-2xl bg-card border border-border space-y-4 shadow-sm sticky top-24">
-            <div className="flex items-center justify-between border-b border-border/60 pb-3">
-              <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">
-                Questions
+          <div className="p-5 md:p-6 rounded-3xl bg-card border-2 border-border/80 space-y-4 shadow-[0_6px_0_0_theme(colors.border)] sticky top-24">
+            <div className="flex items-center justify-between border-b-2 border-border/60 pb-3">
+              <h3 className="text-xs font-black text-foreground uppercase tracking-wider">
+                Bảng Câu Hỏi
               </h3>
-              <span className="text-xs text-muted-foreground font-semibold">
+              <span className="text-xs text-muted-foreground font-black">
                 {answeredCount}/{totalCount}
               </span>
             </div>
@@ -569,16 +568,16 @@ export const LessonPracticeView = ({
                 const isSelected = !!selectedAnswers[q.id];
                 const isCorrect = isSub && selectedAnswers[q.id] === q.correct;
 
-                let btnStyle = 'border-border bg-card text-foreground hover:bg-muted';
+                let btnStyle = 'border-border bg-card text-foreground hover:bg-muted shadow-[0_2px_0_0_theme(colors.border)]';
 
                 if (isSub) {
                   if (isCorrect) {
-                    btnStyle = 'border-emerald-500 bg-emerald-500 text-white font-bold';
+                    btnStyle = 'border-emerald-500 bg-emerald-500 text-white font-black shadow-[0_2px_0_0_#059669]';
                   } else {
-                    btnStyle = 'border-rose-500 bg-rose-500 text-white font-bold';
+                    btnStyle = 'border-rose-500 bg-rose-500 text-white font-black shadow-[0_2px_0_0_#e11d48]';
                   }
                 } else if (isSelected) {
-                  btnStyle = 'border-primary/50 bg-primary/10 text-primary font-bold';
+                  btnStyle = 'border-brand/60 bg-brand/10 text-brand font-black shadow-[0_2px_0_0_theme(colors.brand)]';
                 }
 
                 return (
@@ -587,9 +586,9 @@ export const LessonPracticeView = ({
                     type="button"
                     onClick={() => handleJumpToQuestion(idx)}
                     className={cn(
-                      'h-10 rounded-xl border text-xs font-bold transition-all flex items-center justify-center cursor-pointer',
+                      'h-10 rounded-2xl border-2 text-xs font-black transition-all flex items-center justify-center cursor-pointer active:translate-y-0.5 active:shadow-none',
                       btnStyle,
-                      isCurrent && 'ring-2 ring-primary ring-offset-2 ring-offset-background'
+                      isCurrent && 'ring-2 ring-brand ring-offset-2 ring-offset-background'
                     )}
                     title={`Câu ${idx + 1}`}
                   >
@@ -600,22 +599,22 @@ export const LessonPracticeView = ({
             </div>
 
             {/* Legend indicator */}
-            <div className="grid grid-cols-2 gap-2 text-[11px] text-muted-foreground pt-3 border-t border-border/60">
+            <div className="grid grid-cols-2 gap-2 text-[11px] text-muted-foreground font-semibold pt-3 border-t-2 border-border/60">
               <div className="flex items-center gap-2">
                 <span className="h-3 w-3 rounded-md bg-emerald-500 shrink-0" />
-                <span>Correct</span>
+                <span>Đúng</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="h-3 w-3 rounded-md bg-rose-500 shrink-0" />
-                <span>Incorrect</span>
+                <span>Sai</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="h-3 w-3 rounded-md ring-2 ring-primary bg-primary/10 shrink-0" />
-                <span>Current</span>
+                <span className="h-3 w-3 rounded-md ring-2 ring-brand bg-brand/10 shrink-0" />
+                <span>Đang xem</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="h-3 w-3 rounded-md border border-border bg-card shrink-0" />
-                <span>Unanswered</span>
+                <span className="h-3 w-3 rounded-md border-2 border-border bg-card shrink-0" />
+                <span>Chưa làm</span>
               </div>
             </div>
 
@@ -624,9 +623,9 @@ export const LessonPracticeView = ({
               <button
                 type="button"
                 onClick={() => setIsFinished(true)}
-                className="w-full py-2.5 rounded-xl bg-muted hover:bg-muted-foreground/10 text-foreground font-bold text-xs border border-border transition-all cursor-pointer"
+                className="w-full py-2.5 rounded-2xl bg-card hover:bg-muted text-foreground font-black text-xs border-2 border-border shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none transition-all cursor-pointer"
               >
-                Kết thúc & Xem tổng kết
+                Kết thúc &amp; Xem tổng kết
               </button>
             </div>
           </div>

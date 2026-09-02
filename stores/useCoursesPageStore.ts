@@ -4,6 +4,11 @@ import { create } from 'zustand';
 
 export type CourseLevelOption = 'Beginner' | 'Intermediate' | 'Advanced';
 
+export interface CourseTopicDraft {
+  title: string;
+  description: string;
+}
+
 export interface CourseLessonDraft {
   title: string;
   duration: string;
@@ -22,6 +27,7 @@ export interface CourseDraft {
 interface CoursesPageStoreState {
   showAddModal: boolean;
   newCourse: CourseDraft;
+  newTopics: CourseTopicDraft[];
   newLessons: CourseLessonDraft[];
   showEditModal: boolean;
   editingCourse: any | null;
@@ -34,6 +40,7 @@ interface CoursesPageStoreState {
   showSortMenu: boolean;
   setShowAddModal: (show: boolean) => void;
   setNewCourse: (course: CourseDraft) => void;
+  setNewTopics: (topics: CourseTopicDraft[]) => void;
   setNewLessons: (lessons: CourseLessonDraft[]) => void;
   setShowEditModal: (show: boolean) => void;
   setEditingCourse: (course: any | null) => void;
@@ -47,6 +54,7 @@ interface CoursesPageStoreState {
   reset: () => void;
 }
 
+const DEFAULT_TOPIC: CourseTopicDraft = { title: '', description: '' };
 const DEFAULT_LESSON: CourseLessonDraft = { title: '', duration: '10:00', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', description: '' };
 
 const DEFAULT_COURSE: CourseDraft = {
@@ -60,6 +68,7 @@ const DEFAULT_COURSE: CourseDraft = {
 const initialState = {
   showAddModal: false,
   newCourse: DEFAULT_COURSE,
+  newTopics: [{ ...DEFAULT_TOPIC }],
   newLessons: [{ ...DEFAULT_LESSON }],
   showEditModal: false,
   editingCourse: null,
@@ -76,6 +85,7 @@ export const useCoursesPageStore = create<CoursesPageStoreState>((set) => ({
   ...initialState,
   setShowAddModal: (showAddModal) => set({ showAddModal }),
   setNewCourse: (newCourse) => set({ newCourse }),
+  setNewTopics: (newTopics) => set({ newTopics }),
   setNewLessons: (newLessons) => set({ newLessons }),
   setShowEditModal: (showEditModal) => set({ showEditModal }),
   setEditingCourse: (editingCourse) => set({ editingCourse }),
@@ -90,4 +100,5 @@ export const useCoursesPageStore = create<CoursesPageStoreState>((set) => ({
 }));
 
 export const defaultCourseDraft = DEFAULT_COURSE;
+export const defaultTopicDraft = DEFAULT_TOPIC;
 export const defaultLessonDraft = DEFAULT_LESSON;

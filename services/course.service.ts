@@ -131,6 +131,7 @@ export async function createCourse(data: {
   thumbnail: string;
   level: CourseLevel;
   accessCode?: string;
+  topics?: { title: string; description?: string }[];
   lessons?: { title: string; duration: string; videoUrl: string; description?: string }[];
 }) {
   const id = `course-${Date.now()}`;
@@ -142,7 +143,15 @@ export async function createCourse(data: {
       thumbnail: data.thumbnail,
       level: data.level,
       accessCode: data.accessCode || null,
-      lessons: data.lessons ? {
+      topics: data.topics && data.topics.length > 0 ? {
+        create: data.topics.map((t, index) => ({
+          id: `topic-${Date.now()}-${index}`,
+          title: t.title,
+          description: t.description || "",
+          order: index
+        }))
+      } : undefined,
+      lessons: data.lessons && data.lessons.length > 0 ? {
         create: data.lessons.map((l, index) => ({
           id: `lesson-${Date.now()}-${index}`,
           title: l.title,
@@ -153,7 +162,8 @@ export async function createCourse(data: {
       } : undefined
     },
     include: {
-      lessons: true
+      lessons: true,
+      topics: true
     }
   });
 }

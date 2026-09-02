@@ -29,9 +29,9 @@ import Pagination from '@/components/Pagination';
 import SortMenuButton from '@/components/SortMenuButton';
 import { useCoursesUiStore, type CourseSortKey } from '@/stores/useCoursesUiStore';
 import { toast } from 'react-hot-toast';
-import { defaultCourseDraft, defaultLessonDraft, useCoursesPageStore } from '@/stores/useCoursesPageStore';
+import { defaultCourseDraft, defaultTopicDraft, defaultLessonDraft, useCoursesPageStore } from '@/stores/useCoursesPageStore';
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 8;
 
 interface CoursesClientProps {
   initialCourses: any[];
@@ -55,7 +55,7 @@ export default function CoursesClient({ initialCourses, userAccessCourseIds = []
   const {
     showAddModal,
     newCourse,
-    newLessons,
+    newTopics,
     showEditModal,
     editingCourse,
     editForm,
@@ -67,7 +67,7 @@ export default function CoursesClient({ initialCourses, userAccessCourseIds = []
     showSortMenu,
     setShowAddModal,
     setNewCourse,
-    setNewLessons,
+    setNewTopics,
     setShowEditModal,
     setEditingCourse,
     setEditForm,
@@ -103,13 +103,11 @@ export default function CoursesClient({ initialCourses, userAccessCourseIds = []
   // Handlers for Add/Edit/Delete
   const handleSaveCourse = async () => {
     if (!newCourse.title.trim()) return;
-    const filteredLessons = newLessons
-      .filter((l) => l.title.trim() !== '')
-      .map((l) => ({
-        title: l.title,
-        duration: l.duration || '10:00',
-        videoUrl: l.videoUrl || defaultLessonDraft.videoUrl,
-        description: l.description || '',
+    const filteredTopics = (newTopics || [])
+      .filter((t) => t.title.trim() !== '')
+      .map((t) => ({
+        title: t.title.trim(),
+        description: t.description || '',
       }));
 
     const res = await createCourseAction({
@@ -118,15 +116,15 @@ export default function CoursesClient({ initialCourses, userAccessCourseIds = []
       thumbnail: newCourse.thumbnail,
       level: newCourse.level,
       accessCode: newCourse.accessCode || undefined,
-      lessons: filteredLessons,
+      topics: filteredTopics,
     });
 
     if (res.success && res.course) {
       setCourses((prev) => [res.course, ...prev]);
       setShowAddModal(false);
       setNewCourse(defaultCourseDraft);
-      setNewLessons([{ ...defaultLessonDraft }]);
-      toast.success('Tạo khóa học mới thành công!');
+      setNewTopics([{ ...defaultTopicDraft }]);
+      toast.success('Tạo khóa học và các chủ đề mới thành công!');
     } else {
       toast.error('Không thể lưu khoá học: ' + (res.error || 'Có lỗi xảy ra'));
     }
@@ -258,9 +256,9 @@ export default function CoursesClient({ initialCourses, userAccessCourseIds = []
       </div>
 
       {/* ── FILTER TAGS & CONTROLS ── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-border/40 pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-border/60 pb-6">
         {/* Filter tags row */}
-        <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+        <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5">
           {filterTags.map((tag) => (
             <button
               key={tag}
@@ -269,10 +267,10 @@ export default function CoursesClient({ initialCourses, userAccessCourseIds = []
                 setCurrentPage(1);
               }}
               className={cn(
-                "px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer border",
+                "px-4 py-2 rounded-2xl text-xs font-black tracking-wide transition-all cursor-pointer border-2",
                 selectedTag === tag
-                  ? "bg-primary text-primary-foreground border-primary shadow-md shadow-black/10"
-                  : "bg-muted/60 text-muted-foreground border-border/60 hover:bg-muted hover:text-foreground"
+                  ? "btn-3d-duo"
+                  : "bg-card text-muted-foreground border-border shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none hover:bg-muted hover:text-foreground"
               )}
             >
               {tag}
@@ -289,16 +287,16 @@ export default function CoursesClient({ initialCourses, userAccessCourseIds = []
               placeholder="Tìm kiếm khóa học..."
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-              className="pl-10 pr-5 py-2 w-56 sm:w-64 bg-muted/60 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all text-xs text-foreground placeholder:text-muted-foreground"
+              className="pl-10 pr-5 py-2.5 w-56 sm:w-64 bg-muted/40 border-2 border-border rounded-2xl focus:outline-none focus:border-brand text-xs font-semibold text-foreground placeholder:text-muted-foreground transition-all shadow-2xs"
             />
           </div>
 
           {isAdmin && (
             <button
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-1.5 px-4 py-2 bg-primary text-primary-foreground rounded-xl text-xs font-bold hover:bg-primary/90 transition-all shadow-md shadow-black/10 cursor-pointer shrink-0"
+              className="btn-3d-duo flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-black shrink-0"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4 stroke-[3]" />
               Thêm Khóa Học
             </button>
           )}
@@ -307,11 +305,11 @@ export default function CoursesClient({ initialCourses, userAccessCourseIds = []
 
       {/* ── COURSE GRID ── */}
       {filteredCourses.length === 0 ? (
-        <div className="text-center py-16 bg-card border border-border/80 rounded-3xl text-muted-foreground text-xs sm:text-sm">
+        <div className="text-center py-16 bg-card border-2 border-border/80 rounded-3xl text-muted-foreground text-xs sm:text-sm font-medium shadow-[0_4px_0_0_theme(colors.border)]">
           Chưa có khoá học nào được tìm thấy.
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch text-left" ref={menuRef}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6 items-stretch text-left" ref={menuRef}>
           {paginatedCourses.map((course, i) => {
             const hasOriginalPrice = course.originalPrice && course.originalPrice > course.price;
             const isFree = !course.accessCode || (course.price ?? 0) === 0;
@@ -322,10 +320,10 @@ export default function CoursesClient({ initialCourses, userAccessCourseIds = []
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.04 }}
-                className="group relative flex flex-col bg-card border border-border/80 rounded-3xl overflow-hidden shadow-xs hover:border-brand/40 hover:shadow-xl transition-all duration-300"
+                className="group relative flex flex-col bg-card border-2 border-border/80 rounded-3xl overflow-hidden shadow-[0_6px_0_0_theme(colors.border)] hover:border-brand/50 hover:shadow-[0_8px_0_0_theme(colors.border)] transition-all duration-300"
               >
                 {/* Image Section */}
-                <div className="aspect-video relative overflow-hidden bg-muted shrink-0">
+                <div className="aspect-video relative overflow-hidden bg-muted shrink-0 border-b-2 border-border/70">
                   <Link href={`/courses/${course.id}`}>
                     <img
                       src={course.thumbnail}
@@ -336,7 +334,7 @@ export default function CoursesClient({ initialCourses, userAccessCourseIds = []
                   
                   {/* Rating Badge */}
                   {course.rating && (
-                    <div className="absolute top-3 right-3 bg-card/95 border border-border/50 px-2 py-0.5 rounded-md text-[10px] font-bold text-foreground shadow-sm flex items-center gap-1 backdrop-blur-xs">
+                    <div className="absolute top-3 right-3 bg-card/95 border-2 border-border/70 px-2.5 py-0.5 rounded-xl text-[10px] font-black text-foreground shadow-2xs flex items-center gap-1 backdrop-blur-xs">
                       <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
                       <span>{course.rating.toFixed(1)}</span>
                     </div>
@@ -344,7 +342,7 @@ export default function CoursesClient({ initialCourses, userAccessCourseIds = []
 
                   {/* Best Seller Badge */}
                   {course.isBestSeller && (
-                    <div className="absolute top-3 left-3 bg-brand text-brand-foreground px-2.5 py-0.5 rounded-md text-[9px] font-black tracking-wider uppercase shadow-xs">
+                    <div className="absolute top-3 left-3 bg-brand text-brand-foreground px-3 py-0.5 rounded-xl text-[9px] font-black tracking-wider uppercase shadow-xs">
                       Nổi Bật
                     </div>
                   )}
@@ -356,32 +354,32 @@ export default function CoursesClient({ initialCourses, userAccessCourseIds = []
                     {/* Category tags */}
                     <div className="flex flex-wrap gap-1.5">
                       <span className={cn(
-                        "px-2 py-0.5 rounded-md text-[9px] font-black tracking-wider uppercase",
-                        course.level === 'Beginner' && "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20",
-                        course.level === 'Intermediate' && "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20",
-                        course.level === 'Advanced' && "bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20"
+                        "px-2.5 py-0.5 rounded-xl text-[9px] font-black tracking-wider uppercase border",
+                        course.level === 'Beginner' && "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25",
+                        course.level === 'Intermediate' && "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/25",
+                        course.level === 'Advanced' && "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/25"
                       )}>
                         {course.level}
                       </span>
                       {course.subject && (
-                        <span className="px-2 py-0.5 bg-muted text-muted-foreground rounded-md text-[9px] font-bold tracking-wider uppercase border border-border/40">
+                        <span className="px-2.5 py-0.5 bg-muted text-muted-foreground rounded-xl text-[9px] font-black tracking-wider uppercase border border-border/60">
                           {course.subject}
                         </span>
                       )}
                     </div>
 
-                    <h3 className="text-base font-bold text-foreground group-hover:text-brand transition-colors line-clamp-1 pr-6">
+                    <h3 className="text-base font-black text-foreground group-hover:text-brand transition-colors line-clamp-1 pr-6">
                       <Link href={`/courses/${course.id}`} className="hover:text-brand transition-colors">
                         {course.title}
                       </Link>
                     </h3>
                     
-                    <p className="text-muted-foreground text-xs leading-relaxed line-clamp-2">
+                    <p className="text-muted-foreground text-xs leading-relaxed line-clamp-2 font-medium">
                       {course.description.replace(/[#*`]/g, '')}
                     </p>
 
                     {/* Meta info */}
-                    <div className="flex items-center gap-3 text-[10px] font-bold text-muted-foreground tracking-wide pt-2.5 border-t border-border/40">
+                    <div className="flex items-center gap-3 text-[10px] font-bold text-muted-foreground tracking-wide pt-2.5 border-t border-border/50">
                       <div className="flex items-center gap-1">
                         <PlayCircle className="h-3.5 w-3.5 text-brand" />
                         <span>{course.lessons?.length || 0} bài giảng</span>
@@ -396,7 +394,7 @@ export default function CoursesClient({ initialCourses, userAccessCourseIds = []
                   </div>
 
                   {/* Pricing and Action row */}
-                  <div className="flex items-center justify-between pt-3 border-t border-border/40 gap-3">
+                  <div className="flex items-center justify-between pt-3 border-t border-border/50 gap-3">
                     <div className="flex flex-col">
                       {hasOriginalPrice && (
                         <span className="text-[10px] text-muted-foreground line-through font-medium leading-none mb-0.5">
@@ -411,17 +409,17 @@ export default function CoursesClient({ initialCourses, userAccessCourseIds = []
                     {isAccessible ? (
                       <Link
                         href={`/my-courses/${course.id}`}
-                        className="flex items-center gap-1 px-4 py-2 text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl transition-all cursor-pointer text-center shadow-md shadow-black/10"
+                        className="btn-3d-duo flex items-center gap-1.5 px-4 py-2 rounded-2xl text-xs font-black"
                       >
-                        <Unlock className="h-3.5 w-3.5" />
+                        <Unlock className="h-3.5 w-3.5 stroke-[2.5]" />
                         Vào học
                       </Link>
                     ) : (
                       <button
                         onClick={() => setAccessModalCourse(course)}
-                        className="flex items-center gap-1 px-4 py-2 text-xs font-bold border border-border bg-background hover:bg-muted text-foreground rounded-xl transition-all cursor-pointer text-center"
+                        className="flex items-center gap-1.5 px-4 py-2 text-xs font-black border-2 border-border bg-card text-foreground shadow-[0_2px_0_0_theme(colors.border)] active:translate-y-0.5 active:shadow-none hover:bg-muted rounded-2xl transition-all cursor-pointer text-center"
                       >
-                        <Lock className="h-3.5 w-3.5" />
+                        <Lock className="h-3.5 w-3.5 text-brand stroke-[2.5]" />
                         Kích hoạt
                       </button>
                     )}
@@ -488,16 +486,16 @@ export default function CoursesClient({ initialCourses, userAccessCourseIds = []
       <AddCourseModal
         show={showAddModal}
         newCourse={newCourse}
-        newLessons={newLessons}
+        newTopics={newTopics}
         onClose={() => setShowAddModal(false)}
         onSave={handleSaveCourse}
         onCourseChange={(field, value) => setNewCourse({ ...newCourse, [field]: value })}
-        onAddLesson={() => setNewLessons([...newLessons, { ...defaultLessonDraft }])}
-        onRemoveLesson={(idx) => setNewLessons(newLessons.length > 1 ? newLessons.filter((_, i) => i !== idx) : [{ ...defaultLessonDraft }])}
-        onUpdateLesson={(idx, field, value) => {
-          const updated = [...newLessons];
+        onAddTopic={() => setNewTopics([...newTopics, { ...defaultTopicDraft }])}
+        onRemoveTopic={(idx) => setNewTopics(newTopics.length > 1 ? newTopics.filter((_, i) => i !== idx) : [{ ...defaultTopicDraft }])}
+        onUpdateTopic={(idx, field, value) => {
+          const updated = [...newTopics];
           updated[idx] = { ...updated[idx], [field]: value };
-          setNewLessons(updated);
+          setNewTopics(updated);
         }}
       />
 
