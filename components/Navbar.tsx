@@ -18,7 +18,6 @@ const Navbar = () => {
   const allNavItems = [
     { name: 'Home', path: '/', requiresAuth: false },
     { name: 'Vocabulary', path: '/vocabulary', requiresAuth: true },
-    // { name: 'Ôn Tập (SRS)', path: '/review', requiresAuth: true },
     { name: 'Courses', path: '/courses', requiresAuth: false },
     { name: 'Shadowing', path: '/shadowing', requiresAuth: true },
     { name: 'Dictation', path: '/dictation', requiresAuth: true },
@@ -35,8 +34,8 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md px-3 sm:px-5 lg:px-8">
-      <div className="container mx-auto">
+    <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md px-4 sm:px-6 md:px-8 lg:px-12">
+      <div className="w-full">
         <div className="flex h-16 items-center justify-between gap-2">
           {/* Brand Logo */}
           <Link href="/" className="flex items-center gap-1 text-lg sm:text-xl font-black text-foreground tracking-tight shrink-0" onClick={handleLinkClick}>
@@ -52,7 +51,7 @@ const Navbar = () => {
                   key={item.path}
                   href={item.path}
                   className={cn(
-                    "text-xs lg:text-sm font-semibold transition-colors hover:text-foreground whitespace-nowrap px-1.5 py-1 rounded-lg",
+                    "text-xs lg:text-sm font-semibold transition-colors hover:text-foreground whitespace-nowrap px-2 py-1 rounded-lg",
                     pathname === item.path ? "text-brand font-black bg-brand/10" : "text-muted-foreground"
                   )}
                 >
@@ -63,7 +62,7 @@ const Navbar = () => {
                 <Link
                   href="/my-courses"
                   className={cn(
-                    "text-xs lg:text-sm font-semibold transition-colors hover:text-foreground whitespace-nowrap px-1.5 py-1 rounded-lg",
+                    "text-xs lg:text-sm font-semibold transition-colors hover:text-foreground whitespace-nowrap px-2 py-1 rounded-lg",
                     pathname === '/my-courses' ? "text-brand font-black bg-brand/10" : "text-muted-foreground"
                   )}
                 >
@@ -96,7 +95,7 @@ const Navbar = () => {
               ) : (
                 <Link
                   href="/auth/sign-in"
-                  className="px-3.5 py-1.5 text-xs font-bold text-primary-foreground bg-primary rounded-xl hover:bg-primary/90 transition-all whitespace-nowrap"
+                  className="px-3.5 py-1.5 text-xs font-bold text-primary-foreground bg-primary rounded-xl hover:bg-primary/90 transition-all whitespace-nowrap shadow-xs"
                 >
                   Đăng nhập
                 </Link>

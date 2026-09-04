@@ -31,34 +31,36 @@ export function ShadowingHeader({ userId, videoId, initialCompleted = false }: S
   };
   
   return (
-    <div className="flex items-center justify-between mb-8">
-      <Link href="/shadowing" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors group font-semibold text-sm">
-        <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
-        Back to Shadowing
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 border-b border-border/60 gap-3">
+      <Link href="/shadowing" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group font-medium text-xs sm:text-sm">
+        <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+        <span>Quay lại danh sách Shadowing</span>
       </Link>
 
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
         {userId && videoId && (
           <button
+            type="button"
             onClick={handleToggleComplete}
             className={cn(
-              "flex items-center gap-2 px-4 py-2 border rounded-xl text-xs font-bold transition-all cursor-pointer",
+              "flex items-center gap-1.5 px-3.5 py-1.5 border rounded-xl text-xs font-medium transition-colors cursor-pointer",
               isCompleted 
-                ? "bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600 shadow-sm" 
-                : "bg-card text-muted-foreground border-border hover:bg-muted"
+                ? "bg-emerald-500/10 border-emerald-500/25 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/15" 
+                : "bg-card text-foreground border-border hover:bg-muted hover:border-brand/40"
             )}
           >
-            <Check className="h-4 w-4" />
+            <Check className="h-3.5 w-3.5 stroke-[2.5]" />
             <span>{isCompleted ? 'Đã hoàn thành' : 'Đánh dấu hoàn thành'}</span>
           </button>
         )}
 
         <button
+          type="button"
           onClick={() => setIsDesktopSidebarOpen(!isDesktopSidebarOpen)}
-          className="hidden lg:flex items-center gap-2 px-4 py-2 border border-border bg-card rounded-xl text-xs font-bold hover:bg-muted transition-all cursor-pointer"
+          className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 border border-border bg-card rounded-xl text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
         >
-          <Menu className="h-4 w-4 text-primary" />
-          <span>{isDesktopSidebarOpen ? 'Cinema View (Ẩn transcript)' : 'Hiện transcript'}</span>
+          <Menu className="h-3.5 w-3.5 text-brand" />
+          <span>{isDesktopSidebarOpen ? 'Thu gọn Transcript' : 'Hiện Transcript'}</span>
         </button>
       </div>
     </div>

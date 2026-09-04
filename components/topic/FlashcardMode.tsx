@@ -25,6 +25,7 @@ export const FlashcardMode = ({
 }: FlashcardModeProps) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSwipingRef = React.useRef(false);
 
   // Reset flip state when card changes
   useEffect(() => {
@@ -101,7 +102,9 @@ export const FlashcardMode = ({
     );
   }
 
-  const progressPercent = Math.round(((flashcardIndex + 1) / words.length) * 100);
+  const currentStep = flashcardIndex + 1;
+  const totalSteps = words.length;
+  const progressPercent = Math.round((currentStep / totalSteps) * 100);
 
   return (
     <div className="h-full flex flex-col justify-center py-2">  
@@ -115,7 +118,7 @@ export const FlashcardMode = ({
         {/* ── Progress Counter & Bar ─────────────────────────────── */}
         <div className="flex items-center justify-between gap-3 px-1">
           <span className="text-xs font-black text-muted-foreground uppercase tracking-wider">
-            Thẻ {flashcardIndex + 1} / {words.length}
+            Thẻ {currentStep} / {totalSteps}
           </span>
           <div className="flex-1 max-w-[240px] h-2.5 bg-muted rounded-full overflow-hidden p-0.5 border border-border/60">
             <div
@@ -128,21 +131,25 @@ export const FlashcardMode = ({
           </span>
         </div>
 
-        {/* ── Flashcard ────────────────────────────────────────── */}
+        {/* ── Flashcard with Single-Step Swipe Gesture ────────────────────────── */}
         <div className="relative">
           <motion.div
+            key={currentWord?.id || flashcardIndex}
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.6}
-            onDragEnd={(e, info) => {
-              const swipeThreshold = 60;
-              if (info.offset.x < -swipeThreshold) {
-                if (flashcardIndex < words.length - 1) {
-                  setFlashcardIndex((prev) => prev + 1);
-                }
-              } else if (info.offset.x > swipeThreshold) {
-                if (flashcardIndex > 0) {
-                  setFlashcardIndex((prev) => prev - 1);
+            dragElastic={0.4}
+            onDragStart={() => {
+              isSwipingRef.current = false;
+            }}
+            onDragEnd={(_e, info) => {
+              const swipeThreshold = 50;
+              if (!isSwipingRef.current) {
+                if (info.offset.x < -swipeThreshold) {
+                  isSwipingRef.current = true;
+                  setFlashcardIndex(Math.min(words.length - 1, flashcardIndex + 1));
+                } else if (info.offset.x > swipeThreshold) {
+                  isSwipingRef.current = true;
+                  setFlashcardIndex(Math.max(0, flashcardIndex - 1));
                 }
               }
             }}

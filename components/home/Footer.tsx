@@ -13,10 +13,10 @@ export default function Footer() {
   if (isTopicPage || isAuthPage) return null;
 
   return (
-    <footer className="w-full py-6  text-on-surface-variant border-t border-border mt-4 text-xs shrink-0 select-none">
-      <div className="container mx-auto px-4 md:px-8 space-y-4">
+    <footer className="w-full py-8 text-on-surface-variant border-t border-border mt-4 text-xs shrink-0 select-none px-4 sm:px-6 md:px-8 lg:px-12 bg-card/40">
+      <div className="w-full space-y-4">
         {/* Top layout */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8 pb-6 ">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-8 pb-6 border-b border-border/50">
           {/* Logo & description */}
           <div className="text-center md:text-left space-y-2">
             <span className="text-xl font-black text-foreground tracking-wide">LinguifyPro</span>
@@ -34,7 +34,15 @@ export default function Footer() {
           </div>
         </div>
 
-
+        {/* Bottom copyright row */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-muted-foreground pt-2">
+          <span>© 2025 LinguifyPro. All rights reserved.</span>
+          <div className="flex items-center gap-4">
+            <span>CEFR A1 — C2</span>
+            <span>•</span>
+            <span>Spaced Repetition SM-2</span>
+          </div>
+        </div>
       </div>
     </footer>
   );

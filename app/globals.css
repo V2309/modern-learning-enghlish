@@ -327,6 +327,19 @@ h6 {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  .bg-grid-squares {
+    background-size: 24px 24px;
+    background-image: 
+      linear-gradient(to right, rgba(100, 100, 100, 0.18) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(100, 100, 100, 0.18) 1px, transparent 1px);
+  }
+  :where(.dark) .bg-grid-squares,
+  .dark .bg-grid-squares {
+    background-image: 
+      linear-gradient(to right, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+  }
 }
 
 /* ── 3D Tactile Buttons ── */

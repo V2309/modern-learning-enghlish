@@ -58,8 +58,7 @@ export const VocabTopicCard: React.FC<VocabTopicCardProps> = ({
   onToggleComplete,
   onContinue,
 }) => {
-  const displayListNumber =
-    listNumber || `LIST ${String(index + 1).padStart(2, '0')}`;
+  const displayListNumber = listNumber || title;
 
   // Choose icon & palette deterministically if not provided
   const displayIcon = icon || TOPIC_ICONS[index % TOPIC_ICONS.length];

@@ -46,21 +46,23 @@ export default async function ShadowingPlayerPage(props: PageProps) {
 
   return (
     <ShadowingPlayerProvider shadowingVideo={shadowing}>
-      <div className="container mx-auto px-4 py-8 relative lg:h-[calc(100vh-64px)] lg:overflow-hidden flex flex-col">
+      <div className="w-full relative flex flex-col min-h-[calc(100vh-8rem)]">
+        {/* Top Header Navigation */}
         <ShadowingHeader userId={user.uid} videoId={shadowing.id} initialCompleted={!!progress} />
         
-        <div className="grid lg:grid-cols-12 gap-12 items-start relative flex-1 min-h-0">
-          {/* Main content: Video player, controls, description, and mobile transcript */}
-          <div className="lg:col-span-8 space-y-8 lg:h-full lg:overflow-y-auto lg:pr-4 scrollbar-thin">
+        {/* Main Unified 2-Column Grid Layout (Divided by 1px Hairline Border, Equal Height) */}
+        <div className="w-full grid lg:grid-cols-12 border border-border rounded-2xl overflow-hidden bg-background divide-y lg:divide-y-0 lg:divide-x divide-border lg:h-[calc(100vh-12rem)] min-h-[580px] shadow-2xs">
+          {/* Left Column: Video Player, Controls, Guide & Notes (Smooth Scrollable Column, Equal Height) */}
+          <div className="lg:col-span-7 xl:col-span-8 h-full overflow-y-auto scrollbar-thin p-0 m-0">
             <ShadowingVideoPlayer />
             
-            {/* Transcript Panel for Mobile/Tablet (visible only below lg) */}
-            <div className="block lg:hidden w-full h-[380px] transition-all duration-300">
+            {/* Mobile/Tablet Transcript (flush below video on smaller screens) */}
+            <div className="block lg:hidden w-full border-t border-border p-0 h-[420px]">
               <ShadowingTranscript isMobile={true} />
             </div>
           </div>
           
-          {/* Sidebar content: Desktop Transcript */}
+          {/* Right Column: Desktop Transcript (Zero Margin / Zero Outer Padding, Equal Height) */}
           <ShadowingSidebar />
         </div>
       </div>

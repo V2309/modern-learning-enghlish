@@ -18,7 +18,7 @@ export function MainLayoutWrapper({ children }: { children: React.ReactNode }) {
 
   return (
     <main className="flex-1 w-full">
-      <div className="container mx-auto px-4 sm:px-6 md:px-8 py-6 md:py-8">
+      <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 py-6 md:py-8">
         {children}
       </div>
     </main>

@@ -15,6 +15,10 @@ import {
   VolumeX,
   Maximize,
   Minimize,
+  RotateCcw,
+  RotateCw,
+  Gauge,
+  Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -36,7 +40,7 @@ function parseYouTubeId(url: string): string | null {
 
 // Format seconds into MM:SS
 function formatTime(seconds: number): string {
-  if (isNaN(seconds) || seconds === Infinity) return '00:00';
+  if (isNaN(seconds) || seconds === Infinity || seconds < 0) return '00:00';
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = Math.floor(seconds % 60);
   return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
@@ -69,7 +73,6 @@ function loadYouTubeIframeAPI(): Promise<void> {
 
   if (!ytApiPromise) {
     ytApiPromise = new Promise<void>((resolve) => {
-      // Check if tag already exists in HTML
       const existingScript = document.querySelector('script[src*="youtube.com/iframe_api"]');
       if (!existingScript) {
         const tag = document.createElement('script');
@@ -78,14 +81,12 @@ function loadYouTubeIframeAPI(): Promise<void> {
         firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
       }
 
-      // Intercept or hook into standard callback
       const previousCallback = window.onYouTubeIframeAPIReady;
       window.onYouTubeIframeAPIReady = () => {
         if (previousCallback) previousCallback();
         resolve();
       };
 
-      // In case the script is already cached/run or loaded but ready callback is missed
       const interval = setInterval(() => {
         if (window.YT && window.YT.Player) {
           clearInterval(interval);
@@ -98,12 +99,14 @@ function loadYouTubeIframeAPI(): Promise<void> {
   return ytApiPromise;
 }
 
+const SPEED_OPTIONS = [0.75, 1, 1.25, 1.5, 1.75, 2];
+
 export const CustomVideoPlayer = forwardRef<CustomVideoPlayerRef, CustomVideoPlayerProps>(
   (
     {
       url,
       poster,
-      playbackSpeed = 1.0,
+      playbackSpeed: externalSpeed,
       onPlaybackSpeedChange,
       onTimeUpdate,
       className,
@@ -123,16 +126,21 @@ export const CustomVideoPlayer = forwardRef<CustomVideoPlayerRef, CustomVideoPla
     const [isPlaying, setIsPlaying] = useState(false);
     const [duration, setDuration] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
-    const [volume, setVolume] = useState(80); // 0 - 100
+    const [volume, setVolume] = useState(80);
     const [isMuted, setIsMuted] = useState(false);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+    const [speed, setSpeed] = useState(externalSpeed || 1);
+    const [showSpeedMenu, setShowSpeedMenu] = useState(false);
+    const [controlsVisible, setControlsVisible] = useState(true);
+    const [hoverSeekTime, setHoverSeekTime] = useState<number | null>(null);
+    const [hoverSeekPos, setHoverSeekPos] = useState<number>(0);
 
     // YT Player Reference
     const ytPlayerRef = useRef<any>(null);
     const ytIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const mouseTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Dynamic origin checking for security
     const getOrigin = () => {
       if (typeof window !== 'undefined') {
         return window.location.origin;
@@ -149,7 +157,6 @@ export const CustomVideoPlayer = forwardRef<CustomVideoPlayerRef, CustomVideoPla
       loadYouTubeIframeAPI().then(() => {
         if (destroyed) return;
 
-        // Clean up previous instance if any
         if (ytPlayerRef.current) {
           try {
             ytPlayerRef.current.destroy();
@@ -167,42 +174,28 @@ export const CustomVideoPlayer = forwardRef<CustomVideoPlayerRef, CustomVideoPla
           width: '100%',
           height: '100%',
           playerVars: {
-            controls: 0,
-            disablekb: 1,
+            controls: 1,
             modestbranding: 1,
             rel: 0,
-            iv_load_policy: 3,
             playsinline: 1,
             enablejsapi: 1,
+            fs: 1,
             origin: getOrigin(),
           },
           events: {
             onReady: (event: any) => {
               if (destroyed) return;
-              event.target.setPlaybackRate(playbackSpeed);
+              event.target.setPlaybackRate(speed);
               setDuration(event.target.getDuration() || 0);
-              
-              // Set initial volume & mute
-              event.target.setVolume(isMuted ? 0 : volume);
-              if (isMuted) {
-                event.target.mute();
-              } else {
-                event.target.unMute();
-              }
             },
             onStateChange: (event: any) => {
               if (destroyed) return;
               const state = event.data;
-              // YT.PlayerState.PLAYING = 1, PAUSED = 2, ENDED = 0
               if (state === 1) {
                 setIsPlaying(true);
-              } else {
-                setIsPlaying(false);
-              }
-
-              if (state === 1) {
                 startYtTracking();
               } else {
+                setIsPlaying(false);
                 stopYtTracking();
               }
             },
@@ -247,17 +240,21 @@ export const CustomVideoPlayer = forwardRef<CustomVideoPlayerRef, CustomVideoPla
     };
 
     // Sync Playback Speed
-    useEffect(() => {
+    const handleSetSpeed = (newSpeed: number) => {
+      setSpeed(newSpeed);
+      setShowSpeedMenu(false);
+      if (onPlaybackSpeedChange) onPlaybackSpeedChange(newSpeed);
+
       if (isYouTube) {
         if (ytPlayerRef.current && typeof ytPlayerRef.current.setPlaybackRate === 'function') {
-          ytPlayerRef.current.setPlaybackRate(playbackSpeed);
+          ytPlayerRef.current.setPlaybackRate(newSpeed);
         }
       } else {
         if (videoRef.current) {
-          videoRef.current.playbackRate = playbackSpeed;
+          videoRef.current.playbackRate = newSpeed;
         }
       }
-    }, [playbackSpeed, isYouTube]);
+    };
 
     // Handle HTML5 Video Events
     const handleHtml5TimeUpdate = () => {
@@ -300,10 +297,29 @@ export const CustomVideoPlayer = forwardRef<CustomVideoPlayerRef, CustomVideoPla
       }
     };
 
+    // Rewind / Forward by seconds (e.g. 10s)
+    const handleSeekRelative = (deltaSeconds: number, e?: React.MouseEvent) => {
+      if (e) e.stopPropagation();
+      const newTime = Math.max(0, Math.min(duration || 1000, currentTime + deltaSeconds));
+      setCurrentTime(newTime);
+
+      if (isYouTube) {
+        if (ytPlayerRef.current && typeof ytPlayerRef.current.seekTo === 'function') {
+          ytPlayerRef.current.seekTo(newTime, true);
+        }
+      } else {
+        if (videoRef.current) {
+          videoRef.current.currentTime = newTime;
+        }
+      }
+
+      if (onTimeUpdate) onTimeUpdate(newTime);
+    };
+
     const handleSeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const targetTime = parseFloat(e.target.value);
       setCurrentTime(targetTime);
-      
+
       if (isYouTube) {
         if (ytPlayerRef.current && typeof ytPlayerRef.current.seekTo === 'function') {
           ytPlayerRef.current.seekTo(targetTime, true);
@@ -362,7 +378,7 @@ export const CustomVideoPlayer = forwardRef<CustomVideoPlayerRef, CustomVideoPla
     };
 
     const toggleFullscreen = (e: React.MouseEvent) => {
-      e.stopPropagation();
+      if (e) e.stopPropagation();
       if (!containerRef.current) return;
 
       if (!document.fullscreenElement) {
@@ -380,7 +396,41 @@ export const CustomVideoPlayer = forwardRef<CustomVideoPlayerRef, CustomVideoPla
       }
     };
 
-    // Sync fullscreen state if changed externally (e.g. Escape key)
+    // Keyboard shortcuts (ArrowLeft: -10s, ArrowRight: +10s, Space: Play/Pause, M: Mute, F: Fullscreen)
+    useEffect(() => {
+      const handleKeyDown = (e: KeyboardEvent) => {
+        // Ignore if user is typing in input or textarea
+        if (
+          e.target instanceof HTMLInputElement ||
+          e.target instanceof HTMLTextAreaElement ||
+          (e.target as HTMLElement).isContentEditable
+        ) {
+          return;
+        }
+
+        if (e.key === ' ' || e.key === 'k') {
+          e.preventDefault();
+          togglePlay();
+        } else if (e.key === 'ArrowLeft' || e.key === 'j') {
+          e.preventDefault();
+          handleSeekRelative(-10);
+        } else if (e.key === 'ArrowRight' || e.key === 'l') {
+          e.preventDefault();
+          handleSeekRelative(10);
+        } else if (e.key === 'm' || e.key === 'M') {
+          e.preventDefault();
+          setIsMuted((prev) => !prev);
+        } else if (e.key === 'f' || e.key === 'F') {
+          e.preventDefault();
+          toggleFullscreen(e as any);
+        }
+      };
+
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [currentTime, duration, isPlaying, isMuted]);
+
+    // Sync fullscreen state
     useEffect(() => {
       const handleFullscreenChange = () => {
         setIsFullscreen(!!document.fullscreenElement);
@@ -425,22 +475,8 @@ export const CustomVideoPlayer = forwardRef<CustomVideoPlayerRef, CustomVideoPla
           }
         }
       },
-      setPlaybackSpeed: (speed: number) => {
-        if (isYouTube) {
-          if (ytPlayerRef.current && typeof ytPlayerRef.current.setPlaybackRate === 'function') {
-            ytPlayerRef.current.setPlaybackRate(speed);
-          }
-        } else {
-          if (videoRef.current) {
-            videoRef.current.playbackRate = speed;
-          }
-        }
-      },
+      setPlaybackSpeed: handleSetSpeed,
     }));
-
-    // Auto-hide controls timer on mouse move inside container (useful when in fullscreen or playing)
-    const [controlsVisible, setControlsVisible] = useState(true);
-    const mouseTimerRef = useRef<NodeJS.Timeout | null>(null);
 
     const handleMouseMove = () => {
       setControlsVisible(true);
@@ -448,7 +484,8 @@ export const CustomVideoPlayer = forwardRef<CustomVideoPlayerRef, CustomVideoPla
       if (isPlaying) {
         mouseTimerRef.current = setTimeout(() => {
           setControlsVisible(false);
-        }, 2500);
+          setShowSpeedMenu(false);
+        }, 3000);
       }
     };
 
@@ -464,22 +501,13 @@ export const CustomVideoPlayer = forwardRef<CustomVideoPlayerRef, CustomVideoPla
         <div
           ref={containerRef}
           className={cn(
-            'group relative aspect-video w-full overflow-hidden rounded-[10px] bg-[#0a0a0a] shadow-md border border-white/5 transition-all select-none',
+            'relative aspect-video w-full overflow-hidden rounded-2xl bg-black shadow-md border border-white/10 transition-all',
             className
           )}
-          onMouseEnter={() => {
-            setIsHovered(true);
-            setControlsVisible(true);
-          }}
-          onMouseLeave={() => {
-            setIsHovered(false);
-            if (isPlaying) setControlsVisible(false);
-          }}
-          onMouseMove={handleMouseMove}
         >
           {/* Video element wrappers */}
           {isYouTube ? (
-            <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
+            <div className="absolute inset-0 w-full h-full z-0">
               <div id={ytContainerId} className="w-full h-full border-0" />
             </div>
           ) : (
@@ -487,149 +515,16 @@ export const CustomVideoPlayer = forwardRef<CustomVideoPlayerRef, CustomVideoPla
               ref={videoRef}
               src={url}
               poster={poster}
+              controls
+              playsInline
               preload="metadata"
               className="absolute inset-0 h-full w-full object-cover z-0"
               onTimeUpdate={handleHtml5TimeUpdate}
               onLoadedMetadata={handleHtml5LoadedMetadata}
               onPlay={handleHtml5Play}
               onPause={handleHtml5Pause}
-              onClick={togglePlay}
             />
           )}
-
-          {/* Clickable Overlay to Play/Pause (since YouTube iframe is pointer-events: none) */}
-          <div
-            className="absolute inset-0 z-10 cursor-pointer w-full h-full"
-            onClick={togglePlay}
-          />
-
-          {/* Central Big Circular Play Button (Hidden when playing) */}
-          <div
-            className={cn(
-              'absolute inset-0 z-20 flex items-center justify-center pointer-events-none transition-all duration-300',
-              isPlaying ? 'opacity-0 scale-75' : 'opacity-100 scale-100'
-            )}
-          >
-            <button
-              onClick={togglePlay}
-              className="pointer-events-auto flex items-center justify-center w-16 h-16 rounded-full bg-[#1ea3e0] text-white hover:bg-[#1582b5] shadow-lg shadow-[#1ea3e0]/30 transform active:scale-95 transition-all hover:scale-105"
-            >
-              <Play className="h-7 w-7 fill-current translate-x-0.5" />
-            </button>
-          </div>
-
-          {/* Bottom Custom Styled Controls Overlay */}
-          <div
-            className={cn(
-              'absolute bottom-0 left-0 right-0 z-30 flex flex-col gap-3.5 px-4 pb-4 pt-8 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-auto transition-opacity duration-300',
-              (isHovered && controlsVisible) ? 'opacity-100' : 'opacity-0'
-            )}
-            onClick={(e) => e.stopPropagation()} // Prevents toggling play when clicking controls
-          >
-            {/* Seek Bar Row */}
-            <div className="relative w-full h-1.5 group/seek flex items-center">
-              {/* Background Track */}
-              <div className="absolute inset-x-0 h-1 bg-white/20 rounded-full" />
-              {/* Blue Active Progress Bar */}
-              <div
-                className="absolute left-0 h-1 bg-[#1ea3e0] rounded-full"
-                style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
-              />
-              {/* White Circular Thumb (visible on hover or drag) */}
-              <div
-                className="absolute w-3.5 h-3.5 bg-white border border-[#1ea3e0] rounded-full shadow cursor-pointer transform -translate-y-[0px] hover:scale-110 transition-transform"
-                style={{
-                  left: `calc(${(currentTime / (duration || 1)) * 100}% - 7px)`,
-                }}
-              />
-              {/* Invisible Range Input on Top for Clicking and Dragging */}
-              <input
-                type="range"
-                min={0}
-                max={duration || 100}
-                step="any"
-                value={currentTime}
-                onChange={handleSeekChange}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-              />
-            </div>
-
-            {/* Bottom Row: Left & Right Controls */}
-            <div className="flex items-center justify-between text-white/95">
-              {/* Left Side: Play/Pause, Time, Volume */}
-              <div className="flex items-center gap-4">
-                {/* Play / Pause button */}
-                <button
-                  onClick={togglePlay}
-                  className="hover:text-[#1ea3e0] active:scale-95 transition-all"
-                  title={isPlaying ? 'Tạm dừng' : 'Phát'}
-                >
-                  {isPlaying ? (
-                    <Pause className="h-5 w-5 fill-current" />
-                  ) : (
-                    <Play className="h-5 w-5 fill-current" />
-                  )}
-                </button>
-
-                {/* Time Display */}
-                <span className="text-xs font-mono font-medium tracking-tight text-white/70 select-none">
-                  {formatTime(currentTime)} <span className="text-white/40 mx-0.5">/</span> {formatTime(duration)}
-                </span>
-
-                {/* Volume Section */}
-                <div className="flex items-center gap-2 group/volume">
-                  {/* Volume Icon */}
-                  <button
-                    onClick={toggleMute}
-                    className="hover:text-[#1ea3e0] transition-colors"
-                    title={isMuted ? 'Bật âm thanh' : 'Tắt tiếng'}
-                  >
-                    {isMuted || volume === 0 ? (
-                      <VolumeX className="h-4 w-4" />
-                    ) : (
-                      <Volume2 className="h-4 w-4" />
-                    )}
-                  </button>
-
-                  {/* Volume Slider Track */}
-                  <div className="relative w-16 h-1 flex items-center transition-all duration-300">
-                    <div className="absolute inset-x-0 h-1 bg-white/20 rounded-full" />
-                    <div
-                      className="absolute left-0 h-1 bg-[#1ea3e0] rounded-full"
-                      style={{ width: `${isMuted ? 0 : volume}%` }}
-                    />
-                    <div
-                      className="absolute w-2.5 h-2.5 bg-white rounded-full shadow transform"
-                      style={{
-                        left: `calc(${isMuted ? 0 : volume}% - 5px)`,
-                      }}
-                    />
-                    <input
-                      type="range"
-                      min={0}
-                      max={100}
-                      value={isMuted ? 0 : volume}
-                      onChange={handleVolumeChange}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Side: Fullscreen */}
-              <button
-                onClick={toggleFullscreen}
-                className="hover:text-[#1ea3e0] active:scale-95 transition-all"
-                title={isFullscreen ? 'Thu nhỏ' : 'Toàn màn hình'}
-              >
-                {isFullscreen ? (
-                  <Minimize className="h-5 w-5" />
-                ) : (
-                  <Maximize className="h-5 w-5" />
-                )}
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     );

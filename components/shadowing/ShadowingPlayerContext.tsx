@@ -229,32 +229,7 @@ export function ShadowingPlayerProvider({
     setActiveLineIdx(null);
   }, [shadowingVideo.transcript, shadowingVideo.description]);
 
-  // Hide main page scrollbar on desktop, restore on unmount
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const handleResize = () => {
-        const isDesktop = window.innerWidth >= 1024;
-        if (isDesktop) {
-          document.body.classList.add('overflow-hidden');
-          document.documentElement.classList.add('overflow-hidden');
-        } else {
-          document.body.classList.remove('overflow-hidden');
-          document.documentElement.classList.remove('overflow-hidden');
-        }
-      };
-
-      handleResize();
-      window.addEventListener('resize', handleResize);
-
-      return () => {
-        window.removeEventListener('resize', handleResize);
-        document.body.classList.remove('overflow-hidden');
-        document.documentElement.classList.remove('overflow-hidden');
-      };
-    }
-  }, []);
-
-  // Manage current line highlight & auto-scroll
+  // Manage current line highlight & auto-scroll (Container-only scroll, never moves window/page)
   useEffect(() => {
     if (lines.length === 0) return;
     
@@ -267,22 +242,20 @@ export function ShadowingPlayerProvider({
       
       if (typeof window !== 'undefined') {
         const isDesktop = window.innerWidth >= 1024;
-        if (isDesktop) {
-          const desktopActiveElement = desktopLineRefs.current[activeIdx];
-          if (desktopActiveElement && desktopContainerRef.current) {
-            desktopActiveElement.scrollIntoView({
-              behavior: 'smooth',
-              block: 'center'
-            });
-          }
-        } else {
-          const mobileActiveElement = mobileLineRefs.current[activeIdx];
-          if (mobileActiveElement && mobileContainerRef.current) {
-            mobileActiveElement.scrollIntoView({
-              behavior: 'smooth',
-              block: 'center'
-            });
-          }
+        const container = isDesktop ? desktopContainerRef.current : mobileContainerRef.current;
+        const lineRefs = isDesktop ? desktopLineRefs.current : mobileLineRefs.current;
+        const activeElement = lineRefs[activeIdx];
+
+        if (container && activeElement) {
+          const elementTop = activeElement.offsetTop;
+          const elementHeight = activeElement.offsetHeight;
+          const containerHeight = container.clientHeight;
+          const targetScrollTop = elementTop - (containerHeight / 2) + (elementHeight / 2);
+
+          container.scrollTo({
+            top: Math.max(0, targetScrollTop),
+            behavior: 'smooth'
+          });
         }
       }
     }

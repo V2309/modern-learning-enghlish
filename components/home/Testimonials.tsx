@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, Quote, CheckCircle2 } from 'lucide-react';
+import { TrendingUp, CheckCircle2 } from 'lucide-react';
 
 export default function Testimonials() {
   const testimonials = [
@@ -33,15 +33,15 @@ export default function Testimonials() {
   ];
 
   return (
-    <section className="py-10 md:py-14 bg-card/40 border-b border-border/40">
-      <div className="container mx-auto px-4 md:px-8 space-y-8 md:space-y-10">
+    <section className="w-full py-12 md:py-16 bg-card/40 border-b border-border px-4 sm:px-6 md:px-8 lg:px-12">
+      <div className="w-full space-y-8 md:space-y-10">
         
         {/* Header */}
         <div className="space-y-2 max-w-3xl mx-auto text-center">
           <span className="inline-block text-xs font-bold uppercase tracking-wider text-brand bg-brand/10 px-3.5 py-1 rounded-full border border-brand/20">
             Kết Quả Thực Tế
           </span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-foreground tracking-tight">
             Câu Chuyện Thành Công <span className="text-brand">Của Học Viên</span>
           </h2>
           <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
@@ -50,7 +50,7 @@ export default function Testimonials() {
         </div>
 
         {/* Testimonials Grid */}
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-3 gap-6 lg:gap-8 w-full">
           {testimonials.map((item, idx) => (
             <motion.div
               key={idx}

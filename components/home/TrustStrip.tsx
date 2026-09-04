@@ -33,24 +33,24 @@ export default function TrustStrip() {
   ];
 
   return (
-    <section className="py-6 md:py-7 border-b border-border/40 bg-card/40 backdrop-blur-xs">
-      <div className="container mx-auto px-4 md:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-6 items-center">
-          {metrics.map((item, idx) => (
-            <div 
-              key={idx} 
-              className={`flex items-center gap-3.5 ${idx === 4 ? 'col-span-2 md:col-span-1 justify-center md:justify-start' : ''}`}
-            >
-              <div className="h-10 w-10 rounded-xl bg-brand/10 text-brand flex items-center justify-center shrink-0 border border-brand/20">
-                <item.icon size={20} />
-              </div>
-              <div className="space-y-0.5">
-                <p className="text-sm font-black text-foreground tracking-tight leading-none">{item.value}</p>
-                <p className="text-[11px] text-muted-foreground font-medium leading-tight">{item.label}</p>
-              </div>
+    <section className="w-full border-b border-border bg-card/40">
+      <div className="w-full grid grid-cols-2 md:grid-cols-5 divide-y md:divide-y-0 divide-x divide-border">
+        {metrics.map((item, idx) => (
+          <div 
+            key={idx} 
+            className={`p-6 sm:p-7 flex items-center gap-3.5 hover:bg-card/60 transition-colors ${
+              idx === 4 ? 'col-span-2 md:col-span-1 justify-center md:justify-start' : ''
+            }`}
+          >
+            <div className="h-10 w-10 rounded-xl bg-brand/10 text-brand flex items-center justify-center shrink-0 border border-brand/20">
+              <item.icon size={20} />
             </div>
-          ))}
-        </div>
+            <div className="space-y-0.5">
+              <p className="text-sm sm:text-base font-black text-foreground tracking-tight leading-none">{item.value}</p>
+              <p className="text-[11px] text-muted-foreground font-medium leading-tight">{item.label}</p>
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );

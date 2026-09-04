@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowRight, PlayCircle, Clock, BookOpen, Star } from 'lucide-react';
+import { ArrowRight, PlayCircle, Clock, Star } from 'lucide-react';
 
 export default function FeaturedCourses() {
   const featuredCourses = [
@@ -46,42 +46,47 @@ export default function FeaturedCourses() {
   ];
 
   return (
-    <section className="py-10 md:py-14 bg-background border-b border-border/40">
-      <div className="container mx-auto px-4 md:px-8 space-y-8 md:space-y-10">
-        
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
-            <span className="inline-block text-xs font-bold uppercase tracking-wider text-brand bg-brand/10 px-3.5 py-1 rounded-full border border-brand/20">
-              Chương Trình Tiêu Biểu
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-              Khám Phá <span className="text-brand">Khóa Học Nổi Bật</span>
-            </h2>
-            <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
-              Các lộ trình được biên soạn chuyên sâu theo chuẩn khung tham chiếu CEFR quốc tế.
-            </p>
-          </div>
-
-          <Link
-            href="/courses"
-            className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-foreground hover:text-brand transition-colors self-start md:self-auto group"
-          >
-            <span>Xem tất cả khóa học</span>
-            <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform text-brand" />
-          </Link>
+    <section className="w-full bg-background border-b border-border relative overflow-hidden">
+      
+      {/* Full-Width Centered Title Grid Bar */}
+      <div className="w-full border-b border-border px-4 sm:px-6 md:px-8 lg:px-12 py-8 md:py-10 bg-card/20 text-center relative">
+        <div className="space-y-2 max-w-3xl mx-auto">
+          <span className="inline-block text-xs font-bold uppercase tracking-wider text-brand bg-brand/10 px-3.5 py-1 rounded-full border border-brand/20">
+            Chương Trình Tiêu Biểu
+          </span>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-foreground tracking-tight">
+            Khám Phá <span className="text-brand">Khóa Học Nổi Bật</span>
+          </h2>
+          <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
+            Các lộ trình được biên soạn chuyên sâu theo chuẩn khung tham chiếu CEFR quốc tế.
+          </p>
         </div>
 
-        {/* Course Cards Grid */}
-        <div className="grid md:grid-cols-3 gap-8">
-          {featuredCourses.map((course, idx) => (
+        <Link
+          href="/courses"
+          className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-foreground hover:text-brand transition-colors group mt-4 sm:absolute sm:right-8 sm:bottom-10 lg:right-12"
+        >
+          <span>Xem tất cả khóa học</span>
+          <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform text-brand" />
+        </Link>
+      </div>
+
+      {/* 3-Column Grid Container Dividing Columns with Hairline Borders */}
+      <div className="w-full grid md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border">
+        {featuredCourses.map((course, idx) => (
+          <div key={idx} className="p-6 sm:p-8 lg:p-10 flex flex-col justify-center relative bg-background/50">
+            {/* Corner Crosshairs */}
+            <span className="absolute -top-2 -left-1 font-mono text-xs text-muted-foreground/40 pointer-events-none select-none">+</span>
+            <span className="absolute -top-2 -right-1 font-mono text-xs text-muted-foreground/40 pointer-events-none select-none hidden md:block">+</span>
+            <span className="absolute -bottom-2 -left-1 font-mono text-xs text-muted-foreground/40 pointer-events-none select-none">+</span>
+
+            {/* Inner Course Card Preserving Rounded Corners and Card Styling */}
             <motion.div
-              key={idx}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: idx * 0.1 }}
-              className="flex flex-col bg-card border border-border/80 rounded-3xl overflow-hidden shadow-xs hover:shadow-xl hover:border-brand/40 transition-all duration-300 group"
+              className="flex flex-col bg-card border border-border/80 rounded-3xl overflow-hidden shadow-xs hover:shadow-xl hover:border-brand/40 transition-all duration-300 group h-full"
             >
               {/* Media preview */}
               <div className="aspect-video relative overflow-hidden bg-muted shrink-0">
@@ -142,10 +147,10 @@ export default function FeaturedCourses() {
                 </div>
               </div>
             </motion.div>
-          ))}
-        </div>
-
+          </div>
+        ))}
       </div>
+
     </section>
   );
 }
