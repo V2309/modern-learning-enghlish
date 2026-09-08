@@ -292,8 +292,8 @@ export default function VocabularyClient({
           <button
             onClick={() => setFilterTab('all')}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${filterTab === 'all'
-                ? 'bg-card text-foreground shadow-xs border border-border/60'
-                : 'text-muted-foreground hover:text-foreground'
+              ? 'bg-card text-foreground shadow-xs border border-border/60'
+              : 'text-muted-foreground hover:text-foreground'
               }`}
           >
             Tất cả ({topics.length})
@@ -301,8 +301,8 @@ export default function VocabularyClient({
           <button
             onClick={() => setFilterTab('learning')}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${filterTab === 'learning'
-                ? 'bg-card text-foreground shadow-xs border border-border/60'
-                : 'text-muted-foreground hover:text-foreground'
+              ? 'bg-card text-foreground shadow-xs border border-border/60'
+              : 'text-muted-foreground hover:text-foreground'
               }`}
           >
             Đang học ({inProgressCount})
@@ -310,8 +310,8 @@ export default function VocabularyClient({
           <button
             onClick={() => setFilterTab('completed')}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${filterTab === 'completed'
-                ? 'bg-card text-foreground shadow-xs border border-border/60'
-                : 'text-muted-foreground hover:text-foreground'
+              ? 'bg-card text-foreground shadow-xs border border-border/60'
+              : 'text-muted-foreground hover:text-foreground'
               }`}
           >
             Đã xong ({completedCount})

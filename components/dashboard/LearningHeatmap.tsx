@@ -57,15 +57,16 @@ export default function LearningHeatmap({ userCreatedAt, activityMap }: Learning
 
   const getColorClass = (count: number) => {
     if (count === 0) return 'bg-muted/60 border-border/40 hover:border-border';
-    if (count <= 2) return 'bg-emerald-500/30 border-emerald-500/40';
-    if (count <= 5) return 'bg-emerald-500/60 border-emerald-500/70';
-    if (count <= 10) return 'bg-emerald-500/85 border-emerald-500';
-    return 'bg-emerald-600 border-emerald-700 shadow-xs shadow-emerald-500/20';
+    if (count <= 2) return 'bg-[#58CC02]/30 border-[#58CC02]/40';
+    if (count <= 5) return 'bg-[#58CC02]/60 border-[#58CC02]/70';
+    if (count <= 10) return 'bg-[#58CC02]/85 border-[#46A302]';
+    return 'bg-[#58CC02] border-[#388202] shadow-xs shadow-[#58CC02]/25';
   };
 
   return (
-    <div className="bg-card border border-border/80 rounded-3xl p-6 sm:p-7 space-y-5 shadow-xs">
+    <div className="card-3d-surface rounded-3xl p-6 sm:p-7 space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 pb-4">
+
         <div className="flex items-center gap-2.5">
           <div className="h-8 w-8 rounded-xl bg-brand/10 border border-brand/20 flex items-center justify-center text-brand">
             <Calendar className="h-4 w-4" />
@@ -83,13 +84,14 @@ export default function LearningHeatmap({ userCreatedAt, activityMap }: Learning
           <span>Ít</span>
           <div className="flex items-center gap-1">
             <div className="h-2.5 w-2.5 rounded-[3px] bg-muted/60 border border-border/40" />
-            <div className="h-2.5 w-2.5 rounded-[3px] bg-emerald-500/30 border border-emerald-500/40" />
-            <div className="h-2.5 w-2.5 rounded-[3px] bg-emerald-500/60 border border-emerald-500/70" />
-            <div className="h-2.5 w-2.5 rounded-[3px] bg-emerald-600 border border-emerald-700" />
+            <div className="h-2.5 w-2.5 rounded-[3px] bg-[#58CC02]/30 border-[#58CC02]/40" />
+            <div className="h-2.5 w-2.5 rounded-[3px] bg-[#58CC02]/60 border-[#58CC02]/70" />
+            <div className="h-2.5 w-2.5 rounded-[3px] bg-[#58CC02] border-[#388202]" />
           </div>
           <span>Nhiều</span>
         </div>
       </div>
+
 
       {/* Heatmap Grid */}
       <div className="overflow-x-auto pb-2">

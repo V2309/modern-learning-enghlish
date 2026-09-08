@@ -3,6 +3,35 @@
 /* ── Dark mode: .dark class on <html> ── */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ── Hero grid background pattern ── */
+.hero-grid {
+  background-color: #ffffff;
+  background-image:
+    linear-gradient(to right, #e5e7eb 1px, transparent 1px),
+    linear-gradient(to bottom, #e5e7eb 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-position: 0 0;
+}
+
+.dark .hero-grid {
+  background-color: #0f1115;
+  background-image:
+    linear-gradient(to right, #1f2937 1px, transparent 1px),
+    linear-gradient(to bottom, #1f2937 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-position: 0 0;
+}
+
+/* ── Impact stats grid background pattern ── */
+.impact-grid {
+  background-color: #111827;
+  background-image:
+    linear-gradient(to right, #1f2937 1px, transparent 1px),
+    linear-gradient(to bottom, #1f2937 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-position: 0 0;
+}
+
 /* ── Tailwind v4: reference CSS variables directly ─────────────────────────
    Design tokens integrated from DESIGN.md (Core Editorial System)           */
 @theme {
@@ -96,6 +125,21 @@
   --color-tertiary-fixed-dim: var(--tertiary-fixed-dim);
   --color-on-tertiary-fixed: var(--on-tertiary-fixed);
   --color-on-tertiary-fixed-variant: var(--on-tertiary-fixed-variant);
+
+  /* Modern 3D & Homepage Semantic Tokens */
+  --color-clay-bg: var(--clay-bg);
+  --color-clay-subtle: var(--clay-subtle);
+  --color-clay-card: var(--clay-card);
+  --color-clay-inset: var(--clay-inset);
+  --color-clay-border: var(--clay-border);
+  --color-clay-border-subtle: var(--clay-border-subtle);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-blue-hover: var(--accent-blue-hover);
+  --color-accent-blue-subtle: var(--accent-blue-subtle);
+  --color-accent-blue-border: var(--accent-blue-border);
+  --color-accent-orange: var(--accent-orange);
+  --color-accent-orange-subtle: var(--accent-orange-subtle);
+  --color-accent-orange-border: var(--accent-orange-border);
 }
 
 /* ── Light mode (DESIGN.md Core Editorial) ── */
@@ -105,9 +149,15 @@
   --duo-dark: #46A302;
   --duo-foreground: #ffffff;
 
-  /* Brand Accent Color (#f17463) */
-  --brand: #f17463;
+  /* Brand Accent Color (Hero Orange #f28500 & Forest Green #1b4332) */
+  --brand: #f28500;
+  --brand-hover: #e07500;
   --brand-foreground: #ffffff;
+  --brand-subtle: #fff7ed;
+  --brand-forest: #1b4332;
+  --brand-forest-dark: #143527;
+  --brand-forest-subtle: #eef8f3;
+  --brand-forest-accent: #a3e5c9;
 
   /* Base & Surfaces (DESIGN.md: Background #FFFFFF, Surface #F9FAFB) */
   --background: #ffffff;
@@ -194,6 +244,21 @@
   --tertiary-fixed-dim: #dcc2a4;
   --on-tertiary-fixed: #261906;
   --on-tertiary-fixed-variant: #55442d;
+
+  /* Modern 3D Clay & Homepage Tokens (Light) */
+  --clay-bg: #fbfbfd;
+  --clay-subtle: #f8f9fa;
+  --clay-card: #ffffff;
+  --clay-inset: #f8f9fa;
+  --clay-border: rgba(0, 0, 0, 0.08);
+  --clay-border-subtle: rgba(0, 0, 0, 0.05);
+  --accent-blue: #2563eb;
+  --accent-blue-hover: #1d4ed8;
+  --accent-blue-subtle: #eff6ff;
+  --accent-blue-border: #bfdbfe;
+  --accent-orange: #ea580c;
+  --accent-orange-subtle: #fff7ed;
+  --accent-orange-border: #fed7aa;
 }
 
 /* ── Dark mode (Consistent with DESIGN.md hierarchy) ── */
@@ -204,8 +269,14 @@
   --duo-foreground: #ffffff;
 
   /* Brand Color in Dark Mode */
-  --brand: #f38b7d;
-  --brand-foreground: #191c1d;
+  --brand: #f97316;
+  --brand-hover: #ea580c;
+  --brand-foreground: #ffffff;
+  --brand-subtle: rgba(249, 115, 22, 0.15);
+  --brand-forest: #15382b;
+  --brand-forest-dark: #0e271d;
+  --brand-forest-subtle: rgba(21, 56, 43, 0.35);
+  --brand-forest-accent: #a3e5c9;
 
   /* Base & Surfaces */
   --background: #191c1d;
@@ -222,7 +293,7 @@
   --secondary-foreground: #f0f1f2;
   --muted: #26292a;
   --muted-foreground: #c6c6cd;
-  --accent: #f38b7d;
+  --accent: #f97316;
   --accent-foreground: #191c1d;
   --destructive: #ffdad6;
   --destructive-foreground: #93000a;
@@ -285,6 +356,21 @@
   --tertiary-fixed-dim: #dcc2a4;
   --on-tertiary-fixed: #261906;
   --on-tertiary-fixed-variant: #55442d;
+
+  /* Modern 3D Clay & Homepage Tokens (Dark) */
+  --clay-bg: #0f1115;
+  --clay-subtle: #13161a;
+  --clay-card: #181b22;
+  --clay-inset: #15181e;
+  --clay-border: rgba(255, 255, 255, 0.10);
+  --clay-border-subtle: rgba(255, 255, 255, 0.06);
+  --accent-blue: #3b82f6;
+  --accent-blue-hover: #2563eb;
+  --accent-blue-subtle: rgba(37, 99, 235, 0.18);
+  --accent-blue-border: rgba(59, 130, 246, 0.35);
+  --accent-orange: #f97316;
+  --accent-orange-subtle: rgba(234, 88, 12, 0.18);
+  --accent-orange-border: rgba(249, 115, 22, 0.35);
 }
 
 /* ── Base & Typography (Geist per DESIGN.md) ── */
@@ -330,13 +416,14 @@ h6 {
 
   .bg-grid-squares {
     background-size: 24px 24px;
-    background-image: 
+    background-image:
       linear-gradient(to right, rgba(100, 100, 100, 0.18) 1px, transparent 1px),
       linear-gradient(to bottom, rgba(100, 100, 100, 0.18) 1px, transparent 1px);
   }
+
   :where(.dark) .bg-grid-squares,
   .dark .bg-grid-squares {
-    background-image: 
+    background-image:
       linear-gradient(to right, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
       linear-gradient(to bottom, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
   }
@@ -365,6 +452,7 @@ h6 {
   color: var(--duo-foreground) !important;
   box-shadow: 0 4px 0 0 var(--duo-dark) !important;
 }
+
 .btn-3d-duo:hover {
   filter: brightness(1.05);
 }
@@ -374,6 +462,7 @@ h6 {
   color: var(--primary-foreground) !important;
   box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.45) !important;
 }
+
 .btn-3d-primary:hover {
   filter: brightness(1.1);
 }
@@ -383,6 +472,7 @@ h6 {
   color: var(--brand-foreground) !important;
   box-shadow: 0 4px 0 0 #d95847 !important;
 }
+
 .btn-3d-brand:hover {
   filter: brightness(1.05);
 }
@@ -392,6 +482,7 @@ h6 {
   color: var(--destructive-foreground) !important;
   box-shadow: 0 4px 0 0 #7f1d1d !important;
 }
+
 .btn-3d-destructive:hover {
   filter: brightness(1.05);
 }
@@ -401,6 +492,155 @@ h6 {
   color: var(--foreground) !important;
   box-shadow: 0 4px 0 0 var(--border) !important;
 }
+
 .btn-3d-muted:hover {
   background-color: var(--surface-container-high) !important;
+}
+
+.btn-3d-emerald {
+  background-color: #10b981 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 0 0 #059669 !important;
+}
+
+.btn-3d-emerald:hover {
+  filter: brightness(1.06);
+}
+
+.btn-3d-sky {
+  background-color: #0ea5e9 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 0 0 #0284c7 !important;
+}
+
+.btn-3d-sky:hover {
+  filter: brightness(1.06);
+}
+
+/* ── 3D Chunky Cards (Duolingo & Modern EdTech Aesthetic) ── */
+.card-3d-base {
+  border-style: solid;
+  border-width: 2px;
+  border-bottom-width: 6px;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.06);
+}
+
+.card-3d-base:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 28px -6px rgba(0, 0, 0, 0.12);
+}
+
+.card-3d-base:active {
+  transform: translateY(2px);
+}
+
+.card-3d-orange {
+  border-style: solid;
+  border-width: 2px;
+  border-bottom-width: 6px;
+  background: linear-gradient(180deg, rgba(249, 115, 22, 0.09) 0%, var(--card) 45%, var(--card) 100%);
+  border-color: rgba(249, 115, 22, 0.45);
+  border-bottom-color: #ea580c;
+  box-shadow: 0 6px 18px -3px rgba(234, 88, 12, 0.2), 0 5px 0 0 #ea580c;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-3d-orange:hover {
+  transform: translateY(-4px);
+  border-color: rgba(249, 115, 22, 0.75);
+  border-bottom-color: #c2410c;
+  box-shadow: 0 14px 28px -4px rgba(234, 88, 12, 0.32), 0 7px 0 0 #ea580c;
+}
+
+.card-3d-duo {
+  border-style: solid;
+  border-width: 2px;
+  border-bottom-width: 6px;
+  background: linear-gradient(180deg, rgba(88, 204, 2, 0.12) 0%, var(--card) 45%, var(--card) 100%);
+  border-color: rgba(88, 204, 2, 0.50);
+  border-bottom-color: var(--duo-dark);
+  box-shadow: 0 6px 18px -3px rgba(88, 204, 2, 0.22), 0 5px 0 0 var(--duo-dark);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-3d-duo:hover {
+  transform: translateY(-4px);
+  border-color: rgba(88, 204, 2, 0.85);
+  border-bottom-color: var(--duo-dark);
+  box-shadow: 0 14px 28px -4px rgba(88, 204, 2, 0.34), 0 7px 0 0 var(--duo-dark);
+}
+
+.card-3d-emerald {
+  border-style: solid;
+  border-width: 2px;
+  border-bottom-width: 6px;
+  background: linear-gradient(180deg, rgba(88, 204, 2, 0.12) 0%, var(--card) 45%, var(--card) 100%);
+  border-color: rgba(88, 204, 2, 0.50);
+  border-bottom-color: var(--duo-dark);
+  box-shadow: 0 6px 18px -3px rgba(88, 204, 2, 0.22), 0 5px 0 0 var(--duo-dark);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-3d-emerald:hover {
+  border-color: rgba(88, 204, 2, 0.85);
+  border-bottom-color: var(--duo-dark);
+  box-shadow: 0 14px 28px -4px rgba(88, 204, 2, 0.34), 0 7px 0 0 var(--duo-dark);
+}
+
+.card-3d-brand {
+  border-style: solid;
+  border-width: 2px;
+  border-bottom-width: 6px;
+  background: linear-gradient(180deg, rgba(241, 116, 99, 0.10) 0%, var(--card) 45%, var(--card) 100%);
+  border-color: rgba(241, 116, 99, 0.45);
+  border-bottom-color: #d95847;
+  box-shadow: 0 6px 18px -3px rgba(241, 116, 99, 0.2), 0 5px 0 0 #d95847;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-3d-brand:hover {
+  transform: translateY(-4px);
+  border-color: rgba(241, 116, 99, 0.75);
+  border-bottom-color: #c04535;
+  box-shadow: 0 14px 28px -4px rgba(241, 116, 99, 0.32), 0 7px 0 0 #d95847;
+}
+
+.card-3d-sky {
+  border-style: solid;
+  border-width: 2px;
+  border-bottom-width: 6px;
+  background: linear-gradient(180deg, rgba(14, 165, 233, 0.10) 0%, var(--card) 45%, var(--card) 100%);
+  border-color: rgba(14, 165, 233, 0.45);
+  border-bottom-color: #0284c7;
+  box-shadow: 0 6px 18px -3px rgba(14, 165, 233, 0.2), 0 5px 0 0 #0284c7;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-3d-sky:hover {
+  transform: translateY(-4px);
+  border-color: rgba(14, 165, 233, 0.75);
+  border-bottom-color: #0369a1;
+  box-shadow: 0 14px 28px -4px rgba(14, 165, 233, 0.32), 0 7px 0 0 #0284c7;
+}
+
+.card-3d-surface {
+  border-style: solid;
+  border-width: 2px;
+  border-bottom-width: 6px;
+  background-color: var(--card);
+  border-color: var(--border);
+  border-bottom-color: var(--surface-dim);
+  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.05), 0 4px 0 0 var(--border);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark .card-3d-surface {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4), 0 4px 0 0 rgba(0, 0, 0, 0.6);
+}
+
+.card-3d-surface:hover {
+  border-color: rgba(241, 116, 99, 0.4);
+  box-shadow: 0 16px 32px -6px rgba(0, 0, 0, 0.1), 0 6px 0 0 rgba(241, 116, 99, 0.4);
 }

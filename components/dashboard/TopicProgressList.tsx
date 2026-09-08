@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ChevronRight, BookOpen } from 'lucide-react';
+import { ChevronRight, BookOpen, Sparkles } from 'lucide-react';
 import Pagination from '@/components/Pagination';
 
 interface TopicProgress {
@@ -30,11 +30,11 @@ export default function TopicProgressList({ topicCompletionRates }: TopicProgres
   );
 
   return (
-    <div className="space-y-4 pt-2">
+    <div className="space-y-5">
       <div className="flex items-center justify-between border-b border-border/60 pb-3">
         <div className="flex items-center gap-2">
           <BookOpen className="h-4 w-4 text-brand" />
-          <h2 className="text-base font-bold text-foreground">Tiến Trình Từ Vựng Theo Chủ Đề</h2>
+          <h2 className="text-base font-black text-foreground">Tiến Trình Từ Vựng Theo Chủ Đề</h2>
         </div>
         <Link href="/vocabulary" className="text-xs font-bold text-brand hover:underline flex items-center gap-1">
           Thư viện từ vựng <ChevronRight className="h-3.5 w-3.5" />
@@ -42,33 +42,42 @@ export default function TopicProgressList({ topicCompletionRates }: TopicProgres
       </div>
 
       {topicCompletionRates.length === 0 ? (
-        <div className="text-center py-8 text-xs text-muted-foreground italic bg-card border border-border/80 rounded-3xl">
+        <div className="text-center py-8 text-xs text-muted-foreground italic bg-muted/30 border border-border/80 rounded-3xl font-medium">
           Chưa có chủ đề từ vựng nào được tìm thấy.
         </div>
       ) : (
         <>
           <div className="grid sm:grid-cols-2 gap-4">
             {paginatedTopics.map((topic) => (
-              <div
+              <Link
                 key={topic.id}
-                className="p-5 rounded-3xl bg-card border border-border/80 flex flex-col justify-between gap-3 hover:border-brand/40 shadow-xs transition-all"
+                href={`/vocabulary/topic/${topic.id}`}
+                className="p-5 rounded-3xl card-3d-base bg-card border-border/80 border-b-4 flex flex-col justify-between gap-3.5 group select-none cursor-pointer"
               >
-                <div className="space-y-1">
-                  <h3 className="text-sm font-bold text-foreground line-clamp-1">{topic.name}</h3>
-                  <p className="text-[11px] text-muted-foreground">
-                    {topic.completedCount} / {topic.totalCount} từ đã thuộc
-                  </p>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="space-y-1 min-w-0">
+                    <h3 className="text-sm font-black text-foreground line-clamp-1 group-hover:text-brand transition-colors">
+                      {topic.name}
+                    </h3>
+                    <p className="text-[11px] text-muted-foreground font-medium">
+                      {topic.completedCount} / {topic.totalCount} từ đã thuộc
+                    </p>
+                  </div>
+                  <div className="h-8 w-8 rounded-xl bg-brand/10 border border-brand/20 flex items-center justify-center text-brand shrink-0 shadow-xs">
+                    <Sparkles size={14} />
+                  </div>
                 </div>
+
                 <div className="flex items-center gap-3">
-                  <div className="flex-1 bg-muted rounded-full h-1.5 overflow-hidden border border-border/40">
+                  <div className="flex-1 bg-muted/90 rounded-full h-2.5 overflow-hidden border border-border/60 shadow-inner p-0.5">
                     <div
-                      className="bg-brand h-full rounded-full transition-all duration-500"
+                      className="bg-gradient-to-r from-brand to-orange-400 h-full rounded-full transition-all duration-500 shadow-xs"
                       style={{ width: `${topic.percentage}%` }}
                     />
                   </div>
-                  <span className="text-xs font-black text-brand w-8 text-right">{topic.percentage}%</span>
+                  <span className="text-xs font-black text-brand w-9 text-right">{topic.percentage}%</span>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
 

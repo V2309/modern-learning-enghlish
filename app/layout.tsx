@@ -18,9 +18,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Linguify – AI-Powered English Learning",
+  title: "Linguify – Nền tảng học tiếng Anh phản xạ AI",
   description:
-    "Expand your vocabulary with AI word families, pronunciation guides, and interactive lessons tailored for you.",
+    "Bứt phá vốn từ vựng, chuẩn hóa phát âm và xây dựng phản xạ tiếng Anh tự nhiên với công nghệ Dictation AI và Shadowing chuẩn CEFR.",
 };
 
 export default function RootLayout({
@@ -38,7 +38,7 @@ export default function RootLayout({
       afterSignOutUrl="/auth/sign-in"
     >
       <html
-        lang="en"
+        lang="vi"
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <body className="min-h-screen bg-background text-foreground transition-colors duration-300 flex flex-col">

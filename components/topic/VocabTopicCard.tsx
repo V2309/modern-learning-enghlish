@@ -96,8 +96,8 @@ export const VocabTopicCard: React.FC<VocabTopicCardProps> = ({
               onClick={onToggleComplete}
               title={isCompleted ? 'Đã hoàn thành (Nhấp để bỏ đánh dấu)' : 'Đánh dấu đã hoàn thành'}
               className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${isCompleted
-                  ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/25 shadow-2xs'
-                  : 'bg-muted/60 text-muted-foreground border border-border hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-500/40 hover:bg-emerald-500/10'
+                ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/25 shadow-2xs'
+                : 'bg-muted/60 text-muted-foreground border border-border hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-500/40 hover:bg-emerald-500/10'
                 }`}
             >
               <Check className={`h-3.5 w-3.5 ${isCompleted ? 'stroke-[3]' : 'stroke-[2]'}`} />

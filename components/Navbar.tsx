@@ -16,13 +16,13 @@ const Navbar = () => {
   const { isSignedIn, user: clerkUser, isLoaded } = useUser();
 
   const allNavItems = [
-    { name: 'Home', path: '/', requiresAuth: false },
-    { name: 'Vocabulary', path: '/vocabulary', requiresAuth: true },
-    { name: 'Courses', path: '/courses', requiresAuth: false },
+    { name: 'Trang chủ', path: '/', requiresAuth: false },
+    { name: 'Từ vựng', path: '/vocabulary', requiresAuth: true },
+    { name: 'Khóa học', path: '/courses', requiresAuth: false },
     { name: 'Shadowing', path: '/shadowing', requiresAuth: true },
     { name: 'Dictation', path: '/dictation', requiresAuth: true },
-    { name: 'Dashboard', path: '/dashboard', requiresAuth: true },
-    { name: 'Todo', path: '/todo', requiresAuth: true },
+    { name: 'Tổng quan', path: '/dashboard', requiresAuth: true },
+    { name: 'Mục tiêu', path: '/todo', requiresAuth: true },
   ];
 
   const navItems = allNavItems.filter(
@@ -66,7 +66,7 @@ const Navbar = () => {
                     pathname === '/my-courses' ? "text-brand font-black bg-brand/10" : "text-muted-foreground"
                   )}
                 >
-                  My Courses
+                  Khóa học của tôi
                 </Link>
               )}
             </div>
@@ -79,6 +79,7 @@ const Navbar = () => {
             >
               {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
             </button>
+
 
             {/* Desktop Account States */}
             <div className="hidden md:flex items-center gap-2.5 pl-2 border-l border-border min-h-[36px] shrink-0">
@@ -113,6 +114,7 @@ const Navbar = () => {
           </div>
         </div>
       </div>
+
 
       {/* Animated Dropdown / Mobile Sidebar Drawer */}
       <AnimatePresence>
@@ -154,7 +156,7 @@ const Navbar = () => {
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   )}
                 >
-                  My Courses
+                  Khóa học của tôi
                 </Link>
               )}
 

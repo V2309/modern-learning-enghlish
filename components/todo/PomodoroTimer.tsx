@@ -12,9 +12,9 @@ import { toast } from 'react-hot-toast';
 type Mode = 'work' | 'short' | 'long';
 
 const MODES: Record<Mode, { label: string; seconds: number; color: string; ring: string; bg: string }> = {
-  work:  { label: 'Tập trung',  seconds: 25 * 60, color: 'text-rose-500',    ring: '#f43f5e', bg: 'bg-rose-500/10 border-rose-500/20' },
-  short: { label: 'Nghỉ ngắn', seconds: 5  * 60, color: 'text-emerald-500', ring: '#10b981', bg: 'bg-emerald-500/10 border-emerald-500/20' },
-  long:  { label: 'Nghỉ dài',  seconds: 15 * 60, color: 'text-blue-500',    ring: '#3b82f6', bg: 'bg-blue-500/10 border-blue-500/20' },
+  work: { label: 'Tập trung', seconds: 25 * 60, color: 'text-rose-500', ring: '#f43f5e', bg: 'bg-rose-500/10 border-rose-500/20' },
+  short: { label: 'Nghỉ ngắn', seconds: 5 * 60, color: 'text-emerald-500', ring: '#10b981', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+  long: { label: 'Nghỉ dài', seconds: 15 * 60, color: 'text-blue-500', ring: '#3b82f6', bg: 'bg-blue-500/10 border-blue-500/20' },
 };
 
 interface PomodoroStats {
@@ -52,11 +52,11 @@ function loadState(): SavedState {
 }
 
 function saveState(s: SavedState) {
-  try { localStorage.setItem(LS_KEY, JSON.stringify(s)); } catch {}
+  try { localStorage.setItem(LS_KEY, JSON.stringify(s)); } catch { }
 }
 
 function clearState() {
-  try { localStorage.removeItem(LS_KEY); } catch {}
+  try { localStorage.removeItem(LS_KEY); } catch { }
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -154,7 +154,7 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
   const dash = (pct / 100) * CIRC;
 
   // ── Forward declaration ref for tick to always call latest handler ────────
-  const sessionCompleteRef = useRef<() => void>(() => {});
+  const sessionCompleteRef = useRef<() => void>(() => { });
 
   // ── Timestamp-based tick ─────────────────────────────────────────────────
   const tick = useCallback(() => {
@@ -249,7 +249,7 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
       osc.start(ctx.currentTime);
       osc.stop(ctx.currentTime + 0.5);
-    } catch (_) {}
+    } catch (_) { }
 
     if (currentMode === 'work') {
       const duration = MODES.work.seconds;
@@ -399,8 +399,8 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
                       mode === 'work'
                         ? 'bg-rose-500 hover:bg-rose-600 shadow-rose-500/25'
                         : mode === 'short'
-                        ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/25'
-                        : 'bg-blue-500 hover:bg-blue-600 shadow-blue-500/25'
+                          ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/25'
+                          : 'bg-blue-500 hover:bg-blue-600 shadow-blue-500/25'
                     )}
                   >
                     {running ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}

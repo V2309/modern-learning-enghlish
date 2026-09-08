@@ -2,10 +2,9 @@
 
 import React from 'react';
 import Hero from '@/components/home/Hero';
-import TrustStrip from '@/components/home/TrustStrip';
+import ImpactStatement from '@/components/home/ImpactStatement';
 import FeatureBento from '@/components/home/FeatureBento';
-import HowItWorks from '@/components/home/HowItWorks';
-import FeaturedCourses from '@/components/home/FeaturedCourses';
+import NumberedFeatures from '@/components/home/NumberedFeatures';
 import Testimonials from '@/components/home/Testimonials';
 import Pricing from '@/components/home/Pricing';
 import Faq from '@/components/home/Faq';
@@ -13,15 +12,29 @@ import CtaBanner from '@/components/home/CtaBanner';
 
 export default function HomePage() {
   return (
-    <div className="w-full bg-background overflow-x-hidden min-h-screen text-foreground select-none">
+    <div className="w-full bg-clay-bg overflow-x-hidden min-h-screen text-foreground select-none relative transition-colors">
+      {/* 1. Hero 3D Section */}
       <Hero />
-      <TrustStrip />
+
+      {/* 2. Dynamic Impact Counter Banner */}
+      <ImpactStatement />
+
+      {/* 3. 3D Bento Grid ("Our Approach") */}
       <FeatureBento />
-      <HowItWorks />
-      <FeaturedCourses />
+
+      {/* 4. Key Metrics & Interactive Numbered Features (01, 02, 03) */}
+      <NumberedFeatures />
+
+      {/* 5. GSAP + ScrollTrigger Pinned Kinetic Testimonials Gallery */}
       <Testimonials />
+
+      {/* 6. Pricing & Flexible Plans */}
       <Pricing />
+
+      {/* 7. Frequently Asked Questions Accordion */}
       <Faq />
+
+      {/* 8. High-Conversion 3D CTA Banner */}
       <CtaBanner />
     </div>
   );

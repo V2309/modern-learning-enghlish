@@ -84,7 +84,17 @@ export async function getDashboardStats(userId: string) {
 }
 
 export async function getDailyActivity(userId: string) {
-  const [lessonProgress, vocabProgress] = await Promise.all([
+  const [
+    lessonProgress,
+    vocabProgress,
+    dictationAttempts,
+    dictationTopicProgress,
+    shadowingProgress,
+    todoCompletions,
+    pomodoroSessions,
+    sentencePractices,
+    srsReviewLogs
+  ] = await Promise.all([
     prisma.lessonProgress.findMany({
       where: { userId },
       select: { completedAt: true }
@@ -92,6 +102,34 @@ export async function getDailyActivity(userId: string) {
     prisma.vocabularyProgress.findMany({
       where: { userId },
       select: { masteredAt: true, lastReviewedAt: true }
+    }),
+    prisma.dictationAttempt.findMany({
+      where: { userId },
+      select: { createdAt: true }
+    }),
+    prisma.dictationTopicProgress.findMany({
+      where: { userId },
+      select: { completedAt: true }
+    }),
+    prisma.shadowingProgress.findMany({
+      where: { userId },
+      select: { completedAt: true }
+    }),
+    prisma.todoCompletion.findMany({
+      where: { userId },
+      select: { completedAt: true }
+    }),
+    prisma.pomodoroSession.findMany({
+      where: { userId },
+      select: { completedAt: true }
+    }),
+    prisma.userSentencePractice.findMany({
+      where: { userId },
+      select: { createdAt: true }
+    }),
+    prisma.srsReviewLog.findMany({
+      where: { userId },
+      select: { reviewedAt: true }
     })
   ]);
 
@@ -108,12 +146,26 @@ export async function getDailyActivity(userId: string) {
     activityMap[dateStr] = (activityMap[dateStr] || 0) + 1;
   };
 
-  lessonProgress.forEach(lp => addActivity(lp.completedAt));
-  vocabProgress.forEach(vp => {
+  // Record all activity types
+  lessonProgress.forEach((lp) => addActivity(lp.completedAt));
+  vocabProgress.forEach((vp) => {
     if (vp.masteredAt || vp.lastReviewedAt) {
       addActivity(vp.masteredAt || vp.lastReviewedAt || new Date());
     }
   });
+  dictationAttempts.forEach((da) => addActivity(da.createdAt));
+  dictationTopicProgress.forEach((dtp) => addActivity(dtp.completedAt));
+  shadowingProgress.forEach((sp) => addActivity(sp.completedAt));
+  todoCompletions.forEach((tc) => addActivity(tc.completedAt));
+  pomodoroSessions.forEach((ps) => addActivity(ps.completedAt));
+  sentencePractices.forEach((sp) => addActivity(sp.createdAt));
+  srsReviewLogs.forEach((srl) => addActivity(srl.reviewedAt));
+
+  // Count today's web visit as at least 1 active point
+  const todayStr = toLocalDateString(new Date());
+  if (!activityMap[todayStr]) {
+    activityMap[todayStr] = 1;
+  }
 
   return activityMap;
 }
@@ -167,10 +219,42 @@ export async function getRecentLearning(userId: string) {
   return activities.sort((a, b) => (b.timestamp ? b.timestamp.getTime() : 0) - (a.timestamp ? a.timestamp.getTime() : 0)).slice(0, 5);
 }
 
-export async function getLearningStreak(userId: string) {
-  const [lessonDates, vocabDates] = await Promise.all([
+export interface StreakDayInfo {
+  dayLabel: string;
+  dateStr: string;
+  isCompleted: boolean;
+  isToday: boolean;
+  isFuture: boolean;
+}
+
+export interface LearningStreakData {
+  streak: number;
+  totalActiveDays: number;
+  todayActive: boolean;
+  weeklyCalendar: StreakDayInfo[];
+}
+
+export async function getLearningStreak(userId: string): Promise<LearningStreakData> {
+  const [
+    lessonDates,
+    vocabDates,
+    dictationDates,
+    dictationTopicDates,
+    shadowingDates,
+    todoDates,
+    pomodoroDates,
+    sentenceDates,
+    srsLogDates
+  ] = await Promise.all([
     prisma.lessonProgress.findMany({ where: { userId }, select: { completedAt: true } }),
-    prisma.vocabularyProgress.findMany({ where: { userId }, select: { masteredAt: true, lastReviewedAt: true } })
+    prisma.vocabularyProgress.findMany({ where: { userId }, select: { masteredAt: true, lastReviewedAt: true } }),
+    prisma.dictationAttempt.findMany({ where: { userId }, select: { createdAt: true } }),
+    prisma.dictationTopicProgress.findMany({ where: { userId }, select: { completedAt: true } }),
+    prisma.shadowingProgress.findMany({ where: { userId }, select: { completedAt: true } }),
+    prisma.todoCompletion.findMany({ where: { userId }, select: { completedAt: true } }),
+    prisma.pomodoroSession.findMany({ where: { userId }, select: { completedAt: true } }),
+    prisma.userSentencePractice.findMany({ where: { userId }, select: { createdAt: true } }),
+    prisma.srsReviewLog.findMany({ where: { userId }, select: { reviewedAt: true } })
   ]);
 
   const toLocalDateString = (date: Date) => {
@@ -181,36 +265,70 @@ export async function getLearningStreak(userId: string) {
 
   const dates = [
     ...lessonDates.map((lp) => lp.completedAt),
-    ...vocabDates.map((vp) => vp.lastReviewedAt || vp.masteredAt).filter(Boolean) as Date[]
+    ...vocabDates.map((vp) => vp.lastReviewedAt || vp.masteredAt).filter(Boolean) as Date[],
+    ...dictationDates.map((da) => da.createdAt),
+    ...dictationTopicDates.map((dt) => dt.completedAt),
+    ...shadowingDates.map((sp) => sp.completedAt),
+    ...todoDates.map((td) => td.completedAt),
+    ...pomodoroDates.map((ps) => ps.completedAt),
+    ...sentenceDates.map((sp) => sp.createdAt),
+    ...srsLogDates.map((srl) => srl.reviewedAt)
   ].map(toLocalDateString);
 
-  const uniqueDates = Array.from(new Set(dates)).sort((a, b) => b.localeCompare(a));
-  console.log("DEBUG STREAK: uniqueDates =", uniqueDates);
+  // Automatically count today when user accesses the web app!
+  const todayStr = toLocalDateString(new Date());
+  dates.push(todayStr);
 
+  const activeDatesSet = new Set(dates);
+  const uniqueDates = Array.from(activeDatesSet).sort((a, b) => b.localeCompare(a));
+
+
+  // Calculate consecutive active days counting backwards starting from today
   let streak = 0;
-  if (uniqueDates.length > 0) {
-    const todayStr = toLocalDateString(new Date());
-    const yesterdayStr = toLocalDateString(new Date(Date.now() - 86400000));
-    const current = uniqueDates[0];
-    console.log("DEBUG STREAK: todayStr =", todayStr, "yesterdayStr =", yesterdayStr, "current =", current);
+  const cursorDate = new Date();
 
-    if (current === todayStr || current === yesterdayStr) {
-      streak = 1;
-      const checkDate = new Date(current);
-      for (let i = 1; i < uniqueDates.length; i++) {
-        checkDate.setDate(checkDate.getDate() - 1);
-        const expected = toLocalDateString(checkDate);
-        if (uniqueDates[i] === expected) {
-          streak++;
-        } else {
-          break;
-        }
-      }
+  while (true) {
+    const cursorDateStr = toLocalDateString(cursorDate);
+    if (activeDatesSet.has(cursorDateStr)) {
+      streak++;
+      cursorDate.setDate(cursorDate.getDate() - 1);
+    } else {
+      break;
     }
   }
 
+  // Generate 7-day weekly calendar (Monday to Sunday) for Duolingo view
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0 is Sunday, 1 is Monday...
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const monday = new Date(today);
+  monday.setDate(today.getDate() + mondayOffset);
+
+  const dayNames = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+  const weeklyCalendar: StreakDayInfo[] = [];
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const dStr = toLocalDateString(d);
+    const isToday = dStr === todayStr;
+    const isFuture = dStr > todayStr;
+    const isCompleted = activeDatesSet.has(dStr) || isToday;
+
+    weeklyCalendar.push({
+      dayLabel: dayNames[i],
+      dateStr: dStr,
+      isCompleted,
+      isToday,
+      isFuture
+    });
+  }
+
   return {
-    streak,
-    totalActiveDays: uniqueDates.length
+    streak: Math.max(streak, 1),
+    totalActiveDays: uniqueDates.length,
+    todayActive: true,
+    weeklyCalendar
   };
 }
+
