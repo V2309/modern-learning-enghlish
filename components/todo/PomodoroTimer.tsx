@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,9 +12,9 @@ import { toast } from 'react-hot-toast';
 type Mode = 'work' | 'short' | 'long';
 
 const MODES: Record<Mode, { label: string; seconds: number; color: string; ring: string; bg: string }> = {
-  work: { label: 'Tập trung', seconds: 25 * 60, color: 'text-rose-500', ring: '#f43f5e', bg: 'bg-rose-500/10 border-rose-500/20' },
-  short: { label: 'Nghỉ ngắn', seconds: 5 * 60, color: 'text-emerald-500', ring: '#10b981', bg: 'bg-emerald-500/10 border-emerald-500/20' },
-  long: { label: 'Nghỉ dài', seconds: 15 * 60, color: 'text-blue-500', ring: '#3b82f6', bg: 'bg-blue-500/10 border-blue-500/20' },
+  work:  { label: 'Tập trung', seconds: 25 * 60, color: 'text-rose-500',    ring: '#f43f5e', bg: 'bg-rose-500/10 border-rose-500/20'    },
+  short: { label: 'Nghỉ ngắn', seconds:  5 * 60, color: 'text-emerald-500', ring: '#10b981', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+  long:  { label: 'Nghỉ dài',  seconds: 15 * 60, color: 'text-blue-500',    ring: '#3b82f6', bg: 'bg-blue-500/10 border-blue-500/20'    },
 };
 
 interface PomodoroStats {
@@ -29,215 +29,202 @@ interface Props {
   initialStats: PomodoroStats;
 }
 
-// ─── localStorage helpers ─────────────────────────────────────────────────────
+// ─── Persistence (plain functions, no React) ──────────────────────────────────
 
-const LS_KEY = 'linguify_pomodoro';
+const LS_KEY = 'linguify_pomodoro_v3';
 
-interface SavedState {
+interface PersistedState {
   mode: Mode;
-  running: boolean;
-  startTime: number | null;  // wall-clock ms when timer started
-  baseSeconds: number;       // seconds remaining at the moment of start/pause
+  /** Wall-clock ms when the timer started counting. null = paused/stopped. */
+  startTime: number | null;
+  /** Seconds remaining when the timer was last started (or full duration if reset). */
+  baseSeconds: number;
 }
 
-function loadState(): SavedState {
-  // Never called on server — only inside useEffect
+function loadPersisted(): PersistedState | null {
   try {
     const raw = localStorage.getItem(LS_KEY);
-    if (!raw) return { mode: 'work', running: false, startTime: null, baseSeconds: MODES.work.seconds };
-    return JSON.parse(raw) as SavedState;
-  } catch {
-    return { mode: 'work', running: false, startTime: null, baseSeconds: MODES.work.seconds };
-  }
+    return raw ? (JSON.parse(raw) as PersistedState) : null;
+  } catch { return null; }
 }
 
-function saveState(s: SavedState) {
-  try { localStorage.setItem(LS_KEY, JSON.stringify(s)); } catch { }
+function savePersisted(s: PersistedState) {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(s)); } catch {}
 }
 
-function clearState() {
-  try { localStorage.removeItem(LS_KEY); } catch { }
+function clearPersisted() {
+  try { localStorage.removeItem(LS_KEY); } catch {}
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function formatTime(seconds: number) {
+function fmt(seconds: number) {
   const m = Math.floor(seconds / 60).toString().padStart(2, '0');
   const s = (seconds % 60).toString().padStart(2, '0');
   return `${m}:${s}`;
 }
 
-function formatMinutes(mins: number) {
-  if (mins < 60) return `${mins} phút`;
+function fmtMins(mins: number) {
+  if (mins < 60) return `${mins} phut`;
   const h = Math.floor(mins / 60);
   const m = mins % 60;
-  return m > 0 ? `${h}g ${m}p` : `${h} giờ`;
+  return m > 0 ? `${h}g ${m}p` : `${h} gio`;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function PomodoroTimer({ userId, initialStats }: Props) {
-  // ── Server-safe defaults (must match what server renders to avoid hydration error) ──
-  const [mode, setMode] = useState<Mode>('work');
-  const [timeLeft, setTimeLeft] = useState(MODES.work.seconds); // 25:00 — same on server & client
-  const [running, setRunning] = useState(false);
-  const [stats, setStats] = useState<PomodoroStats>(initialStats);
+  // UI state — server-safe defaults (no localStorage touch here)
+  const [mode,     setMode]     = useState<Mode>('work');
+  const [timeLeft, setTimeLeft] = useState(MODES.work.seconds);
+  const [running,  setRunning]  = useState(false);
+  const [stats,    setStats]    = useState<PomodoroStats>(initialStats);
   const [collapsed, setCollapsed] = useState(false);
 
-  // Timestamp-based refs — immune to tab throttling & re-renders
-  const startTimeRef = useRef<number | null>(null);
-  const baseSecondsRef = useRef<number>(MODES.work.seconds);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const completedRef = useRef(false);
-  const hydratedRef = useRef(false); // prevent persisting before restore
-  const modeRef = useRef<Mode>(mode);
-  modeRef.current = mode;
+  // ── Timer refs (never trigger re-renders) ─────────────────────────────────
+  const startTimeRef    = useRef<number | null>(null); // wall-clock ms when counting started
+  const baseSecondsRef  = useRef(MODES.work.seconds);  // seconds left at last start
+  const modeRef         = useRef<Mode>('work');
+  const intervalRef     = useRef<ReturnType<typeof setInterval> | null>(null);
+  const completedRef    = useRef(false);
+  const sessionDoneRef  = useRef<() => void>(() => {});
 
-  // ── Restore from localStorage AFTER hydration (useEffect = client-only) ────
-  useEffect(() => {
-    if (hydratedRef.current) return;
-    hydratedRef.current = true;
+  // ── Core imperative helpers ───────────────────────────────────────────────
 
-    const saved = loadState();
-
-    if (saved.running && saved.startTime) {
-      const elapsed = Math.floor((Date.now() - saved.startTime) / 1000);
-      const remaining = Math.max(0, saved.baseSeconds - elapsed);
-
-      if (remaining > 0) {
-        // Session was running while page was reloaded — resume
-        setMode(saved.mode);
-        modeRef.current = saved.mode;
-        baseSecondsRef.current = remaining;
-        startTimeRef.current = Date.now();
-        setTimeLeft(remaining);
-        setRunning(true); // will trigger timer useEffect
-      } else {
-        // Session expired while page was closed — reset
-        clearState();
-        setMode(saved.mode);
-        modeRef.current = saved.mode;
-        setTimeLeft(MODES[saved.mode].seconds);
-        baseSecondsRef.current = MODES[saved.mode].seconds;
-      }
-    } else if (!saved.running && saved.baseSeconds !== MODES[saved.mode].seconds) {
-      // Was paused mid-session — restore paused state
-      setMode(saved.mode);
-      modeRef.current = saved.mode;
-      baseSecondsRef.current = saved.baseSeconds;
-      setTimeLeft(saved.baseSeconds);
-    } else if (saved.mode !== 'work') {
-      setMode(saved.mode);
-      modeRef.current = saved.mode;
-      setTimeLeft(MODES[saved.mode].seconds);
-      baseSecondsRef.current = MODES[saved.mode].seconds;
+  const stopInterval = useCallback(() => {
+    if (intervalRef.current !== null) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
   }, []);
 
-  // ── Persist to localStorage on every meaningful state change ──────────────
-  useEffect(() => {
-    if (!hydratedRef.current) return;
-    if (running && startTimeRef.current) {
-      saveState({ mode, running: true, startTime: startTimeRef.current, baseSeconds: baseSecondsRef.current });
-    } else {
-      saveState({ mode, running: false, startTime: null, baseSeconds: baseSecondsRef.current });
-    }
-  }, [running, mode, timeLeft]);
-
-  const cfg = MODES[mode];
-  const total = cfg.seconds;
-  const pct = ((total - timeLeft) / total) * 100;
-
-  // ── SVG ring ─────────────────────────────────────────────────────────────
-  const R = 54;
-  const CIRC = 2 * Math.PI * R;
-  const dash = (pct / 100) * CIRC;
-
-  // ── Forward declaration ref for tick to always call latest handler ────────
-  const sessionCompleteRef = useRef<() => void>(() => { });
-
-  // ── Timestamp-based tick ─────────────────────────────────────────────────
   const tick = useCallback(() => {
-    if (!startTimeRef.current) return;
-    const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
-    const remaining = baseSecondsRef.current - elapsed;
-
+    if (startTimeRef.current === null) return;
+    const elapsed    = Math.floor((Date.now() - startTimeRef.current) / 1000);
+    const remaining  = Math.max(0, baseSecondsRef.current - elapsed);
+    setTimeLeft(remaining);
     if (remaining <= 0) {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      setTimeLeft(0);
+      stopInterval();
       if (!completedRef.current) {
         completedRef.current = true;
-        sessionCompleteRef.current();
+        sessionDoneRef.current();
       }
-    } else {
-      setTimeLeft(remaining);
     }
-  }, []);
+  }, [stopInterval]);
 
+  /** Start the setInterval loop (always call stopInterval first). */
+  const beginCounting = useCallback(() => {
+    stopInterval();
+    intervalRef.current = setInterval(tick, 500);
+  }, [tick, stopInterval]);
+
+  // ── Mount: restore from localStorage ─────────────────────────────────────
   useEffect(() => {
-    if (running) {
-      completedRef.current = false;
-      startTimeRef.current = Date.now();
-      baseSecondsRef.current = timeLeft;
-      intervalRef.current = setInterval(tick, 500);
-    } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-      if (startTimeRef.current) {
-        const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
-        baseSecondsRef.current = Math.max(0, baseSecondsRef.current - elapsed);
-        startTimeRef.current = null;
-      }
-    }
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [running]); // eslint-disable-line
+    const saved = loadPersisted();
+    if (!saved) return;
 
-  // ── Catch up when tab becomes visible again ───────────────────────────────
+    if (saved.startTime !== null) {
+      // Was counting when the page closed — compute elapsed
+      const elapsed    = Math.floor((Date.now() - saved.startTime) / 1000);
+      const remaining  = Math.max(0, saved.baseSeconds - elapsed);
+
+      if (remaining > 0) {
+        // Resume: reset startTime to now so elapsed starts fresh from `remaining`
+        const newStart = Date.now();
+        startTimeRef.current   = newStart;
+        baseSecondsRef.current = remaining;
+        modeRef.current        = saved.mode;
+
+        // Persist the corrected state immediately (no effect, no batching issue)
+        savePersisted({ mode: saved.mode, startTime: newStart, baseSeconds: remaining });
+
+        // Update UI
+        setMode(saved.mode);
+        setTimeLeft(remaining);
+        setRunning(true);
+
+        // Start interval directly here — bypasses the React effect system entirely
+        completedRef.current = false;
+        beginCounting();
+      } else {
+        // Expired while away — reset to fresh
+        clearPersisted();
+        modeRef.current        = saved.mode;
+        baseSecondsRef.current = MODES[saved.mode].seconds;
+        setMode(saved.mode);
+        setTimeLeft(MODES[saved.mode].seconds);
+      }
+    } else {
+      // Was paused — restore paused display
+      modeRef.current        = saved.mode;
+      baseSecondsRef.current = saved.baseSeconds;
+      setMode(saved.mode);
+      setTimeLeft(saved.baseSeconds);
+    }
+
+    // Cleanup on unmount
+    return () => stopInterval();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Visibility: catch up immediately when tab regains focus ───────────────
   useEffect(() => {
     const onVisible = () => {
-      if (running && startTimeRef.current) tick();
+      if (document.visibilityState !== 'visible') return;
+      if (startTimeRef.current === null) return;
+      tick();
+      beginCounting(); // restart to clear any throttle drift
     };
     document.addEventListener('visibilitychange', onVisible);
     return () => document.removeEventListener('visibilitychange', onVisible);
-  }, [running, tick]);
+  }, [tick, beginCounting]);
 
-  // ── Tab title countdown ───────────────────────────────────────────────────
+  // ── Tab title ─────────────────────────────────────────────────────────────
   useEffect(() => {
     if (running) {
-      document.title = `${formatTime(timeLeft)} — ${cfg.label} | Linguify`;
+      document.title = `${fmt(timeLeft)} — ${MODES[mode].label} | Linguify`;
     } else {
       document.title = 'Todo List – Linguify';
     }
     return () => { document.title = 'Todo List – Linguify'; };
-  }, [running, timeLeft, cfg.label]);
+  }, [running, timeLeft, mode]);
+
+  // ── Derived display values ────────────────────────────────────────────────
+  const cfg   = MODES[mode];
+  const total = cfg.seconds;
+  const pct   = ((total - timeLeft) / total) * 100;
+  const R     = 54;
+  const CIRC  = 2 * Math.PI * R;
+  const dash  = (pct / 100) * CIRC;
+
+  const sessionDoneHandler = useRef<() => void>(() => {});
 
   // ── Handlers ─────────────────────────────────────────────────────────────
 
   const switchMode = useCallback((newMode: Mode) => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    startTimeRef.current = null;
-    completedRef.current = false;
+    stopInterval();
+    startTimeRef.current   = null;
+    completedRef.current   = false;
+    const secs = MODES[newMode].seconds;
+    modeRef.current        = newMode;
+    baseSecondsRef.current = secs;
     setRunning(false);
     setMode(newMode);
-    modeRef.current = newMode;
-    const secs = MODES[newMode].seconds;
     setTimeLeft(secs);
-    baseSecondsRef.current = secs;
-    saveState({ mode: newMode, running: false, startTime: null, baseSeconds: secs });
-  }, []);
+    savePersisted({ mode: newMode, startTime: null, baseSeconds: secs });
+  }, [stopInterval]);
 
   const handleSessionComplete = useCallback(async () => {
-    setRunning(false);
+    stopInterval();
     startTimeRef.current = null;
-    clearState();
+    setRunning(false);
+    clearPersisted();
 
     const currentMode = modeRef.current;
 
+    // Completion beep
     try {
-      const ctx = new AudioContext();
-      const osc = ctx.createOscillator();
+      const ctx  = new AudioContext();
+      const osc  = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.connect(gain);
       gain.connect(ctx.destination);
@@ -249,18 +236,18 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
       osc.start(ctx.currentTime);
       osc.stop(ctx.currentTime + 0.5);
-    } catch (_) { }
+    } catch {}
 
     if (currentMode === 'work') {
       const duration = MODES.work.seconds;
       const res = await savePomodoroSessionAction(userId, duration, 'work');
       if (res.success) {
         const addedMins = Math.floor(duration / 60);
-        setStats((prev) => ({
-          todaySessions: prev.todaySessions + 1,
-          todayMinutes: prev.todayMinutes + addedMins,
-          allTimeSessions: prev.allTimeSessions + 1,
-          allTimeMinutes: prev.allTimeMinutes + addedMins,
+        setStats(prev => ({
+          todaySessions:    prev.todaySessions + 1,
+          todayMinutes:     prev.todayMinutes + addedMins,
+          allTimeSessions:  prev.allTimeSessions + 1,
+          allTimeMinutes:   prev.allTimeMinutes + addedMins,
         }));
         toast.success('🍅 Hoàn thành 1 phiên tập trung (25 phút)! Hãy nghỉ ngơi nhé.');
       }
@@ -271,21 +258,41 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
       toast.success('☕ Hết giờ nghỉ ngơi! Sẵn sàng cho phiên tập trung mới nhé.');
       switchMode('work');
     }
-  }, [userId, switchMode]);
+  }, [userId, switchMode, stopInterval]);
 
-  sessionCompleteRef.current = handleSessionComplete;
+  sessionDoneRef.current = handleSessionComplete;
 
-  const handleStart = () => setRunning((r) => !r);
+  const handleStart = () => {
+    if (!running) {
+      // ── Play ──
+      startTimeRef.current   = Date.now();
+      baseSecondsRef.current = timeLeft;
+      completedRef.current   = false;
+      savePersisted({ mode, startTime: startTimeRef.current, baseSeconds: timeLeft });
+      setRunning(true);
+      beginCounting();
+    } else {
+      // ── Pause ──
+      stopInterval();
+      if (startTimeRef.current !== null) {
+        const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
+        baseSecondsRef.current = Math.max(0, baseSecondsRef.current - elapsed);
+      }
+      startTimeRef.current = null;
+      savePersisted({ mode, startTime: null, baseSeconds: baseSecondsRef.current });
+      setRunning(false);
+    }
+  };
 
   const handleReset = () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    startTimeRef.current = null;
-    completedRef.current = false;
-    setRunning(false);
+    stopInterval();
+    startTimeRef.current   = null;
+    completedRef.current   = false;
     const secs = MODES[mode].seconds;
-    setTimeLeft(secs);
     baseSecondsRef.current = secs;
-    saveState({ mode, running: false, startTime: null, baseSeconds: secs });
+    setRunning(false);
+    setTimeLeft(secs);
+    savePersisted({ mode, startTime: null, baseSeconds: secs });
   };
 
   // ─── Render ───────────────────────────────────────────────────────────────
@@ -297,7 +304,7 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
     )}>
       {/* Header */}
       <button
-        onClick={() => setCollapsed((c) => !c)}
+        onClick={() => setCollapsed(c => !c)}
         className="w-full flex items-center justify-between px-5 py-4 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
       >
         <div className="flex items-center gap-3">
@@ -307,7 +314,7 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
           <div className="text-left">
             <p className="text-sm font-extrabold text-foreground">Pomodoro Timer</p>
             <p className={cn('text-xs font-semibold', running ? cfg.color : 'text-muted-foreground')}>
-              {running ? `${cfg.label} · ${formatTime(timeLeft)}` : 'Bấm để bắt đầu'}
+              {running ? `${cfg.label} · ${fmt(timeLeft)}` : 'Bấm để bắt đầu'}
             </p>
           </div>
         </div>
@@ -319,11 +326,13 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
             </div>
             <div className="h-6 w-px bg-border" />
             <div>
-              <p className={cn('text-xs font-black', cfg.color)}>{formatMinutes(stats.todayMinutes)}</p>
+              <p className={cn('text-xs font-black', cfg.color)}>{fmtMins(stats.todayMinutes)}</p>
               <p className="text-[9px] text-muted-foreground font-semibold uppercase tracking-wide">Tập trung</p>
             </div>
           </div>
-          {collapsed ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronUp className="h-4 w-4 text-muted-foreground" />}
+          {collapsed
+            ? <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            : <ChevronUp   className="h-4 w-4 text-muted-foreground" />}
         </div>
       </button>
 
@@ -374,7 +383,7 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <span className={cn('text-3xl font-black tabular-nums tracking-tight', cfg.color)}>
-                      {formatTime(timeLeft)}
+                      {fmt(timeLeft)}
                     </span>
                     <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mt-0.5">
                       {cfg.label}
@@ -396,11 +405,9 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
                     onClick={handleStart}
                     className={cn(
                       'flex items-center gap-2 px-6 py-2.5 rounded-2xl font-extrabold text-sm text-white transition-all shadow-lg',
-                      mode === 'work'
-                        ? 'bg-rose-500 hover:bg-rose-600 shadow-rose-500/25'
-                        : mode === 'short'
-                          ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/25'
-                          : 'bg-blue-500 hover:bg-blue-600 shadow-blue-500/25'
+                      mode === 'work'  ? 'bg-rose-500 hover:bg-rose-600 shadow-rose-500/25'       :
+                      mode === 'short' ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/25' :
+                                         'bg-blue-500 hover:bg-blue-600 shadow-blue-500/25'
                     )}
                   >
                     {running ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
@@ -425,7 +432,7 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
                     <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Hôm nay</span>
                   </div>
                   <p className={cn('text-xl font-black', cfg.color)}>{stats.todaySessions} 🍅</p>
-                  <p className="text-xs text-muted-foreground font-semibold">{formatMinutes(stats.todayMinutes)} tập trung</p>
+                  <p className="text-xs text-muted-foreground font-semibold">{fmtMins(stats.todayMinutes)} tập trung</p>
                 </div>
                 <div className="p-3 rounded-2xl bg-background/70 border border-border/60 space-y-1">
                   <div className="flex items-center gap-1.5">
@@ -433,7 +440,7 @@ export default function PomodoroTimer({ userId, initialStats }: Props) {
                     <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Tổng cộng</span>
                   </div>
                   <p className={cn('text-xl font-black', cfg.color)}>{stats.allTimeSessions} 🍅</p>
-                  <p className="text-xs text-muted-foreground font-semibold">{formatMinutes(stats.allTimeMinutes)} tập trung</p>
+                  <p className="text-xs text-muted-foreground font-semibold">{fmtMins(stats.allTimeMinutes)} tập trung</p>
                 </div>
               </div>
             </div>
