@@ -9,33 +9,36 @@ import Testimonials from '@/components/home/Testimonials';
 import Pricing from '@/components/home/Pricing';
 import Faq from '@/components/home/Faq';
 import CtaBanner from '@/components/home/CtaBanner';
+import { SmoothScroll } from '@/components/motion/SmoothScroll';
 
 export default function HomePage() {
   return (
-    <div className="w-full bg-clay-bg overflow-x-hidden min-h-screen text-foreground select-none relative transition-colors">
-      {/* 1. Hero 3D Section */}
-      <Hero />
+    <SmoothScroll>
+      <div className="w-full bg-clay-bg overflow-x-hidden min-h-screen text-foreground select-none relative transition-colors">
+        {/* 1. Hero 3D Section */}
+        <Hero />
 
-      {/* 2. Dynamic Impact Counter Banner */}
-      <ImpactStatement />
+        {/* 2. Dynamic Impact Counter Banner */}
+        <ImpactStatement />
 
-      {/* 3. 3D Bento Grid ("Our Approach") */}
-      <FeatureBento />
+        {/* 3. 3D Bento Grid ("Our Approach") */}
+        <FeatureBento />
 
-      {/* 4. Key Metrics & Interactive Numbered Features (01, 02, 03) */}
-      <NumberedFeatures />
+        {/* 4. Key Metrics & Interactive Numbered Features (01, 02, 03) */}
+        <NumberedFeatures />
 
-      {/* 5. GSAP + ScrollTrigger Pinned Kinetic Testimonials Gallery */}
-      <Testimonials />
+        {/* 5. GSAP + ScrollTrigger Pinned Kinetic Testimonials Gallery */}
+        <Testimonials />
 
-      {/* 6. Pricing & Flexible Plans */}
-      <Pricing />
+        {/* 6. Pricing & Flexible Plans */}
+        <Pricing />
 
-      {/* 7. Frequently Asked Questions Accordion */}
-      <Faq />
+        {/* 7. Frequently Asked Questions Accordion */}
+        <Faq />
 
-      {/* 8. High-Conversion 3D CTA Banner */}
-      <CtaBanner />
-    </div>
+        {/* 8. High-Conversion 3D CTA Banner */}
+        <CtaBanner />
+      </div>
+    </SmoothScroll>
   );
 }

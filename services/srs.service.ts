@@ -11,12 +11,14 @@ export interface SrsCalculationResult {
   lapseCountDelta: number;
 }
 
+export const MAX_SRS_INTERVAL = 180; // 180 days (~6 months maximum interval cap for language retention)
+
 /**
- * SuperMemo SM-2 Interval Calculation Engine
+ * SuperMemo SM-2 Interval Calculation Engine with Anti-Runaway Bounds
  * - Again: 10 minutes (immediate today), resets repetitions, drops ease factor
- * - Hard: 1 day, keeps slight reduction in ease factor
- * - Good: 3 days (or interval * easeFactor), standard progression
- * - Easy: 7 days (or interval * easeFactor * 1.3), boosts ease factor
+ * - Hard: 1.2x interval or 1 day, slight reduction in ease factor
+ * - Good: Gradual progression (1 -> 3 -> 7 -> interval * EF), capped at MAX_SRS_INTERVAL
+ * - Easy: Fast progression (3 -> 7 -> 14 -> interval * EF * 1.15), capped at MAX_SRS_INTERVAL
  */
 export function calculateSrsNextReview(
   current: {
@@ -27,9 +29,9 @@ export function calculateSrsNextReview(
   },
   rating: SrsRating
 ): SrsCalculationResult {
-  let interval = current.interval || 0;
-  let easeFactor = current.easeFactor || 2.5;
-  let repetitions = current.repetitions || 0;
+  let interval = Math.min(MAX_SRS_INTERVAL, Math.max(0, current.interval || 0));
+  let easeFactor = Math.min(2.5, Math.max(1.3, current.easeFactor || 2.5));
+  let repetitions = Math.max(0, current.repetitions || 0);
   let lapseCountDelta = 0;
   const nextReviewAt = new Date();
 
@@ -44,9 +46,13 @@ export function calculateSrsNextReview(
     }
     case 'hard': {
       repetitions = Math.max(1, repetitions);
-      interval = 1;
+      if (repetitions <= 1) {
+        interval = 1;
+      } else {
+        interval = Math.max(1, Math.min(MAX_SRS_INTERVAL, Math.round(interval * 1.2)));
+      }
       easeFactor = Math.max(1.3, easeFactor - 0.15);
-      nextReviewAt.setDate(nextReviewAt.getDate() + 1);
+      nextReviewAt.setDate(nextReviewAt.getDate() + interval);
       break;
     }
     case 'good': {
@@ -54,8 +60,10 @@ export function calculateSrsNextReview(
         interval = 1;
       } else if (repetitions === 1) {
         interval = 3;
+      } else if (repetitions === 2) {
+        interval = 7;
       } else {
-        interval = Math.max(2, Math.round(interval * easeFactor));
+        interval = Math.min(MAX_SRS_INTERVAL, Math.max(interval + 1, Math.round(interval * easeFactor)));
       }
       repetitions += 1;
       nextReviewAt.setDate(nextReviewAt.getDate() + interval);
@@ -66,22 +74,26 @@ export function calculateSrsNextReview(
         interval = 3;
       } else if (repetitions === 1) {
         interval = 7;
+      } else if (repetitions === 2) {
+        interval = 14;
       } else {
-        interval = Math.max(4, Math.round(interval * easeFactor * 1.3));
+        interval = Math.min(MAX_SRS_INTERVAL, Math.max(interval + 2, Math.round(interval * easeFactor * 1.15)));
       }
       repetitions += 1;
-      easeFactor = Math.min(3.0, easeFactor + 0.15);
+      easeFactor = Math.min(2.5, easeFactor + 0.15);
       nextReviewAt.setDate(nextReviewAt.getDate() + interval);
       break;
     }
   }
+
+  interval = Math.min(MAX_SRS_INTERVAL, interval);
 
   const status: 'learning' | 'reviewing' | 'mastered' =
     interval >= 21 ? 'mastered' : interval >= 1 ? 'reviewing' : 'learning';
 
   return {
     interval,
-    easeFactor,
+    easeFactor: Math.round(easeFactor * 100) / 100,
     repetitions,
     status,
     nextReviewAt,
@@ -380,4 +392,140 @@ export async function enrollTopicWordsIntoSrs(userId: string, topicId: string) {
   }
 
   return { enrolledCount: toCreate.length };
+}
+
+export interface MasteredWordsFilter {
+  page?: number;
+  limit?: number;
+  search?: string;
+  topicId?: string;
+  sortBy?: 'masteredAt' | 'interval' | 'word' | 'reviewCount';
+  sortOrder?: 'asc' | 'desc';
+}
+
+/**
+ * Get paginated mastered vocabulary items for a user
+ */
+export async function getMasteredSrsWords(
+  userId: string,
+  filter: MasteredWordsFilter = {}
+) {
+  const page = Math.max(1, filter.page || 1);
+  const limit = Math.max(1, Math.min(100, filter.limit || 20));
+  const skip = (page - 1) * limit;
+  const search = filter.search?.trim();
+  const topicId = filter.topicId?.trim();
+  const sortBy = filter.sortBy || 'masteredAt';
+  const sortOrder = filter.sortOrder || 'desc';
+
+  const whereClause: any = {
+    userId,
+    OR: [
+      { status: 'mastered' },
+      { interval: { gte: 21 } },
+    ],
+  };
+
+  if (topicId && topicId !== 'all') {
+    whereClause.vocabulary = {
+      ...(whereClause.vocabulary || {}),
+      topicId,
+    };
+  }
+
+  if (search) {
+    whereClause.vocabulary = {
+      ...(whereClause.vocabulary || {}),
+      OR: [
+        { word: { contains: search, mode: 'insensitive' } },
+        { meaning: { contains: search, mode: 'insensitive' } },
+        { definition: { contains: search, mode: 'insensitive' } },
+      ],
+    };
+  }
+
+  // 1. Total count of mastered words matching filter
+  const totalCount = await prisma.vocabularyProgress.count({
+    where: whereClause,
+  });
+
+  // Automatically repair any legacy oversized intervals in DB
+  await prisma.vocabularyProgress.updateMany({
+    where: {
+      userId,
+      interval: { gt: MAX_SRS_INTERVAL },
+    },
+    data: {
+      interval: MAX_SRS_INTERVAL,
+    },
+  });
+
+  // 2. Total progress count across entire user collection
+  const totalLearned = await prisma.vocabularyProgress.count({
+    where: { userId },
+  });
+
+  // 3. Determine sorting
+  let orderByClause: any[] = [{ masteredAt: 'desc' }, { lastReviewedAt: 'desc' }];
+  if (sortBy === 'interval') {
+    orderByClause = [{ interval: sortOrder }, { vocabulary: { word: 'asc' } }];
+  } else if (sortBy === 'word') {
+    orderByClause = [{ vocabulary: { word: sortOrder } }];
+  } else if (sortBy === 'reviewCount') {
+    orderByClause = [{ reviewCount: sortOrder }, { vocabulary: { word: 'asc' } }];
+  } else if (sortBy === 'masteredAt') {
+    orderByClause = [{ masteredAt: sortOrder }, { lastReviewedAt: 'desc' }];
+  }
+
+  const progresses = await prisma.vocabularyProgress.findMany({
+    where: whereClause,
+    include: {
+      vocabulary: {
+        include: {
+          topic: true,
+        },
+      },
+    },
+    orderBy: orderByClause,
+    skip,
+    take: limit,
+  });
+
+  const words = progresses.map((p: any) => ({
+    id: p.vocabulary?.id || p.id,
+    progressId: p.id,
+    word: p.vocabulary?.word || '',
+    meaning: p.vocabulary?.meaning || '',
+    definition: p.vocabulary?.definition || null,
+    example: p.vocabulary?.example || null,
+    category: p.vocabulary?.category || '',
+    partOfSpeech: p.vocabulary?.partOfSpeech || 'Other',
+    pronunciation: p.vocabulary?.pronunciation || null,
+    imageUrl: p.vocabulary?.imageUrl || null,
+    topicId: p.vocabulary?.topicId || '',
+    topicName: p.vocabulary?.topic?.name || 'Từ vựng',
+    interval: p.interval,
+    easeFactor: p.easeFactor,
+    repetitions: p.repetitions,
+    reviewCount: p.reviewCount,
+    lapseCount: p.lapseCount,
+    masteredAt: p.masteredAt ? p.masteredAt.toISOString() : null,
+    lastReviewedAt: p.lastReviewedAt ? p.lastReviewedAt.toISOString() : null,
+    nextReviewAt: p.nextReviewAt ? p.nextReviewAt.toISOString() : null,
+  }));
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / limit));
+
+  return {
+    words,
+    pagination: {
+      page,
+      limit,
+      totalCount,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+    },
+    totalLearned,
+  };
 }

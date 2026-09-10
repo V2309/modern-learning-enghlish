@@ -173,13 +173,16 @@ export function SrsDashboardClient({ stats, streakDays = 0 }: SrsDashboardClient
         </div>
 
         {/* Card 4: Mastered 🟢 */}
-        <div className="p-6 rounded-3xl bg-card border-2 border-border/80 shadow-[0_4px_0_0_theme(colors.border)] flex flex-col justify-between hover:border-emerald-500/50 hover:shadow-[0_6px_0_0_theme(colors.border)] transition-all space-y-3">
+        <Link
+          href="/review/professional"
+          className="p-6 rounded-3xl bg-card border-2 border-border/80 shadow-[0_4px_0_0_theme(colors.border)] flex flex-col justify-between hover:border-emerald-500/60 hover:shadow-[0_6px_0_0_theme(colors.border)] hover:-translate-y-0.5 transition-all space-y-3 cursor-pointer group"
+        >
           <div className="flex items-center justify-between">
             <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
               Đã Thành Thạo
             </span>
-            <div className="h-9 w-9 rounded-2xl bg-emerald-500/10 border-2 border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+            <div className="h-9 w-9 rounded-2xl bg-emerald-500/10 border-2 border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white transition-all">
               <Award className="h-4 w-4 stroke-[2.5]" />
             </div>
           </div>
@@ -187,11 +190,16 @@ export function SrsDashboardClient({ stats, streakDays = 0 }: SrsDashboardClient
             <div className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
               {masteredCount} <span className="text-xs font-bold text-muted-foreground">/ {totalLearned} từ</span>
             </div>
-            <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold mt-0.5">
-              Khoảng cách &ge; 21 ngày (đã ghi nhớ vững chắc)
-            </p>
+            <div className="flex items-center justify-between mt-0.5">
+              <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold">
+                Khoảng cách &ge; 21 ngày (đã ghi nhớ vững chắc)
+              </p>
+              <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+                Xem từ &rarr;
+              </span>
+            </div>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* ── 3. TABS SWITCH (Tổng Quan Lịch Ôn / Lịch Sử & Phân Tích) ── */}

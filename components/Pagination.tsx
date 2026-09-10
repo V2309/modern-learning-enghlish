@@ -11,6 +11,7 @@ interface PaginationProps {
   totalItems: number;
   pageSize: number;
   onPageChange: (page: number) => void;
+  itemName?: string;
 }
 
 export default function Pagination({
@@ -19,6 +20,7 @@ export default function Pagination({
   totalItems,
   pageSize,
   onPageChange,
+  itemName = 'mục',
 }: PaginationProps) {
   if (totalPages <= 1) return null;
 
@@ -50,7 +52,7 @@ export default function Pagination({
         <span className="font-black text-foreground">{from}–{to}</span>
         {' '}trong{' '}
         <span className="font-black text-brand">{totalItems}</span>
-        {' '}khóa học
+        {' '}{itemName}
       </p>
 
       {/* Controls */}

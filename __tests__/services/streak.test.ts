@@ -12,6 +12,7 @@ vi.mock('@/lib/db', () => ({
     todoCompletion: { findMany: vi.fn() },
     pomodoroSession: { findMany: vi.fn() },
     userSentencePractice: { findMany: vi.fn() },
+    srsReviewLog: { findMany: vi.fn().mockResolvedValue([]) },
     user: { findUnique: vi.fn() },
   },
 }));

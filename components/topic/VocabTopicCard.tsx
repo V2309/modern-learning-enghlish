@@ -58,12 +58,6 @@ export const VocabTopicCard: React.FC<VocabTopicCardProps> = ({
   onToggleComplete,
   onContinue,
 }) => {
-  const displayListNumber = listNumber || title;
-
-  // Choose icon & palette deterministically if not provided
-  const displayIcon = icon || TOPIC_ICONS[index % TOPIC_ICONS.length];
-  const displayIconBg = iconBg || ICON_BG_COLORS[index % ICON_BG_COLORS.length];
-
   // Calculate progress
   const actualLearned = learnedWords !== undefined ? learnedWords : (isCompleted ? totalWords : 0);
   const percentage = totalWords > 0 ? Math.min(100, Math.round((actualLearned / totalWords) * 100)) : (isCompleted ? 100 : 0);
@@ -76,17 +70,11 @@ export const VocabTopicCard: React.FC<VocabTopicCardProps> = ({
 
       {/* ── Top Header Row ────────────────────────────────────────── */}
       <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-3">
-          {/* Topic Icon Container */}
-          <div className={`flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl ${displayIconBg} text-xl sm:text-2xl select-none shadow-xs`}>
-            <span>{displayIcon}</span>
-          </div>
-
-          <div className="flex flex-col">
-            <span className="text-[11px] font-extrabold tracking-wider text-muted-foreground uppercase">
-              {displayListNumber}
-            </span>
-          </div>
+        {/* MacBook 3-Dots Traffic Light Controls */}
+        <div className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-muted/70 border border-border/80 shadow-2xs select-none">
+          <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f56] border border-[#e0443e]/50 shadow-xs" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#ffbd2e] border border-[#dea123]/50 shadow-xs" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#27c93f] border border-[#1aab29]/50 shadow-xs" />
         </div>
 
         <div className="flex items-center gap-2">

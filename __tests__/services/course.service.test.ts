@@ -53,9 +53,11 @@ describe("Course Service", () => {
         level: "Beginner" as const,
         createdAt: new Date(),
         lessons: [],
+        reviews: [],
       };
 
       prismaMock.course.findUnique.mockResolvedValue(mockCourse as any);
+      prismaMock.user.findMany.mockResolvedValue([]);
 
       const result = await getCourseById("course_1");
 
@@ -66,6 +68,30 @@ describe("Course Service", () => {
         include: {
           lessons: {
             orderBy: { createdAt: "asc" },
+          },
+          reviews: {
+            include: {
+              user: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+            orderBy: {
+              createdAt: "desc",
+            },
+          },
+          topics: {
+            include: {
+              lessons: {
+                orderBy: {
+                  createdAt: "asc",
+                },
+              },
+            },
+            orderBy: {
+              createdAt: "asc",
+            },
           },
         },
       });
