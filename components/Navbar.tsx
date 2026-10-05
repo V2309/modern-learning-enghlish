@@ -17,6 +17,7 @@ const Navbar = () => {
 
   const allNavItems = [
     { name: 'Trang chủ', path: '/', requiresAuth: false },
+    { name: 'Workspace', path: '/workspace', requiresAuth: false },
     { name: 'Từ vựng', path: '/vocabulary', requiresAuth: true },
     { name: 'Khóa học', path: '/courses', requiresAuth: false },
     { name: 'Shadowing', path: '/shadowing', requiresAuth: true },

@@ -1,5 +1,22 @@
 @import "tailwindcss";
 
+/* ── Global Typography: Geist Sans & Geist Mono ── */
+body, * {
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+input, textarea, button, select {
+  font-family: inherit;
+}
+
+.font-mono, pre, code {
+  font-family: var(--font-geist-mono), monospace !important;
+}
+
+.font-serif {
+  font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
 /* ── Dark mode: .dark class on <html> ── */
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -35,6 +52,10 @@
 /* ── Tailwind v4: reference CSS variables directly ─────────────────────────
    Design tokens integrated from DESIGN.md (Core Editorial System)           */
 @theme {
+  /* Font Families: Geist */
+  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+
   /* Core UI & Brand Tokens */
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
@@ -643,4 +664,92 @@ h6 {
 .card-3d-surface:hover {
   border-color: rgba(241, 116, 99, 0.4);
   box-shadow: 0 16px 32px -6px rgba(0, 0, 0, 0.1), 0 6px 0 0 rgba(241, 116, 99, 0.4);
+}
+
+/* Notion-style Auto-grow Editor Textareas */
+textarea.notion-editor-input {
+  field-sizing: content;
+  overflow: hidden !important;
+  overflow-y: hidden !important;
+  resize: none !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ELIMINATE DOUBLE SCROLLBAR ON WORKSPACE
+   ══════════════════════════════════════════════════════════════ */
+html:has(.workspace-container),
+body:has(.workspace-container),
+html.overflow-hidden,
+body.overflow-hidden {
+  overflow: hidden !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   AESTHETIC LIGHT BLUE SCROLLBAR (Xanh Nước Biển Nhạt)
+   ══════════════════════════════════════════════════════════════ */
+
+/* Chrome, Edge, Safari, Opera & all WebKit/Blink browsers */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(56, 189, 248, 0.5); /* Sky blue pastel nhạt */
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  transition: background-color 0.2s ease-in-out;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(14, 165, 233, 0.85); /* Xanh biển đậm hơn khi hover */
+}
+
+::-webkit-scrollbar-thumb:active {
+  background-color: #0284c7; /* Sky 600 khi nhấn giữ */
+}
+
+/* Dark mode WebKit scrollbar */
+.dark ::-webkit-scrollbar-thumb {
+  background-color: rgba(56, 189, 248, 0.4);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(56, 189, 248, 0.75);
+}
+
+.dark ::-webkit-scrollbar-thumb:active {
+  background-color: #38bdf8;
+}
+
+/* Corner junction between horizontal & vertical scrollbars */
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Firefox only fallback */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(56, 189, 248, 0.5) transparent;
+  }
+  .dark * {
+    scrollbar-color: rgba(56, 189, 248, 0.5) transparent;
+  }
+}
+
+/* Utility: Completely hide scrollbar while preserving scroll behavior */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

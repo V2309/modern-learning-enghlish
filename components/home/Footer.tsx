@@ -37,11 +37,12 @@ const footerLinks = [
 export default function Footer() {
   const pathname = usePathname();
   const isTopicPage = pathname?.startsWith('/vocabulary/topic');
+  const isWorkspacePage = pathname?.startsWith('/workspace');
   const isAuthPage =
     pathname?.startsWith('/auth') ||
     ['/login', '/register', '/sign-in', '/sign-up'].includes(pathname ?? '');
 
-  if (isTopicPage || isAuthPage) return null;
+  if (isTopicPage || isWorkspacePage || isAuthPage) return null;
 
   return (
     <footer className="w-full bg-white dark:bg-[#0f1115] border-t border-[#e5e7eb] dark:border-[#1f2937]">

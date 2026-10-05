@@ -5,15 +5,36 @@ import { usePathname } from 'next/navigation';
 
 export function MainLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const isWorkspace = pathname?.startsWith('/workspace');
+
+  React.useEffect(() => {
+    if (isWorkspace) {
+      document.documentElement.classList.add('overflow-hidden', 'h-screen');
+      document.body.classList.add('overflow-hidden', 'h-screen');
+      return () => {
+        document.documentElement.classList.remove('overflow-hidden', 'h-screen');
+        document.body.classList.remove('overflow-hidden', 'h-screen');
+      };
+    }
+  }, [isWorkspace]);
 
   // Full-bleed routes that manage their own full-screen layouts or custom sidebar viewports
   const isFullBleed =
     pathname === '/' ||
     pathname?.startsWith('/vocabulary/topic/') ||
+    isWorkspace ||
     pathname?.startsWith('/auth');
 
   if (isFullBleed) {
-    return <main className="flex-1 w-full">{children}</main>;
+    return (
+      <main
+        className={`flex-1 w-full ${
+          isWorkspace ? 'min-h-0 h-[calc(100vh-4rem)] max-h-[calc(100vh-4rem)] overflow-hidden' : ''
+        }`}
+      >
+        {children}
+      </main>
+    );
   }
 
   return (

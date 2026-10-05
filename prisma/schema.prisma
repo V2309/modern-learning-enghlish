@@ -49,6 +49,7 @@ model User {
   todoCompletions    TodoCompletion[]
   pomodoroSessions   PomodoroSession[]
   sentencePractices  UserSentencePractice[]
+  workspaces         Workspace[]
 
   @@map("users")
 }
@@ -442,4 +443,57 @@ model UserSentencePractice {
 
   @@unique([userId, vocabularyId], name: "uniqueUserVocabSentencePractice")
   @@map("user_sentence_practices")
+}
+
+model Workspace {
+  id        String   @id @default(uuid()) @db.VarChar(255)
+  userId    String   @map("user_id") @db.VarChar(255)
+  name      String   @default("My Workspace") @db.VarChar(255)
+  icon      String   @default("Layers") @db.VarChar(100)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp()
+
+  user  User   @relation(fields: [userId], references: [uid], onDelete: Cascade)
+  pages Page[]
+
+  @@map("workspaces")
+}
+
+model Page {
+  id             String    @id @default(uuid()) @db.VarChar(255)
+  workspaceId    String    @map("workspace_id") @db.VarChar(255)
+  parentId       String?   @map("parent_id") @db.VarChar(255)
+  title          String    @default("Untitled") @db.VarChar(255)
+  icon           String?   @db.VarChar(100)
+  cover          Json?
+  isFavorite     Boolean   @default(false) @map("is_favorite")
+  isArchived     Boolean   @default(false) @map("is_archived")
+  isDatabase     Boolean   @default(false) @map("is_database")
+  databaseConfig Json?     @map("database_config")
+  fontPreference String    @default("sans") @map("font_preference") @db.VarChar(50)
+  isFullWidth    Boolean   @default(false) @map("is_full_width")
+  order          Int       @default(0)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp()
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  parent    Page?     @relation("PageChildren", fields: [parentId], references: [id], onDelete: Cascade)
+  children  Page[]    @relation("PageChildren")
+  blocks    Block[]
+
+  @@map("workspace_pages")
+}
+
+model Block {
+  id        String   @id @default(uuid()) @db.VarChar(255)
+  type      String   @db.VarChar(50)
+  content   Json
+  order     Int      @default(0)
+  pageId    String   @map("page_id") @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp()
+
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@map("workspace_blocks")
 }

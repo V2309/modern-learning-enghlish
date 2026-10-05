@@ -41,7 +41,7 @@ export default function RootLayout({
         lang="vi"
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <body className="min-h-screen bg-background text-foreground transition-colors duration-300 flex flex-col">
+        <body className="min-h-screen bg-background text-foreground transition-colors duration-300 flex flex-col font-sans">
           <Providers>
             <NavbarWrapper />
             <MainLayoutWrapper>{children}</MainLayoutWrapper>
