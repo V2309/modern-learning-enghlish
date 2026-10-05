@@ -13,7 +13,7 @@ describe('SRS SM-2 Algorithm (calculateSrsNextReview)', () => {
     expect(result.easeFactor).toBe(2.3);
   });
 
-  it('should gradually progress intervals on "good" (1 -> 3 -> 7 -> ...)', () => {
+  it('should gradually progress intervals on "good" (1 -> 2 -> 3 -> ...)', () => {
     // Rep 0 -> 1 day
     let state = { interval: 0, easeFactor: 2.5, repetitions: 0 };
     let res = calculateSrsNextReview(state, 'good');
@@ -21,29 +21,35 @@ describe('SRS SM-2 Algorithm (calculateSrsNextReview)', () => {
     expect(res.repetitions).toBe(1);
     expect(res.status).toBe('reviewing');
 
-    // Rep 1 -> 3 days
+    // Rep 1 -> 2 days
+    state = { interval: res.interval, easeFactor: res.easeFactor, repetitions: res.repetitions };
+    res = calculateSrsNextReview(state, 'good');
+    expect(res.interval).toBe(2);
+    expect(res.repetitions).toBe(2);
+
+    // Rep 2 -> 3 days
     state = { interval: res.interval, easeFactor: res.easeFactor, repetitions: res.repetitions };
     res = calculateSrsNextReview(state, 'good');
     expect(res.interval).toBe(3);
-    expect(res.repetitions).toBe(2);
-
-    // Rep 2 -> 7 days
-    state = { interval: res.interval, easeFactor: res.easeFactor, repetitions: res.repetitions };
-    res = calculateSrsNextReview(state, 'good');
-    expect(res.interval).toBe(7);
     expect(res.repetitions).toBe(3);
 
-    // Rep 3 -> 7 * 2.5 = 18 days
+    // Rep 3 -> 3 * 2.5 = 8 days (rounded)
     state = { interval: res.interval, easeFactor: res.easeFactor, repetitions: res.repetitions };
     res = calculateSrsNextReview(state, 'good');
-    expect(res.interval).toBe(18);
+    expect(res.interval).toBe(8);
     expect(res.repetitions).toBe(4);
 
-    // Rep 4 -> 18 * 2.5 = 45 days (Mastered >= 21 days)
+    // Rep 4 -> 8 * 2.5 = 20 days
     state = { interval: res.interval, easeFactor: res.easeFactor, repetitions: res.repetitions };
     res = calculateSrsNextReview(state, 'good');
-    expect(res.interval).toBe(45);
+    expect(res.interval).toBe(20);
     expect(res.repetitions).toBe(5);
+
+    // Rep 5 -> 20 * 2.5 = 50 days (Mastered >= 21 days)
+    state = { interval: res.interval, easeFactor: res.easeFactor, repetitions: res.repetitions };
+    res = calculateSrsNextReview(state, 'good');
+    expect(res.interval).toBe(50);
+    expect(res.repetitions).toBe(6);
     expect(res.status).toBe('mastered');
   });
 

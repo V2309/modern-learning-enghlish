@@ -17,8 +17,8 @@ export const MAX_SRS_INTERVAL = 180; // 180 days (~6 months maximum interval cap
  * SuperMemo SM-2 Interval Calculation Engine with Anti-Runaway Bounds
  * - Again: 10 minutes (immediate today), resets repetitions, drops ease factor
  * - Hard: 1.2x interval or 1 day, slight reduction in ease factor
- * - Good: Gradual progression (1 -> 3 -> 7 -> interval * EF), capped at MAX_SRS_INTERVAL
- * - Easy: Fast progression (3 -> 7 -> 14 -> interval * EF * 1.15), capped at MAX_SRS_INTERVAL
+ * - Good: Gradual progression (1 -> 2 -> 3 -> interval * EF), capped at MAX_SRS_INTERVAL
+ * - Easy: Fast progression (2 -> 3 -> interval * EF * 1.15), capped at MAX_SRS_INTERVAL
  */
 export function calculateSrsNextReview(
   current: {
@@ -59,9 +59,9 @@ export function calculateSrsNextReview(
       if (repetitions === 0) {
         interval = 1;
       } else if (repetitions === 1) {
-        interval = 3;
+        interval = 2;
       } else if (repetitions === 2) {
-        interval = 7;
+        interval = 3;
       } else {
         interval = Math.min(MAX_SRS_INTERVAL, Math.max(interval + 1, Math.round(interval * easeFactor)));
       }
@@ -71,11 +71,9 @@ export function calculateSrsNextReview(
     }
     case 'easy': {
       if (repetitions === 0) {
-        interval = 3;
+        interval = 2;
       } else if (repetitions === 1) {
-        interval = 7;
-      } else if (repetitions === 2) {
-        interval = 14;
+        interval = 3;
       } else {
         interval = Math.min(MAX_SRS_INTERVAL, Math.max(interval + 2, Math.round(interval * easeFactor * 1.15)));
       }

@@ -222,7 +222,7 @@ export const FlashcardMode = ({
               className="py-2.5 px-3 rounded-2xl bg-sky-500 hover:brightness-105 text-white font-black text-xs shadow-[0_3px_0_0_#0369a1] active:translate-y-0.5 active:shadow-none transition-all cursor-pointer flex flex-col items-center justify-center disabled:opacity-50"
             >
               <span className="uppercase tracking-wider">Good (3)</span>
-              <span className="text-[10px] text-white/80 font-bold mt-0.5">3 ngày</span>
+              <span className="text-[10px] text-white/80 font-bold mt-0.5">2 ngày</span>
             </button>
 
             {/* Easy (4) */}
@@ -232,7 +232,7 @@ export const FlashcardMode = ({
               className="py-2.5 px-3 rounded-2xl bg-duo hover:brightness-105 text-duo-foreground font-black text-xs shadow-[0_3px_0_0_var(--duo-dark)] active:translate-y-0.5 active:shadow-none transition-all cursor-pointer flex flex-col items-center justify-center disabled:opacity-50"
             >
               <span className="uppercase tracking-wider">Easy (4)</span>
-              <span className="text-[10px] text-white/80 font-bold mt-0.5">7 ngày</span>
+              <span className="text-[10px] text-white/80 font-bold mt-0.5">3 ngày</span>
             </button>
           </div>
         </div>

@@ -120,8 +120,8 @@ export function SrsReviewSessionClient({
     let feedbackText = '';
     if (rating === 'again') feedbackText = 'Ôn lại sau 10 phút';
     else if (rating === 'hard') feedbackText = 'Ôn lại sau 1 ngày';
-    else if (rating === 'good') feedbackText = 'Ôn lại sau 3 ngày';
-    else if (rating === 'easy') feedbackText = 'Ôn lại sau 7 ngày';
+    else if (rating === 'good') feedbackText = 'Ôn lại sau 2 ngày';
+    else if (rating === 'easy') feedbackText = 'Ôn lại sau 3 ngày';
 
     setSessionFeedback(feedbackText);
 
@@ -316,7 +316,7 @@ export function SrsReviewSessionClient({
                 className="p-3 rounded-2xl bg-sky-500 hover:brightness-105 text-white font-black text-xs shadow-[0_4px_0_0_#0369a1] active:translate-y-1 active:shadow-none transition-all cursor-pointer flex flex-col items-center justify-center disabled:opacity-50"
               >
                 <div className="uppercase">Good (3)</div>
-                <div className="text-[10px] text-white/80 font-bold mt-0.5">3 ngày</div>
+                <div className="text-[10px] text-white/80 font-bold mt-0.5">2 ngày</div>
               </button>
 
               {/* Easy */}
@@ -326,7 +326,7 @@ export function SrsReviewSessionClient({
                 className="p-3 rounded-2xl bg-duo hover:brightness-105 text-duo-foreground font-black text-xs shadow-[0_4px_0_0_var(--duo-dark)] active:translate-y-1 active:shadow-none transition-all cursor-pointer flex flex-col items-center justify-center disabled:opacity-50"
               >
                 <div className="uppercase">Easy (4)</div>
-                <div className="text-[10px] text-white/80 font-bold mt-0.5">7 ngày</div>
+                <div className="text-[10px] text-white/80 font-bold mt-0.5">3 ngày</div>
               </button>
             </div>
           ) : (
