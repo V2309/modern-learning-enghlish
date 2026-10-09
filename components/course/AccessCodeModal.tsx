@@ -71,10 +71,10 @@ export const AccessCodeModal = ({ show, course, onClose, onSuccess }: AccessCode
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 16 }}
             transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-            className="relative w-full max-w-md bg-card border-2 border-border/80 rounded-3xl shadow-[0_12px_0_0_theme(colors.border)] overflow-hidden"
+            className="relative w-full max-w-md bg-card border border-border rounded-none shadow-2xl overflow-hidden"
           >
             {/* Header with thumbnail */}
-            <div className="relative h-36 overflow-hidden border-b-2 border-border/70">
+            <div className="relative h-36 overflow-hidden border-b border-border">
               <img
                 src={course.thumbnail}
                 alt={course.title}
@@ -83,15 +83,15 @@ export const AccessCodeModal = ({ show, course, onClose, onSuccess }: AccessCode
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
               <button
                 onClick={onClose}
-                className="absolute top-3.5 right-3.5 p-2 rounded-2xl bg-card/90 border-2 border-border text-foreground hover:bg-muted backdrop-blur-sm shadow-2xs transition-all cursor-pointer"
+                className="absolute top-3.5 right-3.5 p-2 rounded-none bg-black/60 border border-white/20 text-white hover:bg-black/80 transition-all cursor-pointer"
               >
                 <X className="h-4 w-4 stroke-[2.5]" />
               </button>
               <div className="absolute bottom-3.5 left-5 right-5">
-                <p className="text-[10px] font-black uppercase tracking-wider text-duo bg-duo/20 px-2 py-0.5 rounded-md border border-duo/30 inline-block mb-1">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-brand bg-brand/10 px-2 py-0.5 rounded-none border border-brand/20 inline-block mb-1">
                   {isFree ? 'Khóa học miễn phí' : 'Cần mã truy cập'}
                 </p>
-                <h3 className="text-white font-black text-lg leading-tight line-clamp-1">
+                <h3 className="text-white font-bold text-lg leading-tight line-clamp-1">
                   {course.title}
                 </h3>
               </div>
@@ -101,11 +101,11 @@ export const AccessCodeModal = ({ show, course, onClose, onSuccess }: AccessCode
             <div className="p-6 sm:p-7 space-y-4">
               {isFree ? (
                 <div className="text-center space-y-3 py-2">
-                  <div className="h-14 w-14 rounded-2xl bg-emerald-500/15 border-2 border-emerald-500/30 flex items-center justify-center mx-auto shadow-2xs">
-                    <CheckCircle2 className="h-7 w-7 text-emerald-500 stroke-[2.5]" />
+                  <div className="h-12 w-12 rounded-none bg-brand/10 border border-brand/20 flex items-center justify-center mx-auto">
+                    <CheckCircle2 className="h-6 w-6 text-brand stroke-[2.5]" />
                   </div>
                   <div>
-                    <p className="font-black text-foreground text-base">Khóa học hoàn toàn miễn phí!</p>
+                    <p className="font-bold text-foreground text-base">Khóa học hoàn toàn miễn phí!</p>
                     <p className="text-xs text-muted-foreground font-medium mt-1">
                       Bạn có thể truy cập và bắt đầu học ngay mà không cần mã.
                     </p>
@@ -114,11 +114,11 @@ export const AccessCodeModal = ({ show, course, onClose, onSuccess }: AccessCode
               ) : (
                 <div className="space-y-3.5">
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-2xl bg-brand/10 border-2 border-brand/20 flex items-center justify-center shrink-0">
+                    <div className="h-10 w-10 rounded-none bg-brand/10 border border-brand/20 flex items-center justify-center shrink-0">
                       <Lock className="h-5 w-5 text-brand stroke-[2.5]" />
                     </div>
                     <div>
-                      <p className="font-black text-foreground text-sm">Nhập Mã Truy Cập</p>
+                      <p className="font-bold text-foreground text-sm">Nhập Mã Truy Cập</p>
                       <p className="text-xs text-muted-foreground font-medium">
                         Nhận mã kích hoạt khi đăng ký khóa học từ hệ thống.
                       </p>
@@ -134,7 +134,7 @@ export const AccessCodeModal = ({ show, course, onClose, onSuccess }: AccessCode
                         onChange={(e) => { setCode(e.target.value.toUpperCase()); setError(''); }}
                         placeholder="VD: TOEIC-2026-ABCD"
                         autoFocus
-                        className="w-full pl-11 pr-4 py-3 bg-muted/40 border-2 border-border rounded-2xl text-foreground font-mono font-black text-sm tracking-widest uppercase focus:outline-none focus:border-brand transition-all placeholder:text-muted-foreground/60 placeholder:tracking-normal placeholder:font-sans shadow-2xs"
+                        className="w-full pl-11 pr-4 py-3 bg-muted/40 border border-border rounded-none text-foreground font-bold text-sm tracking-widest uppercase focus:outline-none focus:border-brand transition-all placeholder:text-muted-foreground/60 placeholder:tracking-normal"
                       />
                     </div>
 
@@ -142,7 +142,7 @@ export const AccessCodeModal = ({ show, course, onClose, onSuccess }: AccessCode
                       <motion.div
                         initial={{ opacity: 0, y: -4 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="flex items-center gap-2 text-rose-500 text-xs font-bold px-1"
+                        className="flex items-center gap-2 text-destructive text-xs font-bold px-1"
                       >
                         <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                         <span>{error}</span>
@@ -158,7 +158,7 @@ export const AccessCodeModal = ({ show, course, onClose, onSuccess }: AccessCode
               <button
                 onClick={handleSubmit}
                 disabled={isLoading || (!isFree && !code.trim())}
-                className="btn-3d-duo w-full py-3.5 rounded-2xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-3 rounded-none border border-border bg-primary text-primary-foreground hover:bg-brand hover:text-brand-foreground transition-colors text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {isLoading ? (
                   <>

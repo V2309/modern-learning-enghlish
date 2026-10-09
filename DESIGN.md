@@ -118,11 +118,11 @@ The palette is strictly functional and monochromatic, with coral (#f17463) reser
 - **Border:** Light Gray (#E5E7EB) defines structure without adding visual noise.
 
 ## Typography
-This design system utilizes **Geist** for its technical precision and clean, geometric letterforms. The hierarchy is driven by a massive contrast between bold headlines and smaller, understated body text.
+This design system utilizes **Inter** (với đầy đủ bộ ký tự tiếng Việt và Latin) làm font chủ đạo cho toàn bộ website. Inter mang lại độ chính xác quang học cao, đường nét hiện đại, tối ưu tuyệt hảo trên mọi màn hình và thiết bị số.
 
-- **Headlines:** Use tight letter spacing (-0.02em to -0.04em) for larger sizes to mimic professional typesetting.
-- **Body:** Standard spacing with a generous line height (1.5 - 1.6) to ensure long-form readability.
-- **Labels:** Small caps or uppercase are encouraged for secondary UI labels to create a distinct visual texture from body prose.
+- **Headlines & Text:** Phối hợp Inter với tracking chặt (-0.02em đến -0.04em cho tiêu đề lớn).
+- **Body:** Dòng chảy tự nhiên với line-height rộng (1.5 - 1.6) đảm bảo khả năng đọc mượt mà.
+- **Labels & Numbers:** Nhãn kỹ thuật, chữ hoa mono và số liệu đếm số sử dụng font monospace hoặc Inter.
 
 ## Layout & Spacing
 The layout follows a **Fluid Grid** model with strict adherence to a vertical rhythm based on a 4px baseline.

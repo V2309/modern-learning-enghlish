@@ -36,39 +36,39 @@ export default function ConfirmDeleteModal({
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative w-full max-w-md bg-card border border-border rounded-4xl shadow-2xl overflow-hidden"
+            className="relative w-full max-w-md bg-white dark:bg-[#0f1115] border border-[#e5e7eb] dark:border-[#1f2937] rounded-none shadow-2xl overflow-hidden"
           >
-            <div className="p-8 flex items-start gap-5">
-              <div className="h-12 w-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
-                <AlertTriangle className="h-6 w-6 text-red-500" />
+            <div className="p-7 flex items-start gap-5">
+              <div className="h-10 w-10 rounded-none bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
+                <AlertTriangle className="h-5 w-5 text-red-500" />
               </div>
               <div className="flex-1">
-                <h2 className="text-xl font-bold text-foreground mb-2">{title}</h2>
+                <h2 className="text-lg font-bold text-foreground mb-1.5">{title}</h2>
                 {description && (
-                  <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
                 )}
               </div>
               <button
                 onClick={onCancel}
-                className="p-2 rounded-xl hover:bg-muted text-muted-foreground transition-colors shrink-0"
+                className="p-1.5 rounded-none hover:bg-muted text-muted-foreground transition-colors shrink-0 cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
-            <div className="px-8 pb-8 flex gap-3">
+            <div className="px-7 pb-7 flex gap-3">
               <button
                 onClick={onCancel}
-                className="flex-1 py-3 rounded-2xl border border-border bg-muted hover:bg-muted/80 text-foreground font-bold transition-all"
+                className="flex-1 py-2.5 rounded-none border border-[#e5e7eb] dark:border-[#1f2937] bg-transparent hover:bg-muted text-foreground text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
               >
                 Huỷ
               </button>
               <button
                 onClick={onConfirm}
                 disabled={isLoading}
-                className="flex-1 py-3 rounded-2xl bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white font-bold transition-all"
+                className="flex-1 py-2.5 rounded-none bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-xs"
               >
-                {isLoading ? 'Đang xoá...' : 'Xoá'}
+                {isLoading ? 'Đang xoá...' : 'Xác nhận xoá'}
               </button>
             </div>
           </motion.div>

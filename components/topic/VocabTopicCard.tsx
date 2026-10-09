@@ -63,128 +63,151 @@ export const VocabTopicCard: React.FC<VocabTopicCardProps> = ({
   const percentage = totalWords > 0 ? Math.min(100, Math.round((actualLearned / totalWords) * 100)) : (isCompleted ? 100 : 0);
 
   // Subtitle / English subtext
-  const subText = description || japaneseTitle || 'Chủ đề từ vựng tiếng Anh';
+  const subText = description || japaneseTitle || 'Chủ đề từ vựng tiếng Anh giao tiếp và học thuật.';
 
   return (
-    <div className="relative group flex flex-col h-full rounded-3xl border border-border/80 bg-card text-card-foreground p-5 shadow-xs hover:shadow-lg hover:border-emerald-500/40 dark:hover:border-emerald-500/30 transition-all duration-300">
+    <div
+      className={`relative group flex flex-col justify-between h-full bg-white dark:bg-[#0f1115] p-5 sm:p-6 hover:bg-[#fafafa] dark:hover:bg-[#14171b] transition-colors duration-200 ${
+        isMenuOpen ? 'z-30 overflow-visible' : 'z-0 overflow-hidden'
+      }`}
+    >
+      {/* Light Sweep Sheen */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent pointer-events-none" />
+      </div>
 
-      {/* ── Top Header Row ────────────────────────────────────────── */}
-      <div className="flex items-center justify-between gap-2">
-        {/* MacBook 3-Dots Traffic Light Controls */}
-        <div className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-muted/70 border border-border/80 shadow-2xs select-none">
-          <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f56] border border-[#e0443e]/50 shadow-xs" />
-          <span className="h-2.5 w-2.5 rounded-full bg-[#ffbd2e] border border-[#dea123]/50 shadow-xs" />
-          <span className="h-2.5 w-2.5 rounded-full bg-[#27c93f] border border-[#1aab29]/50 shadow-xs" />
-        </div>
+      {/* Technical Crosshairs */}
+      <span className="absolute top-2.5 left-2.5 text-[10px] text-muted-foreground/30 pointer-events-none z-10 font-bold">+</span>
+      <span className="absolute top-2.5 right-2.5 text-[10px] text-muted-foreground/30 pointer-events-none z-10 font-bold">+</span>
 
-        <div className="flex items-center gap-2">
-          {/* Complete checkmark pill button */}
-          {onToggleComplete && (
-            <button
-              onClick={onToggleComplete}
-              title={isCompleted ? 'Đã hoàn thành (Nhấp để bỏ đánh dấu)' : 'Đánh dấu đã hoàn thành'}
-              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${isCompleted
-                ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/25 shadow-2xs'
-                : 'bg-muted/60 text-muted-foreground border border-border hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-500/40 hover:bg-emerald-500/10'
-                }`}
-            >
-              <Check className={`h-3.5 w-3.5 ${isCompleted ? 'stroke-[3]' : 'stroke-[2]'}`} />
-              <span>{isCompleted ? 'Đã xong' : 'Xong'}</span>
-            </button>
-          )}
+      <div>
+        {/* ── Top Header Row ────────────────────────────────────────── */}
+        <div className={`flex items-center justify-between gap-2 relative ${isMenuOpen ? 'z-40' : 'z-20'}`}>
+          {/* Topic Number Tag */}
+          <span className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-semibold flex items-center gap-1.5">
+            <span className={`w-1.5 h-1.5 rounded-full ${isCompleted ? 'bg-emerald-500' : 'bg-[#f28500]'}`} />
+            {listNumber || `${String(index + 1).padStart(2, '0')} · CHỦ ĐỀ`}
+          </span>
 
-          {/* Three-dots Menu (Admin actions) */}
-          {isAdmin && (
-            <div className="relative">
+          <div className="flex items-center gap-1.5">
+            {/* Complete status toggle */}
+            {onToggleComplete && (
               <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onMenuToggle?.();
-                }}
-                className="flex h-8 w-8 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground transition cursor-pointer"
-                title="Tùy chọn chủ đề"
+                onClick={onToggleComplete}
+                title={isCompleted ? 'Đã hoàn thành (Nhấp để bỏ đánh dấu)' : 'Đánh dấu đã hoàn thành'}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
+                  isCompleted
+                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 hover:bg-emerald-500/20 shadow-2xs'
+                    : 'bg-[#f3f4f6] dark:bg-[#1a1d21] text-muted-foreground border border-[#e5e7eb] dark:border-[#1f2937] hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-500/40'
+                }`}
               >
-                <MoreVertical className="h-4 w-4" />
+                <Check className={`h-3 w-3 ${isCompleted ? 'stroke-[3]' : 'stroke-[2]'}`} />
+                <span>{isCompleted ? 'Đã xong' : 'Xong'}</span>
               </button>
+            )}
 
-              <AnimatePresence>
-                {isMenuOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9, y: -4 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9, y: -4 }}
-                    className="absolute right-0 top-9 w-40 bg-card border border-border rounded-2xl shadow-xl overflow-hidden z-50 py-1"
-                  >
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        onEdit?.();
-                      }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-foreground hover:bg-muted transition cursor-pointer"
+            {/* Admin three-dots menu */}
+            {isAdmin && (
+              <div className="relative">
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onMenuToggle?.();
+                  }}
+                  className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-[#f3f4f6] dark:hover:bg-[#1f2937] hover:text-foreground transition cursor-pointer"
+                  title="Tùy chọn chủ đề"
+                >
+                  <MoreVertical className="h-3.5 w-3.5" />
+                </button>
+
+                <AnimatePresence>
+                  {isMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                      className="absolute right-0 top-8 w-40 bg-white dark:bg-[#14171b] border border-[#e5e7eb] dark:border-[#2a3038] rounded-xl shadow-2xl z-50 py-1.5 ring-1 ring-black/5 dark:ring-white/10"
+                      style={{ isolation: 'isolate' }}
                     >
-                      <Pencil className="h-3.5 w-3.5 text-sky-500" />
-                      Sửa chủ đề
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        onDelete?.();
-                      }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-destructive hover:bg-destructive/10 transition cursor-pointer"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      Xoá chủ đề
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          )}
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          onEdit?.();
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-foreground hover:bg-[#f3f4f6] dark:hover:bg-[#1f2937] transition cursor-pointer"
+                      >
+                        <Pencil className="h-3.5 w-3.5 text-sky-500" />
+                        Sửa chủ đề
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          onDelete?.();
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-destructive hover:bg-destructive/10 transition cursor-pointer"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Xoá chủ đề
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* ── Topic Title & Subtext ─────────────────────────────────── */}
+        <Link href={href} className="mt-4 block group/link relative z-0">
+          <h3 className="text-base sm:text-lg font-bold text-[#111827] dark:text-white tracking-tight leading-snug group-hover/link:text-[#f28500] dark:group-hover:text-[#f28500] transition-colors line-clamp-2">
+            {title}
+          </h3>
+          <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground font-normal line-clamp-2 leading-relaxed">
+            {subText}
+          </p>
+        </Link>
       </div>
 
-      {/* ── Topic Titles ──────────────────────────────────────────── */}
-      <Link href={href} className="mt-4 flex-1 block group/link">
-        <h3 className="text-base sm:text-lg font-extrabold text-foreground tracking-tight leading-snug group-hover/link:text-duo transition-colors line-clamp-2">
-          {title}
-        </h3>
-        <p className="mt-1 text-xs sm:text-sm font-medium text-muted-foreground line-clamp-1">
-          {subText}
-        </p>
-      </Link>
+      <div className="relative z-10">
+        {/* ── Progress & Word Count ─────────────────────────────────── */}
+        <div className="mt-5 pt-3.5 border-t border-[#e5e7eb] dark:border-[#1f2937] space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="flex items-center gap-1.5 text-muted-foreground font-medium">
+              <BookOpen className="h-3.5 w-3.5 text-muted-foreground/70" />
+              <span>{totalWords} từ</span>
+            </span>
+            <span className="text-muted-foreground font-medium">
+              {actualLearned}/{totalWords} ·{' '}
+              <span className={`font-bold ${isCompleted ? 'text-emerald-500' : 'text-[#f28500]'}`}>
+                {percentage}%
+              </span>
+            </span>
+          </div>
 
-      {/* ── Progress & Word Count ─────────────────────────────────── */}
-      <div className="mt-4 pt-3 border-t border-border/70 space-y-2">
-        <div className="flex items-center justify-between text-xs font-bold">
-          <span className="flex items-center gap-1.5 text-muted-foreground">
-            <BookOpen className="h-3.5 w-3.5 text-muted-foreground/80" />
-            {totalWords} words
-          </span>
-          <span className="text-muted-foreground">
-            {actualLearned} learned <span className="text-border">•</span>{' '}
-            <span className="text-duo font-extrabold">{percentage}%</span>
-          </span>
+          {/* Slim hairline progress bar */}
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#f3f4f6] dark:bg-[#1a1d21]">
+            <div
+              className={`h-full rounded-full transition-all duration-500 ease-out ${
+                isCompleted ? 'bg-emerald-500' : 'bg-[#f28500]'
+              }`}
+              style={{ width: `${percentage}%` }}
+            />
+          </div>
         </div>
 
-        {/* Thin horizontal progress bar */}
-        <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted p-0.5">
-          <div
-            className="h-full rounded-full bg-duo transition-all duration-500 ease-out"
-            style={{ width: `${percentage}%` }}
-          />
-        </div>
+        {/* ── Tactile 3D Action Button ──────────────────────────────── */}
+        <Link
+          href={href}
+          onClick={onContinue}
+          className={`mt-4 flex w-full items-center justify-center gap-2 rounded-xl py-2.5 px-4 font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-150 cursor-pointer text-center shadow-xs ${
+            isCompleted ? 'btn-3d-brand' : 'btn-3d-duo'
+          }`}
+        >
+          <span>{percentage === 100 ? 'Ôn Tập Lại' : 'Học Chủ Đề'}</span>
+          <ArrowRight className="h-3.5 w-3.5 stroke-[2.5]" />
+        </Link>
       </div>
-
-      {/* ── Duolingo 3D Tactile Primary Button ────── */}
-      <Link
-        href={href}
-        onClick={onContinue}
-        className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-duo hover:brightness-105 text-duo-foreground py-3 px-4 font-bold text-xs sm:text-sm tracking-wide border-b-4 border-duo-dark active:border-b-0 active:translate-y-1 transition-all duration-150 cursor-pointer text-center"
-      >
-        <span>{percentage === 100 ? 'Review Topic' : 'Continue Learning'}</span>
-        <ArrowRight className="h-4 w-4 stroke-[2.5]" />
-      </Link>
     </div>
   );
 };
